@@ -22,7 +22,7 @@
 
 What is Kickstart?
 
-   Kickstart.nvim is *not* a distribution.
+  Kickstart.nvim is *not* a distribution.
 
   Kickstart.nvim is a starting point for your own configuration.
     The goal is that you can read every line of code, top-to-bottom, understand
@@ -173,7 +173,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -230,24 +230,6 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-
-  {
-    'numToStr/Comment.nvim',
-    opts = {},
-    lazy = false,
-  },
-
-  {
-    'mg979/vim-visual-multi',
-    branch = 'master',
-    init = function()
-      vim.g.VM_default_mappings = 1
-      vim.g.VM_mouse_mappings = 1
-      vim.g.VM_maps = {
-        ['Select All'] = '<Leader>a', -- Custom remap for Select All
-      }
-    end,
-  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
