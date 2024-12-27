@@ -420,7 +420,6 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -428,6 +427,62 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      vim.keymap.set('n', '<leader>p', function()
+        local opts = {
+          hidden = true,
+        }
+
+        if vim.fn.executable 'fdfind' == 1 then
+          opts.find_command = {
+            'fdfind',
+            '--type',
+            'f',
+            '--exclude',
+            '.git',
+            '--exclude',
+            'node_modules',
+            '--exclude',
+            'target',
+            '--exclude',
+            'dist',
+          }
+          vim.notify('Using fd-find', vim.log.levels.INFO)
+        elseif vim.fn.executable 'fd' == 1 then
+          opts.find_command = {
+            'fd',
+            '--type',
+            'f',
+            '--exclude',
+            '.git',
+            '--exclude',
+            'node_modules',
+            '--exclude',
+            'target',
+            '--exclude',
+            'dist',
+          }
+          vim.notify('Using fd', vim.log.levels.INFO)
+        else
+          opts.file_ignore_patterns = {
+            '^.git/',
+            'node_modules/',
+            'target/',
+            'dist/',
+          }
+          vim.notify('Using default finder', vim.log.levels.INFO)
+        end
+
+        builtin.find_files(opts)
+      end, { desc = 'Search files in [P]wd' })
+
+      -- vim.keymap.set('n', '<leader>p', function()
+      --   builtin.find_files {
+      --     cwd = vim.fn.getcwd(),
+      --     hidden = true,
+      --     find_command = { 'fd', '--type', 'f', '--exclude', '.git' },
+      --   }
+      -- end, { desc = 'Search files in [P]wd' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
