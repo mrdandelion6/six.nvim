@@ -215,6 +215,18 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'chipsenkbeil/distant.nvim',
+    branch = 'v0.3',
+    config = function()
+      require('distant'):setup {
+        manager = {
+          user = true,
+        },
+      }
+    end,
+  },
+
   -- {
   --   'neoclide/coc.nvim',
   --   branch = 'release',
