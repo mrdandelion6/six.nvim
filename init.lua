@@ -215,49 +215,60 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'chipsenkbeil/distant.nvim',
-    branch = 'v0.3',
-    config = function()
-      require('distant'):setup {
-        servers = {
-          ['*'] = {
-            mode = 'ssh',
-            launch = {
-              enabled = true,
-              auto_install = true,
-            },
-          },
-        },
-        manager = {
-          user = true,
-        },
-        log = {
-          level = 'warn',
-          file = vim.fn.stdpath 'cache' .. '/distant.log',
-        },
-        protocol = {
-          timeout = 30, -- 30 seconds
-          heartbeat = {
-            interval = 15, -- 15 seconds
-            timeout = 5, -- 5 seconds
-          },
-        },
-      }
-    end,
-  },
-
   -- {
   --   'chipsenkbeil/distant.nvim',
   --   branch = 'v0.3',
   --   config = function()
   --     require('distant'):setup {
+  --       servers = {
+  --         ['*'] = {
+  --           -- Enable auto-installation of distant binary on remote machines
+  --           -- when attempting to connect for the first time
+  --           install = {
+  --             auto = true, -- Enable auto-installation
+  --             binary = {
+  --               location = nil, -- Let distant.nvim choose the best location
+  --             },
+  --           },
+  --         },
+  --       },
   --       manager = {
   --         user = true,
   --       },
+  --       log = {
+  --         level = 'warn',
+  --         file = vim.fn.stdpath 'cache' .. '/distant.log',
+  --       },
   --     }
+  --
+  --     -- Optional: Add custom hooks for installation events
+  --     vim.api.nvim_create_autocmd('User', {
+  --       pattern = 'DistantInstallBefore',
+  --       callback = function()
+  --         vim.notify('Installing distant binary on remote machine...', vim.log.levels.INFO)
+  --       end,
+  --     })
+  --
+  --     vim.api.nvim_create_autocmd('User', {
+  --       pattern = 'DistantInstallAfter',
+  --       callback = function()
+  --         vim.notify('Distant binary installation completed', vim.log.levels.INFO)
+  --       end,
+  --     })
   --   end,
   -- },
+
+  {
+    'chipsenkbeil/distant.nvim',
+    branch = 'v0.3',
+    config = function()
+      require('distant'):setup {
+        manager = {
+          user = true,
+        },
+      }
+    end,
+  },
 
   -- {
   --   'neoclide/coc.nvim',
