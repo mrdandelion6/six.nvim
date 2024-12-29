@@ -127,7 +127,9 @@ vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'netrw',
   callback = function()
-    vim.keymap.del('n', '<C-l>', { buffer = true })
+    pcall(function()
+      vim.keymap.del('n', '<C-l>', { buffer = true })
+    end)
   end,
 })
 --  See `:help wincmd` for a list of all window commands
