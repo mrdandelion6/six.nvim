@@ -220,12 +220,44 @@ require('lazy').setup({
     branch = 'v0.3',
     config = function()
       require('distant'):setup {
+        servers = {
+          ['*'] = {
+            mode = 'ssh',
+            launch = {
+              enabled = true,
+              auto_install = true,
+            },
+          },
+        },
         manager = {
           user = true,
+        },
+        log = {
+          level = 'warn',
+          file = vim.fn.stdpath 'cache' .. '/distant.log',
+        },
+        protocol = {
+          timeout = 30, -- 30 seconds
+          heartbeat = {
+            interval = 15, -- 15 seconds
+            timeout = 5, -- 5 seconds
+          },
         },
       }
     end,
   },
+
+  -- {
+  --   'chipsenkbeil/distant.nvim',
+  --   branch = 'v0.3',
+  --   config = function()
+  --     require('distant'):setup {
+  --       manager = {
+  --         user = true,
+  --       },
+  --     }
+  --   end,
+  -- },
 
   -- {
   --   'neoclide/coc.nvim',
