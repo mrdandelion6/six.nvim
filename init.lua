@@ -1,74 +1,56 @@
 --[[
 
-     - https://learnxinyminutes.com/docs/lua/
+  NOTE: HELP LIST: 
 
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
-    reference for how Neovim integrates Lua.
-    - :help lua-guide
-    - (or HTML version): https://neovim.io/doc/user/lua-guide.html
+    `:help`.
+      This will open up a help window with some basic information
+      about reading, navigating and searching the builtin help documentation.
 
-Kickstart Guide:
+    "<space>sh"
+      to [s]earch the [h]elp documentation,
+      which is very useful when you're not exactly sure of what you're looking for.
 
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
+    "<space>sk"
+      to [s]earch for the set [k]eymaps easily.
 
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
+    https://learnxinyminutes.com/docs/lua/
+      crash demo of lua
 
-    (If you already know the Neovim basics, you can skip this step.)
+    :help lua-guide
+      reference for how neovim integrates lua after you understand some basic lua.
 
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua.
+    kickstart.nvim setup guide
+      https://github.com/mrdandelion6/Learn-to-Code/blob/main/topics/using-vim/neovim.md
 
-  Next, run AND READ `:help`.
-    This will open up a help window with some basic information
-    about reading, navigating and searching the builtin help documentation.
+    intro to vim and vim motions guide
+      https://github.com/mrdandelion6/Learn-to-Code/blob/main/topics/using-vim/vim.md
 
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite Neovim features.
 
-    MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
-    which is very useful when you're not exactly sure of what you're looking for.
+  NOTE: QUICK-TIPS:
 
-  I have left several `:help X` comments throughout the init.lua
-    These are hints about where to find more information about the relevant settings,
-    plugins or Neovim features used in Kickstart.
+    - use NOTE followed by : to achieve the highlighted NOTE block.
 
-   NOTE: Look for lines like this
+    - if you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
 
-    Throughout the file. These are for you, the reader, to help you understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your Neovim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
+-- Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
+-- For more options, you can see `:help option-list`
 
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -134,22 +116,20 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
--- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
--- is not what someone will guess without a bit more experience.
---
--- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
+-- This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
-
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
---
+--  Need to first free <C-l> from netrw. We delete it.
+--  netrw is the plugin we are using to see file tree, and one of it's commands is <C-l> which we need for moving to right split.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'netrw',
+  callback = function()
+    vim.keymap.del('n', '<C-l>', { buffer = true })
+  end,
+})
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
@@ -186,95 +166,28 @@ vim.opt.rtp:prepend(lazypath)
 --
 --  To check the current status of your plugins, run
 --    :Lazy
---
+
 --  You can press `?` in this menu for help. Use `:q` to close the window
---
+
 --  To update plugins you can run
 --    :Lazy update
---
+
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+
+  -- Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
-  {
-    'numToStr/Comment.nvim',
-    opts = {},
-    lazy = false,
-  },
-
-  {
-    'mg979/vim-visual-multi',
-    branch = 'master',
-    init = function()
-      vim.g.VM_default_mappings = 1
-      vim.g.VM_mouse_mappings = 1
-      vim.g.VM_maps = {
-        ['Select All'] = '<Leader>a', -- Custom remap for Select All
-      }
-    end,
-  },
-
-  {
-    'chipsenkbeil/distant.nvim',
-    branch = 'v0.3',
-    config = function()
-      require('distant'):setup {
-        servers = {
-          ['*'] = {
-            mode = 'ssh',
-            launch = {
-              enabled = true,
-              auto_install = true,
-            },
-          },
-        },
-        manager = {
-          user = true,
-        },
-        log = {
-          level = 'warn',
-          file = vim.fn.stdpath 'cache' .. '/distant.log',
-        },
-        protocol = {
-          timeout = 30, -- 30 seconds
-          heartbeat = {
-            interval = 15, -- 15 seconds
-            timeout = 5, -- 5 seconds
-          },
-        },
-      }
-    end,
-  },
-
-  -- {
-  --   'chipsenkbeil/distant.nvim',
-  --   branch = 'v0.3',
-  --   config = function()
-  --     require('distant'):setup {
-  --       manager = {
-  --         user = true,
-  --       },
-  --     }
-  --   end,
-  -- },
-
-  -- {
-  --   'neoclide/coc.nvim',
-  --   branch = 'release',
-  -- },
-
-  -- NOTE: Plugins can also be added by using a table,
+  -- Plugins can also be added by using a lua table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
-  --
+
   -- Use `opts = {}` to force a plugin to be loaded.
-  --
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
   --    require('gitsigns').setup({ ... })
-  --
+
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -289,7 +202,38 @@ require('lazy').setup({
     },
   },
 
-  -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
+  {
+    'numToStr/Comment.nvim', -- Allows "gc" operator for quick commenting
+    opts = {},
+    lazy = false,
+  },
+
+  {
+    'mg979/vim-visual-multi', -- Allows for multi selection in buffer.
+    branch = 'master',
+    init = function()
+      vim.g.VM_default_mappings = 1
+      vim.g.VM_mouse_mappings = 1
+      vim.g.VM_maps = {
+        ['Select All'] = '<Leader>a', -- Custom remap for Select All
+      }
+    end,
+  },
+
+  -- Distant.nvim is a wrapper around the distant binary which lets you set up a server on remote machine. Currently not using.
+  -- {
+  --   'chipsenkbeil/distant.nvim',
+  --   branch = 'v0.3',
+  --   config = function()
+  --     require('distant'):setup {
+  --       manager = {
+  --         user = true,
+  --       },
+  --     }
+  --   end,
+  -- },
+
+  -- Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
   -- lazy loading plugins that don't need to be loaded immediately at startup.
@@ -389,24 +333,16 @@ require('lazy').setup({
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
-      -- Telescope is a fuzzy finder that comes with a lot of different things that
-      -- it can fuzzy find! It's more than just a "file finder", it can search
-      -- many different aspects of Neovim, your workspace, LSP, and more!
+      -- Telescope is a fuzzy finder that comes with a lot of different things.
       --
-      -- The easiest way to use Telescope, is to start by doing something like:
       --  :Telescope help_tags
-      --
-      -- After running this command, a window will open up and you're able to
-      -- type in the prompt window. You'll see a list of `help_tags` options and
-      -- a corresponding preview of the help.
-      --
+
       -- Two important keymaps to use while in Telescope are:
       --  - Insert mode: <c-/>
       --  - Normal mode: ?
-      --
+
       -- This opens a window that shows you all of the keymaps for the current
-      -- Telescope picker. This is really useful to discover what Telescope can
-      -- do as well as how to actually do it!
+      -- Telescope picker. This is really useful to discover what Telescope can do
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
@@ -444,6 +380,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       vim.keymap.set('n', '<leader>p', function()
+        -- Fuzzy search for files in PWD.
         local opts = {
           hidden = true,
         }
@@ -491,14 +428,6 @@ require('lazy').setup({
         builtin.find_files(opts)
       end, { desc = 'Search files in [P]wd' })
 
-      -- vim.keymap.set('n', '<leader>p', function()
-      --   builtin.find_files {
-      --     cwd = vim.fn.getcwd(),
-      --     hidden = true,
-      --     find_command = { 'fd', '--type', 'f', '--exclude', '.git' },
-      --   }
-      -- end, { desc = 'Search files in [P]wd' })
-
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -537,18 +466,20 @@ require('lazy').setup({
       },
     },
   },
+
   { 'Bilal2453/luvit-meta', lazy = true },
+
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+      { 'williamboman/mason.nvim', config = true }, -- Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+      -- `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
@@ -857,8 +788,6 @@ require('lazy').setup({
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
-        --
-        -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
           -- Select the [n]ext item
           ['<C-n>'] = cmp.mapping.select_next_item(),
@@ -873,12 +802,6 @@ require('lazy').setup({
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
           ['<C-y>'] = cmp.mapping.confirm { select = true },
-
-          -- If you prefer more traditional completion keymaps,
-          -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
