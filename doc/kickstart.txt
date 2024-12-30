@@ -1,4 +1,4 @@
-================================================================================
+=@punctuation.bracket.parenthesis===============================================================================
 INTRODUCTION                                                  *kickstart.nvim*
 
 Kickstart.nvim is a project to help you get started on your neovim journey.

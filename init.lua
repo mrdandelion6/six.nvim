@@ -336,15 +336,7 @@ require('lazy').setup({
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things.
-      --
       --  :Telescope help_tags
-
-      -- Two important keymaps to use while in Telescope are:
-      --  - Insert mode: <c-/>
-      --  - Normal mode: ?
-
-      -- This opens a window that shows you all of the keymaps for the current
-      -- Telescope picker. This is really useful to discover what Telescope can do
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
@@ -375,13 +367,23 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+
+      -- Search text inside files within PWD
+      vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[F]ind by [G]rep' })
+
+      -- Search diagnostics and warnings within current buffer
+      vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[F]ind [D]iagnostics' })
+
+      -- Repeat last search
+      vim.keymap.set('n', '<leader>fa', builtin.resume, { desc = '[F]ind [A]gain' })
+
+      -- Search recently opened files
+      vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = '[F]ind [R]ecently viewed files' })
+
+      -- Search for existing buffers
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
-      vim.keymap.set('n', '<leader>p', function()
+      vim.keymap.set('n', '<leader>ff', function()
         -- Fuzzy search for files in PWD.
         local opts = {
           hidden = true,
@@ -449,9 +451,9 @@ require('lazy').setup({
       end, { desc = '[S]earch [/] in Open Files' })
 
       -- Shortcut for searching your Neovim configuration files
-      vim.keymap.set('n', '<leader>sn', function()
+      vim.keymap.set('n', '<leader>fe', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
-      end, { desc = '[S]earch [N]eovim files' })
+      end, { desc = '[F]ind N[e]ovim files' })
     end,
   },
 
@@ -846,21 +848,66 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+  {
+    'uga-rosa/ccc.nvim',
+    lazy = false, -- Make sure it loads right away
+    config = function()
+      require('ccc').setup()
+      vim.keymap.set('n', '<leader>cp', '<cmd>CccPick<CR>', { desc = 'Color picker' })
+    end,
+  },
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+  {
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000,
+    init = function()
+      require('catppuccin').setup {
+        transparent_background = true,
+        -- You can choose flavors:
+        -- 'mocha' (dark), 'macchiato', 'frappe', 'latte' (light)
+        flavour = 'mocha',
+        custom_highlights = {
+
+          -- Pallete:
+          -- light grey
+          -- light green
+          -- light blue
+          -- light red
+          -- light pink
+          -- strong pink
+          -- strong blue
+          -- strong purple
+          -- light orange
+
+          ['@variable'] = { fg = '#aad3fa' },
+          ['@property'] = { fg = '#fe9df3' },
+          ['@field'] = { fg = '#fe9df3' },
+          ['@constant'] = { fg = '#a66bf0' },
+
+          ['@function'] = { fg = '#89b4fa' },
+          ['@parameter'] = { fg = '#eaa658' },
+          ['@function.builtin'] = { fg = '#f5a787' },
+          ['@keyword.return'] = { fg = '#ff6dba' },
+
+          ['@type'] = { fg = '#7ac4ff' },
+          ['@keyword'] = { fg = '#d594ff' },
+
+          ['@keyword.function'] = { fg = '#d594ff' },
+          ['@keyword.repeat'] = { fg = '#f5a787' },
+          ['@keyword.conditional'] = { fg = '#ffb0ff' },
+
+          ['@string'] = { fg = '#de80a1' },
+          ['@comment'] = { fg = '#c4bdd2' },
+
+          ['@operator'] = { fg = '#d5dae1' },
+
+          -- Primitives
+          ['@boolean'] = { fg = '#f5c287' },
+          ['@number'] = { fg = '#f5c287' },
+        },
+      }
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
 
