@@ -295,7 +295,8 @@ require('lazy').setup({
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
-        { '<leader>s', group = '[S]earch' },
+        { '<leader>f', group = '[F]ind' },
+        { '<leader>s', group = '[S]ession' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
@@ -334,6 +335,7 @@ require('lazy').setup({
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
+
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things.
       --  :Telescope help_tags
@@ -363,10 +365,20 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
-      vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+
+      vim.api.nvim_set_hl(0, 'TelescopeBorder', { fg = '#e4abd4' })
+
+      --
+      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[F]ind [H]elp' })
+
+      -- Find vim keymaps
+      vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[F]ind [K]eymaps' })
+
+      -- Find different telescope pickers. For example, `find_files` picker which is '<leader>ff'.
+      vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[F]ind [S]pecific Telescope picker' })
+
+      -- Find the word currently under the cursor in your buffer in same picker as <leader>fg but pre-populated.
+      vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
 
       -- Search text inside files within PWD
       vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[F]ind by [G]rep' })
@@ -383,14 +395,20 @@ require('lazy').setup({
       -- Search for existing buffers
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
+      -- Shortcut for searching your Neovim configuration files
+      vim.keymap.set('n', '<leader>fe', function()
+        builtin.find_files { cwd = vim.fn.stdpath 'config' }
+      end, { desc = '[F]ind N[e]ovim files' })
+
       vim.keymap.set('n', '<leader>ff', function()
         -- Fuzzy search for files in PWD.
+        -- Attempts to use fdfind or fd if former not available.
+        -- If neither available, defaults to Vim's built in file finding functions.
         local opts = {
           hidden = true,
         }
-
         if vim.fn.executable 'fdfind' == 1 then
-          opts.find_command = {
+          opts.find_command = { -- Ignore .git/, node_modules/, and other directories we typically wouldn't search.
             'fdfind',
             '--type',
             'f',
@@ -428,32 +446,62 @@ require('lazy').setup({
           }
           vim.notify('Using default finder', vim.log.levels.INFO)
         end
-
         builtin.find_files(opts)
-      end, { desc = 'Search files in [P]wd' })
+      end, { desc = '[F]ind [F]iles' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
-      vim.keymap.set('n', '<leader>s/', function()
+      vim.keymap.set('n', '<leader>f/', function()
         builtin.live_grep {
           grep_open_files = true,
           prompt_title = 'Live Grep in Open Files',
         }
-      end, { desc = '[S]earch [/] in Open Files' })
+      end, { desc = '[F]ind [/] in Open Files' })
+    end,
+  },
 
-      -- Shortcut for searching your Neovim configuration files
-      vim.keymap.set('n', '<leader>fe', function()
-        builtin.find_files { cwd = vim.fn.stdpath 'config' }
-      end, { desc = '[F]ind N[e]ovim files' })
+  {
+    'rmagatti/auto-session', -- For saving session state between different Neovim sessions.
+    config = function()
+      require('auto-session').setup {
+        log_level = 'error',
+        auto_session_enable_last_session = false,
+        auto_session_root_dir = vim.fn.stdpath 'data' .. '/sessions/',
+        auto_session_enabled = true,
+        auto_save_enabled = false,
+        auto_restore_enabled = true,
+        auto_session_suppress_dirs = nil,
+        auto_session_use_git_branch = nil,
+        -- customize session name
+        session_lens = {
+          -- If you don't want the session name to match the folder name
+          folder_name = false,
+          -- Show full path in session name
+          path_display = { 'truncate' },
+          -- TODO: not yet working..
+          telescope = {
+            -- Add mappings to delete sessions from the picker
+            mappings = {
+              delete_session = {
+                ['<c-d>'] = 'delete_session', -- Control-d to delete session
+              },
+            },
+          },
+        },
+      }
+
+      -- Set keymaps for session management
+      vim.keymap.set('n', '<leader>ss', require('auto-session.session-lens').search_session, { desc = '[S]earch [S]ession' })
+      vim.keymap.set('n', '<leader>sc', require('auto-session').SaveSession, { desc = '[S]ave [C]urrent Session' })
+      vim.keymap.set('n', '<leader>sd', require('auto-session').DeleteSession, { desc = '[S]ession [D]elete' })
     end,
   },
 
@@ -703,7 +751,7 @@ require('lazy').setup({
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>f',
+        '<leader>e',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
