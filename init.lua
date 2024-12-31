@@ -138,6 +138,12 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Disable yank for change operator. Just use delete operator for cutting.
+vim.keymap.set('n', 'c', '"_c')
+vim.keymap.set('n', 'C', '"_C')
+vim.keymap.set('v', 'c', '"_c')
+vim.keymap.set('v', 'C', '"_C')
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -468,10 +474,12 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'rmagatti/auto-session', -- For saving session state between different Neovim sessions.
+  { -- For persisting neovim sessions.
+    'rmagatti/auto-session',
     config = function()
-      require('auto-session').setup {
+      local auto_session = require 'auto-session'
+
+      auto_session.setup {
         log_level = 'error',
         auto_session_enable_last_session = false,
         auto_session_root_dir = vim.fn.stdpath 'data' .. '/sessions/',
@@ -480,28 +488,53 @@ require('lazy').setup({
         auto_restore_enabled = true,
         auto_session_suppress_dirs = nil,
         auto_session_use_git_branch = nil,
-        -- customize session name
         session_lens = {
-          -- If you don't want the session name to match the folder name
           folder_name = false,
-          -- Show full path in session name
           path_display = { 'truncate' },
-          -- TODO: not yet working..
           telescope = {
-            -- Add mappings to delete sessions from the picker
             mappings = {
               delete_session = {
-                ['<c-d>'] = 'delete_session', -- Control-d to delete session
+                ['<C-d>'] = 'delete_session',
               },
             },
           },
         },
       }
 
-      -- Set keymaps for session management
-      vim.keymap.set('n', '<leader>ss', require('auto-session.session-lens').search_session, { desc = '[S]earch [S]ession' })
-      vim.keymap.set('n', '<leader>sc', require('auto-session').SaveSession, { desc = '[S]ave [C]urrent Session' })
-      vim.keymap.set('n', '<leader>sd', require('auto-session').DeleteSession, { desc = '[S]ession [D]elete' })
+      -- Automatically save the session when exiting Nvim if session exists.
+      vim.api.nvim_create_autocmd('VimLeavePre', {
+        callback = function()
+          if auto_session.session_exists_for_cwd() then
+            auto_session.SaveSession()
+          end
+        end,
+      })
+
+      -- If opened CWD isn't an existing session, spawn a terminal on the right
+      vim.api.nvim_create_autocmd('VimEnter', {
+        callback = function()
+          if not auto_session.session_exists_for_cwd() then
+            vim.cmd 'vsplit | wincmd l | terminal'
+            vim.cmd 'vertical resize 80 | wincmd h'
+          end
+        end,
+      })
+
+      -- Added this because no message was displaying automatically.
+      local function delete_session_with_notification()
+        if auto_session.session_exists_for_cwd() then
+          auto_session.DeleteSession()
+          vim.notify('Deleted session: ' .. vim.fn.getcwd(), vim.log.levels.INFO)
+        else
+          vim.notify('Session does not exist: ' .. vim.fn.getcwd(), vim.log.levels.WARN)
+        end
+      end
+
+      vim.keymap.set('n', '<leader>sq', auto_session.SaveSession, { desc = '[S]ession [Q]uicksave(CWD)' })
+
+      vim.keymap.set('n', '<leader>ss', require('auto-session.session-lens').search_session, { desc = '[S]earch [S]essions' })
+
+      vim.keymap.set('n', '<leader>sd', delete_session_with_notification, { desc = '[S]ession [D]elete (CWD)' })
     end,
   },
 
