@@ -1,9 +1,10 @@
-welcome_message="reaper"
+welcome_message="ubuntu"
 lolcat_enabled=0
-CENTERED_WELCOME=0
+CENTERED_WELCOME=1
 CUSTOM_PINK='\e[38;2;228;171;212m'
+CUSTOM_GRAY='\e[38;2;196;189;210m'
 NC='\e[0m'
-WELCOME_COLOR=$CUSTOM_PINK
+WELCOME_COLOR=$CUSTOM_GRAY
 
 center_text() {
     local should_center=$CENTERED_WELCOME
@@ -13,8 +14,15 @@ center_text() {
         return
     fi
 
-    # Get terminal width
-    term_width=$(tput cols)
+    # Check if running inside Neovim
+    if [[ -n "$NVIM" ]]; then
+        # Get terminal width and calculate Neovim split width (35% of terminal width)
+        term_width=$(tput cols)
+        term_width=$(( term_width * 35 / 100 ))
+    else
+        # If not in Neovim, use full terminal width
+        term_width=$(tput cols)
+    fi
 
     # Read input line by line while preserving colors
     while IFS= read -r line; do
@@ -48,5 +56,15 @@ welcome() {
         else
             echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/dragon.txt)${NC}" | center_text
         fi
+
+    elif [ "$welcome_message" = "ubuntu" ]; then
+        if [[ $lolcat_enabled -eq 1 ]]; then
+            cat ~/.config/nvim/ascii/ubuntu.txt | lolcat -S 35 -p 100 -F 0.05 | center_text
+        else
+            echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/ubuntu.txt)${NC}" | center_text
+        fi
+
     fi
 }
+
+
