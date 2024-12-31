@@ -515,7 +515,8 @@ require('lazy').setup({
         callback = function()
           if not auto_session.session_exists_for_cwd() then
             vim.cmd 'vsplit | wincmd l | terminal'
-            vim.cmd 'vertical resize 80 | wincmd h'
+            local width = math.floor(vim.o.columns * 0.35)
+            vim.cmd('vertical resize ' .. width .. ' | wincmd h')
           end
         end,
       })
