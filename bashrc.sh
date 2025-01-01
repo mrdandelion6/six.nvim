@@ -14,15 +14,7 @@ center_text() {
         return
     fi
 
-    # Check if running inside Neovim
-    if [[ -n "$NVIM" ]]; then
-        # Get terminal width and calculate Neovim split width (35% of terminal width)
-        term_width=$(tput cols)
-        term_width=$(( term_width * 35 / 100 ))
-    else
-        # If not in Neovim, use full terminal width
-        term_width=$(tput cols)
-    fi
+    term_width=$(tput cols)
 
     # Read input line by line while preserving colors
     while IFS= read -r line; do
@@ -36,6 +28,7 @@ center_text() {
 }
 
 welcome() {
+    echo; echo
     if [ "$welcome_message" = "start" ]; then
         figlet -f red_phoenix "start" | lolcat -S 13 | center_text
     elif [ "$welcome_message" = "reaper" ]; then
@@ -56,15 +49,13 @@ welcome() {
         else
             echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/dragon.txt)${NC}" | center_text
         fi
-
     elif [ "$welcome_message" = "ubuntu" ]; then
         if [[ $lolcat_enabled -eq 1 ]]; then
             cat ~/.config/nvim/ascii/ubuntu.txt | lolcat -S 35 -p 100 -F 0.05 | center_text
         else
             echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/ubuntu.txt)${NC}" | center_text
         fi
-
+    echo; echo
     fi
 }
-
 
