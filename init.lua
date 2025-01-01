@@ -381,10 +381,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fk', builtin.keymaps, { desc = '[F]ind [K]eymaps' })
 
       -- Find different telescope pickers. For example, `find_files` picker which is '<leader>ff'.
-      vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[F]ind [S]pecific Telescope picker' })
+      vim.keymap.set('n', '<leader>fs', builtin.builtin, { desc = '[F]ind [S]pecific finder' })
 
       -- Find the word currently under the cursor in your buffer in same picker as <leader>fg but pre-populated.
-      vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch [W]ord under cursor' })
 
       -- Search text inside files within PWD
       vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[F]ind by [G]rep' })
@@ -396,7 +396,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>fa', builtin.resume, { desc = '[F]ind [A]gain' })
 
       -- Search recently opened files
-      vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = '[F]ind [R]ecently viewed files' })
+      vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = '[F]ind [R]ecently viewed' })
 
       -- Search for existing buffers
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
@@ -514,9 +514,10 @@ require('lazy').setup({
       vim.api.nvim_create_autocmd('VimEnter', {
         callback = function()
           if not auto_session.session_exists_for_cwd() then
-            vim.cmd 'vsplit | wincmd l | terminal'
+            vim.cmd 'vsplit | wincmd l'
             local width = math.floor(vim.o.columns * 0.35)
-            vim.cmd('vertical resize ' .. width .. ' | wincmd h')
+            vim.cmd('vertical resize ' .. width .. ' | terminal')
+            vim.cmd 'wincmd h'
           end
         end,
       })
@@ -993,6 +994,11 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+  },
+
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -1013,24 +1019,6 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
   { -- Highlight, edit, and navigate code
