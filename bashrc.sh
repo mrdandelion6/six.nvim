@@ -1,10 +1,14 @@
-welcome_message="ubuntu"
-lolcat_enabled=0
-CENTERED_WELCOME=1
+# add colors here
 CUSTOM_PINK='\e[38;2;228;171;212m'
 CUSTOM_GRAY='\e[38;2;196;189;210m'
 NC='\e[0m'
+
+# configure these as you like
+lolcat_enabled=0
+CENTERED_WELCOME=1
 WELCOME_COLOR=$CUSTOM_GRAY
+ascii_path="$HOME/.config/nvim/ascii_art/"
+ascii_art="reaper2.txt"
 
 center_text() {
     local should_center=$CENTERED_WELCOME
@@ -29,33 +33,14 @@ center_text() {
 
 welcome() {
     echo; echo
-    if [ "$welcome_message" = "start" ]; then
+    if [ -f "$ascii_path$ascii_art" ]; then
+        if [[ $lolcat_enabled -eq 1 ]]; then
+            cat "$ascii_path$ascii_art" | lolcat -S 35 -p 100 -F 0.05 | center_text
+        else
+            echo -e "${WELCOME_COLOR}$(cat "$ascii_path$ascii_art")${NC}" | center_text
+        fi
+    else
         figlet -f red_phoenix "start" | lolcat -S 13 | center_text
-    elif [ "$welcome_message" = "reaper" ]; then
-        if [[ $lolcat_enabled -eq 1 ]]; then
-            cat ~/.config/nvim/ascii/reaper.txt | lolcat -S 35 -p 100 -F 0.05 | center_text
-        else
-            echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/reaper.txt)${NC}" | center_text
-        fi
-    elif [ "$welcome_message" = "swords" ]; then
-        if [[ $lolcat_enabled -eq 1 ]]; then
-            cat ~/.config/nvim/ascii/sword.txt | lolcat -S 35 -p 100 -F 0.05 | center_text
-        else
-            echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/sword.txt)${NC}" | center_text
-        fi
-    elif [ "$welcome_message" = "dragon" ]; then
-        if [[ $lolcat_enabled -eq 1 ]]; then
-            cat ~/.config/nvim/ascii/dragon.txt | lolcat -S 35 -p 100 -F 0.05 | center_text
-        else
-            echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/dragon.txt)${NC}" | center_text
-        fi
-    elif [ "$welcome_message" = "ubuntu" ]; then
-        if [[ $lolcat_enabled -eq 1 ]]; then
-            cat ~/.config/nvim/ascii/ubuntu.txt | lolcat -S 35 -p 100 -F 0.05 | center_text
-        else
-            echo -e "${WELCOME_COLOR}$(cat ~/.config/nvim/ascii/ubuntu.txt)${NC}" | center_text
-        fi
-    echo; echo
     fi
+    echo; echo
 }
-
