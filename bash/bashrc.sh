@@ -1,3 +1,5 @@
+NEOVIM_PATH="$HOME/.config/nvim/"
+
 # add colors here
 CUSTOM_PINK='\e[38;2;228;171;212m'
 CUSTOM_GRAY='\e[38;2;196;189;210m'
@@ -7,7 +9,7 @@ NC='\e[0m'
 lolcat_enabled=0
 CENTERED_WELCOME=1
 WELCOME_COLOR=$CUSTOM_GRAY
-ascii_path="$HOME/.config/nvim/ascii_art/"
+ascii_path="${NEOVIM_PATH}bash/ascii_art/"
 ascii_art="reaper2.txt"
 
 center_text() {
@@ -44,3 +46,16 @@ welcome() {
     fi
     echo; echo
 }
+
+recent_pwd="${NEOVIM_PATH}bash/recent_pwd.txt"
+update_recent_pwd() {
+    if [ -f "$recent_pwd" ]; then
+        pwd > "$recent_pwd"
+    fi
+}
+
+function cd() {
+    builtin cd "$@"
+    update_recent_pwd
+}
+
