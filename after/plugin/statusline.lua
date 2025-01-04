@@ -14,22 +14,28 @@ local function parse_terminal_request(request)
   -- the requests (collected with vim.v.termrequest), end up having some leading characters.
   -- to make a quick work around for this with my current config, i am just going to splice them off.
   -- hopefully one day i can figure out how to properly send/read the OSC requests so i don't need abitrary cleaning like this.
-  return request:sub(6)
+  local cleaned = request:sub(6)
+  cleaned = cleaned:gsub('^/home/[^/]+/', '~/')
+  return cleaned
 end
 
 local function create_terminal_pwd_update(buf)
   print('trigger 1. buf is ' .. buf)
   print('table[' .. buf .. '] is ' .. tostring(created_terminal_pwd_update[buf]))
+  vim.b[buf].terminal_pwd = '' -- buffer local variable
   if not created_terminal_pwd_update[buf] then
     print 'trigger 2'
     vim.api.nvim_create_autocmd({ 'TermRequest' }, {
+      buffer = buf,
       callback = function()
-        local request = parse_terminal_request(vim.v.termrequest)
-        print('trigger 3, request is: ' .. request)
+        local pwd = parse_terminal_request(vim.v.termrequest)
+        print('trigger 3, request is: ' .. pwd)
         if vim.api.nvim_buf_is_valid(buf) then
           print 'trigger 4'
+          vim.b[buf].terminal_pwd = pwd -- store pwd in bufer local variable
           vim.api.nvim_buf_call(buf, function()
             print 'trigger 5'
+            vim.cmd 'redrawstatus!'
           end)
         end
       end,
