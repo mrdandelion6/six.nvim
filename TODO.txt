@@ -3,11 +3,11 @@ VISUAL
 - make bottom right status box transparent and change text colors
 
 - status bar:
+	- make file names same off buffer as on buffer
 	- add lua_line_b for git status (make grey)
 	- have round corners for bar
 	- bar should not cover blank space, should only have a solid background behind text like file name, line numbers, and mode.
 		- this means the bar will split in the middle
-	- for terminal views, have $ path/of/term/pwd
 
 TEXT
 - make stuff like int, void, a purple color (refer to how C code looks)
