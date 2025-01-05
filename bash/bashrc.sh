@@ -47,15 +47,13 @@ welcome() {
     echo; echo
 }
 
-recent_pwd="${NEOVIM_PATH}bash/recent_pwd.txt"
-update_recent_pwd() {
-    if [ -f "$recent_pwd" ]; then
-        pwd > "$recent_pwd"
-    fi
+notify_nvim() {
+    printf '\033]51;%s\007' $(pwd)
 }
 
 function cd() {
     builtin cd "$@"
-    update_recent_pwd
+    if [ -n "$NVIM" ]; then
+        notify_nvim
+    fi
 }
-
