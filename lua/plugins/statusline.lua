@@ -76,37 +76,6 @@ return {
 
     local default_b = { fg = '#000000', bg = '#cccccc' }
 
-    local function get_git_root()
-      -- get the current buffer's file path
-      local current_file = vim.fn.expand '%:p'
-      if current_file == '' then
-        print("1: returning '' - " .. vim.api.nvim_get_current_buf())
-        return ''
-      end
-
-      -- get the directory of the current file
-      local current_dir = vim.fn.fnamemodify(current_file, ':h')
-
-      -- use git rev-parse with the current file's directory
-      local cmd = string.format('git -C %s rev-parse --show-toplevel', vim.fn.shellescape(current_dir))
-      local git_root = vim.fn.system(cmd)
-
-      if vim.v.shell_error ~= 0 then
-        print("2: returning '' - " .. vim.api.nvim_get_current_buf())
-        return ''
-      end
-
-      -- clean up the output
-      git_root = git_root:gsub('\n', '')
-
-      if git_root ~= '' then
-        print('3: returning something else: ' .. vim.fn.fnamemodify(git_root, ':t') .. ' - ' .. vim.api.nvim_get_current_buf())
-        return vim.fn.fnamemodify(git_root, ':t')
-      end
-      print("2: returning '' - " .. vim.api.nvim_get_current_buf())
-      return ''
-    end
-
     require('lualine').setup {
       options = {
         component_separators = '',
@@ -144,7 +113,15 @@ return {
             end,
             padding = { left = 1, right = 1 },
             separator = {
-              right = get_git_root() == '' and '' or '',
+              right = (function()
+                local root = Get_git_root()
+                local sep = (root == '') and '' or ''
+                -- if vim.api.nvim_get_current_buf() == 3 then
+                -- print("Git root value: '" .. tostring(root) .. "'")
+                -- print("Separator value: '" .. tostring(sep) .. "'")
+                -- end
+                return sep
+              end)(),
             },
           },
         },
@@ -153,7 +130,7 @@ return {
           {
             separator = { right = '' },
             padding = { left = 1, right = 1 },
-            get_git_root,
+            Get_git_root,
             cond = function()
               return vim.bo.buftype == '' and vim.fn.expand '%:p' ~= ''
             end,
