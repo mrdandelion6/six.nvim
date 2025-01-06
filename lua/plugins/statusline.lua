@@ -80,6 +80,7 @@ return {
       -- get the current buffer's file path
       local current_file = vim.fn.expand '%:p'
       if current_file == '' then
+        print("1: returning '' - " .. vim.api.nvim_get_current_buf())
         return ''
       end
 
@@ -91,6 +92,7 @@ return {
       local git_root = vim.fn.system(cmd)
 
       if vim.v.shell_error ~= 0 then
+        print("2: returning '' - " .. vim.api.nvim_get_current_buf())
         return ''
       end
 
@@ -98,8 +100,10 @@ return {
       git_root = git_root:gsub('\n', '')
 
       if git_root ~= '' then
+        print('3: returning something else: ' .. vim.fn.fnamemodify(git_root, ':t') .. ' - ' .. vim.api.nvim_get_current_buf())
         return vim.fn.fnamemodify(git_root, ':t')
       end
+      print("2: returning '' - " .. vim.api.nvim_get_current_buf())
       return ''
     end
 
