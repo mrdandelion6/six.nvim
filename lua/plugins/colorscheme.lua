@@ -3,6 +3,19 @@ return {
   name = 'catppuccin',
   priority = 1000,
   init = function()
+    -- Pallete:
+    local light_grey = ''
+    -- light green
+    local light_blue = '#aad3fa'
+    -- light red
+    -- light pink
+    local strong_pink = '#fe9df3'
+    local vibrant_pink = '#ff6dba'
+    local strong_blue = '#89b4fa'
+    local strong_purple = '#a66bf0'
+    local light_orange = '#f5b579'
+    local strong_orange = '#eaa658'
+
     require('catppuccin').setup {
       transparent_background = true,
       -- You can choose flavors:
@@ -10,26 +23,15 @@ return {
       flavour = 'mocha',
       custom_highlights = {
 
-        -- Pallete:
-        -- light grey
-        -- light green
-        -- light blue
-        -- light red
-        -- light pink
-        -- strong pink
-        -- strong blue
-        -- strong purple
-        -- light orange
+        ['@variable'] = { fg = light_blue },
+        ['@property'] = { fg = strong_pink },
+        ['@field'] = { fg = strong_pink },
+        ['@constant'] = { fg = strong_purple },
 
-        ['@variable'] = { fg = '#aad3fa' },
-        ['@property'] = { fg = '#fe9df3' },
-        ['@field'] = { fg = '#fe9df3' },
-        ['@constant'] = { fg = '#a66bf0' },
-
-        ['@function'] = { fg = '#89b4fa' },
-        ['@parameter'] = { fg = '#eaa658' },
-        ['@function.builtin'] = { fg = '#f5a787' },
-        ['@keyword.return'] = { fg = '#ff6dba' },
+        ['@function'] = { fg = strong_blue },
+        ['@parameter'] = { fg = strong_orange },
+        ['@function.builtin'] = { fg = light_orange },
+        ['@keyword.return'] = { fg = vibrant_pink },
 
         ['@type'] = { fg = '#7ac4ff' },
         ['@keyword'] = { fg = '#d594ff' },

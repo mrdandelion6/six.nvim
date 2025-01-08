@@ -18,3 +18,6 @@ vim.keymap.set('n', 'c', '"_c')
 vim.keymap.set('n', 'C', '"_C')
 vim.keymap.set('v', 'c', '"_c')
 vim.keymap.set('v', 'C', '"_C')
+
+-- disable yank for x delete
+vim.keymap.set('n', 'x', '"_x')
