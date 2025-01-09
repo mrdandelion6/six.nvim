@@ -9,12 +9,6 @@ TEXT
 - make (*) same color as string when it's for pointer
 - make (&) same color as string when it's for address
 
-KEYMAPS:
-- multivisual
-	- change select all from <leader>a to <leader>aa
-	- set '<leader>a + n' to select matches downwards
-	- set '<leader>a + N' to select matches upwards
-		- set 'b' during upwards/downwards matching as discard recent match and jump to next upwards/dowanrds
 
 PLUGINS
 - autocomplete
