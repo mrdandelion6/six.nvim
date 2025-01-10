@@ -4,11 +4,23 @@ return {
   priority = 1000,
   init = function()
     -- Pallete:
+<<<<<<< HEAD
     local white = '#d5dae1'
     local grey = '#c4bdd2'
 
     local light_yellow = '#f5c287'
 
+=======
+    local light_grey = '#d5dae1'
+    local light_blue = '#aad3fa'
+    local light_red = '#de80a1'
+    local strong_red = '#e77694'
+    local light_pink = '#ffb0ff'
+    local strong_pink = '#fe9df3'
+    local vibrant_pink = '#ff6dba'
+    local strong_blue = '#89b4fa'
+    local strong_purple = '#a66bf0'
+>>>>>>> e475831c25002c1449ac8e11579ad3d5b1371f2c
     local light_orange = '#f5b579'
     local strong_orange = '#eaa658'
 
