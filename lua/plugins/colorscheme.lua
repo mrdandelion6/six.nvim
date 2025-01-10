@@ -4,50 +4,74 @@ return {
   priority = 1000,
   init = function()
     -- Pallete:
-    local light_grey = ''
-    -- light green
-    local light_blue = '#aad3fa'
-    -- light red
-    -- light pink
-    local strong_pink = '#fe9df3'
-    local vibrant_pink = '#ff6dba'
-    local strong_blue = '#89b4fa'
-    local strong_purple = '#a66bf0'
+    local white = '#d5dae1'
+    local grey = '#c4bdd2'
+
+    local light_yellow = '#f5c287'
+
     local light_orange = '#f5b579'
     local strong_orange = '#eaa658'
 
+    local lighter_red = '#e89bb6'
+    local light_red = '#de80a1'
+    local vibrant_red = '#ff5f83'
+
+    local lighter_pink = '#ffddff'
+    local light_pink = '#ffb0ff'
+    local strong_pink = '#fe89f3'
+    local vibrant_pink = '#ff6dba'
+
+    local light_purple = '#a6b2fc'
+    local strong_purple = '#a68cf0'
+
+    local light_blue = '#aad3fa'
+    local strong_blue = '#89b4fa'
+
     require('catppuccin').setup {
       transparent_background = true,
-      -- You can choose flavors:
+      -- you can choose flavors:
       -- 'mocha' (dark), 'macchiato', 'frappe', 'latte' (light)
       flavour = 'mocha',
       custom_highlights = {
 
-        ['@variable'] = { fg = light_blue },
-        ['@property'] = { fg = strong_pink },
-        ['@field'] = { fg = strong_pink },
+        ['@variable'] = { fg = lighter_pink },
+        ['@property'] = { fg = lighter_pink },
+        ['@field'] = { fg = lighter_pink },
+        ['@type.definition'] = { fg = lighter_pink },
         ['@constant'] = { fg = strong_purple },
 
-        ['@function'] = { fg = strong_blue },
+        ['@function'] = { fg = light_pink },
+        ['@function.builtin'] = { fg = light_pink },
+        ['@function.call'] = { fg = light_pink },
+        ['@keyword.operator'] = { fg = light_pink },
+
         ['@parameter'] = { fg = strong_orange },
-        ['@function.builtin'] = { fg = light_orange },
+        ['@variable.parameter'] = { fg = strong_orange },
         ['@keyword.return'] = { fg = vibrant_pink },
 
-        ['@type'] = { fg = '#7ac4ff' },
-        ['@keyword'] = { fg = '#d594ff' },
+        ['@keyword.type'] = { fg = light_purple },
+        ['@type'] = { fg = light_red },
+        ['@type.builtin'] = { fg = light_red },
+        ['@type.builtin.c'] = { fg = light_red },
+        ['@keyword'] = { fg = light_red },
+        ['@keyword.function'] = { fg = light_red },
 
-        ['@keyword.function'] = { fg = '#d594ff' },
-        ['@keyword.repeat'] = { fg = '#f5a787' },
-        ['@keyword.conditional'] = { fg = '#ffb0ff' },
+        ['@keyword.import'] = { fg = vibrant_red },
+        ['@keyword.directive.define.c'] = { fg = vibrant_red },
 
-        ['@string'] = { fg = '#de80a1' },
-        ['@comment'] = { fg = '#c4bdd2' },
+        ['@keyword.repeat'] = { fg = light_purple },
+        ['@keyword.conditional'] = { fg = light_purple },
 
-        ['@operator'] = { fg = '#d5dae1' },
+        ['@string'] = { fg = lighter_red },
+        ['@character'] = { fg = lighter_red },
 
-        -- Primitives
-        ['@boolean'] = { fg = '#f5c287' },
-        ['@number'] = { fg = '#f5c287' },
+        ['@comment'] = { fg = grey },
+        ['@punctuation.bracket'] = { fg = grey },
+
+        ['@operator'] = { fg = white },
+
+        ['@boolean'] = { fg = light_yellow },
+        ['@number'] = { fg = light_yellow },
       },
     }
     vim.cmd.colorscheme 'catppuccin'
