@@ -83,12 +83,12 @@ return {
         globalstatus = false, -- this allows the bar to split in the middle
         theme = {
           normal = {
-            a = { fg = '#000000', bg = '#7bd5af' }, -- teal for normal
+            a = { fg = '#000000', bg = '#f0a4d0' }, -- teal for normal
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
           },
           insert = {
-            a = { fg = '#000000', bg = '#f0a4d0' }, -- pink for insert
+            a = { fg = '#000000', bg = '#7bd5af' }, -- pink for insert
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
           },
