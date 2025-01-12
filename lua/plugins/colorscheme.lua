@@ -34,6 +34,8 @@ return {
       flavour = 'mocha',
       custom_highlights = {
 
+        CursorLineNr = { fg = light_pink },
+
         ['@variable'] = { fg = lighter_pink },
         ['@property'] = { fg = lighter_pink },
         ['@field'] = { fg = lighter_pink },
