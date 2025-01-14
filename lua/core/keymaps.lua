@@ -11,6 +11,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- diagnostics
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- two <Esc> if you also use vim inside terminal itself (set -o vi)
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- disable yank for change operator. just use delete operator for cutting.
@@ -21,3 +22,10 @@ vim.keymap.set('v', 'C', '"_C')
 
 -- disable yank for x delete
 vim.keymap.set('n', 'x', '"_x')
+
+-- copy message
+vim.keymap.set('n', '<leader>m', function()
+  local msg = vim.fn.trim(vim.fn.execute '1messages')
+  vim.fn.setreg('*', msg)
+  vim.cmd 'echo "copied"'
+end)
