@@ -23,9 +23,25 @@ vim.keymap.set('v', 'C', '"_C')
 -- disable yank for x delete
 vim.keymap.set('n', 'x', '"_x')
 
--- copy message
-vim.keymap.set('n', '<leader>m', function()
-  local msg = vim.fn.trim(vim.fn.execute '1messages')
-  vim.fn.setreg('*', msg)
-  vim.cmd 'echo "copied"'
-end)
+-- copy the most recent message
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>mm',
+  [[<cmd>lua vim.fn.setreg('*', vim.fn.trim(vim.fn.execute('1messages'))); vim.fn.setreg('+', vim.fn.trim(vim.fn.execute('1messages'))); print('copied')<CR>]],
+  { noremap = true, silent = true, desc = 'Copy [M]ost recent [M]essage' }
+)
+
+-- create a new buffer with all the messages from :messages inside
+vim.keymap.set('n', '<leader>mn', function()
+  local buf = vim.api.nvim_create_buf(false, true)
+  -- get messages and put into buffer
+  local messages = vim.api.nvim_exec2('messages', { output = true }).output
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(messages, '\n'))
+  -- open buffer in new window
+  vim.cmd.split()
+  vim.api.nvim_win_set_buf(0, buf)
+  -- set buffer options
+  vim.bo[buf].modifiable = false
+  vim.bo[buf].buftype = 'nofile'
+  vim.bo[buf].bufhidden = 'wipe'
+end, { desc = 'Open [M]essages [N]ew buffer' })

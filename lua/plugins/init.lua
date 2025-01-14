@@ -1,6 +1,6 @@
 return {
   { -- useful plugin to show you pending keybinds.
-    -- have it in plugins/init.lua so it loads before other plugins, making it easier to document keybinds
+    -- NOTE: have it in plugins/init.lua so it loads before other plugins, making it easier to document keybinds
     'folke/which-key.nvim',
     event = 'VimEnter',
     opts = {
@@ -52,6 +52,7 @@ return {
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>m', group = '[M]essage', mode = { 'n' } },
       },
     },
   },
