@@ -60,3 +60,5 @@ vim.opt.fillchars = {
   vertright = '│',
   verthoriz = '┼',
 }
+
+vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
