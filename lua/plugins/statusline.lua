@@ -112,6 +112,12 @@ return {
       lualine_z = {},
     }
 
+    -- colors
+    local teal = '#f0a4d0'
+    local pink = '#7bd5af'
+    local light_blue = '#87ceeb'
+    local red = '#ffb6c1'
+
     require('lualine').setup {
       options = {
         component_separators = '',
@@ -119,24 +125,28 @@ return {
         globalstatus = true, -- this allows the bar to split in the middle
         theme = {
           normal = {
-            a = { fg = '#000000', bg = '#f0a4d0' }, -- teal for normal
+            a = { fg = '#000000', bg = teal }, -- teal for normal
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
+            y = { fg = teal, bg = 'NONE' },
           },
           insert = {
-            a = { fg = '#000000', bg = '#7bd5af' }, -- pink for insert
+            a = { fg = '#000000', bg = pink }, -- pink for insert
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
+            y = { fg = pink, bg = 'NONE' },
           },
           visual = {
-            a = { fg = '#000000', bg = '#87ceeb' }, -- light blue for visual
+            a = { fg = '#000000', bg = light_blue }, -- light blue for visual
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
+            y = { fg = light_blue, bg = 'NONE' },
           },
           replace = {
-            a = { fg = '#000000', bg = '#ffb6c1' }, -- light red for replace
+            a = { fg = '#000000', bg = red }, -- light red for replace
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
+            y = { fg = red, bg = 'NONE' },
           },
         },
       },
@@ -178,7 +188,24 @@ return {
         },
 
         lualine_x = {},
-        lualine_y = {},
+        lualine_y = {
+          {
+            'diff',
+            symbols = { added = ' ', modified = ' ', removed = ' ' },
+            diff_color = {
+              added = { fg = '#98be65' }, -- green
+              modified = { fg = '#51afef' }, -- blue
+              removed = { fg = '#ff6c6b' }, -- red
+            },
+            cond = function()
+              return vim.b.gitsigns_status_dict ~= nil
+            end,
+          },
+          {
+            'branch',
+            icon = '',
+          },
+        },
         lualine_z = {
           {
             separator = { left = '' },

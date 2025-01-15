@@ -36,7 +36,6 @@ function Get_git_root()
   local git_root = vim.fn.system(cmd)
 
   if vim.v.shell_error ~= 0 then
-    -- print("2: returning '' - " .. vim.api.nvim_get_current_buf())
     return ''
   end
 
@@ -44,14 +43,11 @@ function Get_git_root()
   git_root = git_root:gsub('\n', '')
 
   if git_root ~= '' then
-    -- print('3: returning something else: ' .. vim.fn.fnamemodify(git_root, ':t') .. ' - ' .. vim.api.nvim_get_current_buf())
     return vim.fn.fnamemodify(git_root, ':t')
   end
-  -- print("2: returning '' - " .. vim.api.nvim_get_current_buf())
   return ''
 end
 
 vim.api.nvim_create_user_command('GitRootTest', function()
   local result = Get_git_root()
-  -- print('Git root result: ' .. vim.inspect(result))
 end, {})
