@@ -1,3 +1,4 @@
+local utils = require 'core.utils'
 return {
   'nvim-lualine/lualine.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -76,11 +77,46 @@ return {
 
     local default_b = { fg = '#000000', bg = '#cccccc' }
 
+    -- section component to display the filename of buffer
+    -- used for both global bar and local winbars
+    local file_name = {
+      'filename',
+      path = 1,
+      file_status = true,
+      fmt = function(name) -- for terminal, display path of termrinal
+        if vim.bo.buftype == 'terminal' then
+          local buf = vim.api.nvim_get_current_buf()
+          -- use the local buffer pwd which we set in after/plugin/lualine.lua
+          if vim.b[buf].terminal_pwd and vim.b[buf].terminal_pwd ~= '' then
+            return vim.b[buf].terminal_pwd
+          end
+          return vim.b.term_title:match 'term://(.-)//' or name
+        end
+        return name
+      end,
+      padding = { left = 1, right = 1 },
+    }
+
+    -- create copy of file_name table with slight modifications
+    local file_name_winbar = utils.deepcopy(file_name)
+    file_name_winbar.color = { fg = '#364140', bg = 'NONE' }
+
+    local winbar_config = {
+      lualine_a = {},
+      lualine_b = {},
+      lualine_c = {
+        file_name_winbar,
+      },
+      lualine_x = {},
+      lualine_y = {},
+      lualine_z = {},
+    }
+
     require('lualine').setup {
       options = {
         component_separators = '',
         section_separators = '',
-        globalstatus = false, -- this allows the bar to split in the middle
+        globalstatus = true, -- this allows the bar to split in the middle
         theme = {
           normal = {
             a = { fg = '#000000', bg = '#f0a4d0' }, -- teal for normal
@@ -138,23 +174,7 @@ return {
         },
 
         lualine_c = {
-          {
-            'filename',
-            path = 1,
-            file_status = true,
-            fmt = function(name) -- for terminal, display path of termrinal
-              if vim.bo.buftype == 'terminal' then
-                local buf = vim.api.nvim_get_current_buf()
-                -- use the local buffer pwd which we set in after/plugin/lualine.lua
-                if vim.b[buf].terminal_pwd and vim.b[buf].terminal_pwd ~= '' then
-                  return vim.b[buf].terminal_pwd
-                end
-                return vim.b.term_title:match 'term://(.-)//' or name
-              end
-              return name
-            end,
-            padding = { left = 1, right = 1 },
-          },
+          file_name,
         },
 
         lualine_x = {},
@@ -188,6 +208,8 @@ return {
           },
         },
       },
+      winbar = winbar_config,
+      inactive_winbar = winbar_config,
     }
     vim.opt.termguicolors = true
   end,

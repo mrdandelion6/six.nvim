@@ -50,4 +50,13 @@ vim.opt.cursorline = true
 -- minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
-vim.opt.fillchars:append { horiz = '━' }
+vim.opt.laststatus = 3
+vim.opt.fillchars = {
+  horiz = '─',
+  horizup = '─',
+  horizdown = '─',
+  vert = '│',
+  vertleft = '│',
+  vertright = '│',
+  verthoriz = '┼',
+}
