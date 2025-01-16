@@ -6,13 +6,12 @@ return {
   },
   {
     'GCBallesteros/jupytext.nvim',
-    event = { 'BufReadPre *.ipynb', 'BufNewFile *.ipynb' }, -- Change from ft to event
+    event = { 'BufReadPre *.ipynb', 'BufNewFile *.ipynb' }, -- change from ft to event
     dependencies = {
       'nvim-lua/plenary.nvim',
     },
     lazy = false,
     config = function()
-      vim.notify('Configuring jupytext...', vim.log.levels.INFO) -- Added log level
       require('jupytext').setup {
         style = 'markdown',
         output_extension = 'md',
@@ -25,10 +24,6 @@ return {
           },
         },
       }
-      vim.api.nvim_create_user_command('JupytextToMd', function()
-        require('jupytext').to_fmt 'md'
-      end, {})
-      vim.notify('Jupytext configuration complete', vim.log.levels.INFO)
     end,
   },
   { 'jmbuhr/otter.nvim', ft = { 'markdown', 'quarto', 'norg' } },
