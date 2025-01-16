@@ -5,7 +5,7 @@ return {
   },
   {
     'GCBallesteros/jupytext.nvim',
-    -- ft = { "ipynb" },
+    ft = { 'ipynb', 'markdown' },
     opts = {
       style = 'markdown',
       output_extension = 'md',

@@ -16,7 +16,7 @@ forked from kickstart.nvim.
     - plugins.lua
     - keymaps.lua
     - plugins.lua
-    - autocmds.lua    
+    - autocmds.lua
 - after/
 - plugin/
 - ftplugin/
@@ -44,7 +44,7 @@ python -m venv neovim
 source ~/.envs/neovim/bin/activate
 
 # install the following deps
-pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat
+pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext
 ```
 if you want to use a different path than `~/.envs/neovim/`, then you must edit `lua/core/options.lua` and change this line:
 ```lua
