@@ -44,7 +44,7 @@ python -m venv neovim
 source ~/.envs/neovim/bin/activate
 
 # install the following deps
-pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip
+pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat
 ```
 if you want to use a different path than `~/.envs/neovim/`, then you must edit `lua/core/options.lua` and change this line:
 ```lua

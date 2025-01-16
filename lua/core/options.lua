@@ -64,3 +64,5 @@ vim.opt.fillchars = {
 
 -- python virtual environment for any deps
 vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
+
+-- use terminal cursor

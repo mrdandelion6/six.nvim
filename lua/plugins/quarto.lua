@@ -1,5 +1,9 @@
 return {
   {
+    'anuvyklack/hydra.nvim',
+    dependencies = 'anuvyklack/keymap-layer.nvim',
+  },
+  {
     'GCBallesteros/jupytext.nvim',
     -- ft = { "ipynb" },
     opts = {
