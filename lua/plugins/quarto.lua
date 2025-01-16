@@ -1,3 +1,4 @@
+print 'yo'
 return {
   {
     'anuvyklack/hydra.nvim',
@@ -5,12 +6,30 @@ return {
   },
   {
     'GCBallesteros/jupytext.nvim',
-    ft = { 'ipynb', 'markdown' },
-    opts = {
-      style = 'markdown',
-      output_extension = 'md',
-      force_ft = 'markdown',
+    event = { 'BufReadPre *.ipynb', 'BufNewFile *.ipynb' }, -- Change from ft to event
+    dependencies = {
+      'nvim-lua/plenary.nvim',
     },
+    lazy = false,
+    config = function()
+      vim.notify('Configuring jupytext...', vim.log.levels.INFO) -- Added log level
+      require('jupytext').setup {
+        style = 'markdown',
+        output_extension = 'md',
+        force_ft = 'markdown',
+        custom_language_formatting = {
+          python = {
+            extension = 'md',
+            style = 'markdown',
+            force_ft = 'markdown',
+          },
+        },
+      }
+      vim.api.nvim_create_user_command('JupytextToMd', function()
+        require('jupytext').to_fmt 'md'
+      end, {})
+      vim.notify('Jupytext configuration complete', vim.log.levels.INFO)
+    end,
   },
   { 'jmbuhr/otter.nvim', ft = { 'markdown', 'quarto', 'norg' } },
   {
