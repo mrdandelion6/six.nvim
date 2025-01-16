@@ -50,7 +50,8 @@ vim.opt.cursorline = true
 -- minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
-vim.opt.laststatus = 3
+-- split lines
+vim.opt.laststatus = 3 -- use 3 for global status bar
 vim.opt.fillchars = {
   horiz = '─',
   horizup = '─',
@@ -60,3 +61,6 @@ vim.opt.fillchars = {
   vertright = '│',
   verthoriz = '┼',
 }
+
+-- python virtual environment for any deps
+vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
