@@ -1,4 +1,3 @@
-print 'yo'
 return {
   {
     'anuvyklack/hydra.nvim',
