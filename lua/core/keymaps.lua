@@ -53,50 +53,46 @@ vim.g.colemak_enabled = false
 local function toggle_colemak()
   if vim.g.colemak_enabled then
     -- remove colemak mappings, we are toggling colemak off
+    vim.keymap.del({ 'n', 'v', 'o' }, 'k')
     vim.keymap.del({ 'n', 'v', 'o' }, 'n')
     vim.keymap.del({ 'n', 'v', 'o' }, 'e')
     vim.keymap.del({ 'n', 'v', 'o' }, 'i')
-    vim.keymap.del({ 'n', 'v', 'o' }, 'o')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'K')
     vim.keymap.del({ 'n', 'v', 'o' }, 'N')
     vim.keymap.del({ 'n', 'v', 'o' }, 'E')
     vim.keymap.del({ 'n', 'v', 'o' }, 'I')
-    vim.keymap.del({ 'n', 'v', 'o' }, 'O')
     vim.keymap.del({ 'n', 'v', 'o' }, 'h')
     vim.keymap.del({ 'n', 'v', 'o' }, 'j')
-    vim.keymap.del({ 'n', 'v', 'o' }, 'k')
     vim.keymap.del({ 'n', 'v', 'o' }, 'l')
     vim.keymap.del({ 'n', 'v', 'o' }, 'H')
     vim.keymap.del({ 'n', 'v', 'o' }, 'J')
-    vim.keymap.del({ 'n', 'v', 'o' }, 'K')
     vim.keymap.del({ 'n', 'v', 'o' }, 'L')
     vim.g.colemak_enabled = false
     print 'QWERTY layout enabled'
   else -- add colemakmappings, we are toggling it on
     -- note, (a -> b) means pressing b now does a
     for _, mode in ipairs { 'n', 'v', 'o' } do
-      -- basic movement (hjkl -> neio)
-      vim.keymap.set(mode, 'n', 'h', { desc = 'Move left' })
-      vim.keymap.set(mode, 'e', 'j', { desc = 'Move down' })
-      vim.keymap.set(mode, 'i', 'k', { desc = 'Move up' })
-      vim.keymap.set(mode, 'o', 'l', { desc = 'Move right' })
+      -- basic movement (hjkl -> knei)
+      vim.keymap.set(mode, 'k', 'h', { desc = 'Move left' })
+      vim.keymap.set(mode, 'n', 'j', { desc = 'Move down' })
+      vim.keymap.set(mode, 'e', 'k', { desc = 'Move up' })
+      vim.keymap.set(mode, 'i', 'l', { desc = 'Move right' })
 
-      -- (HJLK -> NEIO) symmetrical
-      vim.keymap.set(mode, 'N', 'H', { desc = 'Move to top of screen' })
-      vim.keymap.set(mode, 'E', 'J', { desc = 'Join line' })
-      vim.keymap.set(mode, 'O', 'L', { desc = 'Move to bottom of screen' })
-      vim.keymap.set(mode, 'I', 'K', { desc = 'Keyword search' })
+      -- (HJLK -> KNEI) symmetrical
+      vim.keymap.set(mode, 'K', 'H', { desc = 'Move to top of screen' })
+      vim.keymap.set(mode, 'N', 'J', { desc = 'Join line' })
+      vim.keymap.set(mode, 'E', 'K', { desc = 'Keyword search' })
+      vim.keymap.set(mode, 'I', 'L', { desc = 'Move to bottom of screen' })
 
-      -- (neio -> kjlh), not symmetrical!
-      vim.keymap.set(mode, 'k', 'n', { desc = 'Next search result' })
+      -- (knei -> ehjl), not symmetrical!
+      vim.keymap.set(mode, 'h', 'n', { desc = 'Next search result' })
       vim.keymap.set(mode, 'j', 'e', { desc = 'End of word' })
-      vim.keymap.set(mode, 'l', 'i')
-      vim.keymap.set(mode, 'h', 'o', { desc = 'Open line below' })
+      vim.keymap.set(mode, 'l', 'i', { desc = 'Insert mode' })
 
       -- (NEIO -> KJLH), not symmetrical!
-      vim.keymap.set(mode, 'K', 'N', { desc = 'Previous search result' })
+      vim.keymap.set(mode, 'H', 'N', { desc = 'Previous search result' })
       vim.keymap.set(mode, 'J', 'E', { desc = 'End of WORD' })
       vim.keymap.set(mode, 'L', 'I', { desc = 'Enter insert mode at line start' })
-      vim.keymap.set(mode, 'H', 'O', { desc = 'Open line above' })
     end
     vim.g.colemak_enabled = true
     print 'Colemak-DH layout enabled'
@@ -105,4 +101,4 @@ end
 
 -- create a command to toggle layouts
 vim.api.nvim_create_user_command('ToggleColemak', toggle_colemak, {})
-vim.api.keymap.set('n', '<leader>tc', ':ToggleColemak<CR>', { desc = '[T]oggle [C]olemak Layout' })
+vim.keymap.set('n', '<leader>tc', ':ToggleColemak<CR>', { desc = '[T]oggle [C]olemak Layout' })
