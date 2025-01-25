@@ -51,3 +51,7 @@ end
 vim.api.nvim_create_user_command('GitRootTest', function()
   local result = Get_git_root()
 end, {})
+
+-- create a command to toggle layouts
+vim.api.nvim_create_user_command('ToggleColemak', require('core.keymaps').toggle_colemak, {})
+vim.keymap.set('n', '<leader>tc', ':ToggleColemak<CR>', { desc = '[T]oggle [C]olemak Layout' })

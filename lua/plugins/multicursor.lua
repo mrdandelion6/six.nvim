@@ -8,11 +8,7 @@ return {
       ['Select All'] = '<Leader>aa',
       ['Visual All'] = '<Leader>aa',
       ['Visual Cursors'] = '<Leader>ad',
-      ['Find Under'] = '<Leader>an',
-      ['Find Subword Under'] = '<Leader>an',
       ['Skip Region'] = 'b',
-      ['Add Cursor Down'] = '<Leader>aj',
-      ['Add Cursor Up'] = '<Leader>ak',
     }
   end,
 }

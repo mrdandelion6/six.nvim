@@ -35,4 +35,12 @@ function M.MarkdownMode()
   return vim.g.started_by_firenvim or vim.env['MD_MODE'] == '1'
 end
 
+-- copy the most recent message
+function M.Copy_recent_message()
+  local message = vim.fn.trim(vim.fn.execute '1messages')
+  vim.fn.setreg('*', message) -- Copy to selection register
+  vim.fn.setreg('+', message) -- Copy to system clipboard
+  print('Message copied: ' .. message)
+end
+
 return M
