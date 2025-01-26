@@ -47,6 +47,8 @@ local function enable_colemak()
   end
 
   buf_jump_set('knei', 'hjkl')
+  -- return to next position
+  vim.keymap.set('n', '<C-l>', '<C-i>')
 
   -- set telescope to colemak mappings
   require('telescope').setup {
@@ -180,8 +182,8 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- diagnostics
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
--- two <Esc> if you also use vim inside terminal itself (set -o vi)
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- leader <Esc> if you also use vim inside terminal itself (set -o vi)
+vim.keymap.set('t', '<leader><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 start_layout()
 set_message_maps()
