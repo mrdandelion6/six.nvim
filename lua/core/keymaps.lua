@@ -7,64 +7,108 @@ local function buf_jump_set(set, remove)
   if remove ~= nil then
     for i = 1, 4 do
       local c = remove:sub(i, i)
-      pcall(vim.keymap.del, 'n', 'c')
+      pcall(vim.keymap.del, 'n', '<C-' .. c .. '>')
     end
-    local c = set:sub(1, 1)
-    vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-    c = set:sub(2, 2)
-    vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-j>', { desc = 'Move focus to the left window' })
-    c = set:sub(3, 3)
-    vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-k>', { desc = 'Move focus to the left window' })
-    c = set:sub(4, 4)
-    vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-l>', { desc = 'Move focus to the left window' })
+  end
+  local c = set:sub(1, 1)
+  vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+  c = set:sub(2, 2)
+  vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-j>', { desc = 'Move focus to the left window' })
+  c = set:sub(3, 3)
+  vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-k>', { desc = 'Move focus to the left window' })
+  c = set:sub(4, 4)
+  vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-l>', { desc = 'Move focus to the left window' })
+end
+
+local function set_telescope_binds(binds)
+  vim.g.telescope_maps = binds
+  local telescope_loaded = pcall(function()
+    return require('lazy.core.config').plugins['telescope.nvim'].loaded
+  end)
+  if telescope_loaded then
+    vim.cmd 'doautocmd User TelescopeMapsChanged'
+  else
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'TelescopeLoaded',
+      callback = function()
+        vim.cmd 'doautocmd User TelescopeMapsChanged'
+      end,
+      once = true,
+    })
   end
 end
 
 local function enable_colemak()
-  -- note, (a -> b) means pressing b now does a
+  local remaps = {
+    ['k'] = 'h',
+    ['n'] = 'j',
+    ['e'] = 'k',
+    ['i'] = 'l',
+
+    ['K'] = 'H',
+    ['N'] = 'J',
+    ['E'] = 'K',
+    ['I'] = 'L',
+
+    -- notice, these are not symmetrical to above
+    ['h'] = 'n',
+    ['j'] = 'e',
+    ['l'] = 'i',
+
+    ['H'] = 'N',
+    ['J'] = 'E',
+    ['L'] = 'I',
+  }
+  -- ALL MODES
   for _, mode in ipairs { 'n', 'v', 'o' } do
-    -- basic movement (hjkl -> knei)
-    vim.keymap.set(mode, 'k', 'h', { desc = 'Move left' })
-    vim.keymap.set(mode, 'n', 'j', { desc = 'Move down' })
-    vim.keymap.set(mode, 'e', 'k', { desc = 'Move up' })
-    vim.keymap.set(mode, 'i', 'l', { desc = 'Move right' })
+    vim.keymap.set(mode, 'k', remaps['k'], { desc = 'Left' })
+    vim.keymap.set(mode, 'n', remaps['n'], { desc = 'Down' })
+    vim.keymap.set(mode, 'e', remaps['e'], { desc = 'Up' })
+    vim.keymap.set(mode, 'i', remaps['i'], { desc = 'Right' })
 
     -- (HJLK -> KNEI)
-    vim.keymap.set(mode, 'K', 'H', { desc = 'Move to top of screen' })
-    vim.keymap.set(mode, 'N', 'J', { desc = 'Join line' })
-    vim.keymap.set(mode, 'E', 'K', { desc = 'Keyword search' })
-    vim.keymap.set(mode, 'I', 'L', { desc = 'Move to bottom of screen' })
+    vim.keymap.set(mode, 'K', remaps['K'], { desc = 'Top of screen' })
+    vim.keymap.set(mode, 'I', remaps['L'], { desc = 'Bottom of screen' })
 
     -- (knei -> ehjl), not symmetrical!
-    vim.keymap.set(mode, 'h', 'n', { desc = 'Next search result' })
-    vim.keymap.set(mode, 'j', 'e', { desc = 'End of word' })
-    vim.keymap.set(mode, 'l', 'i', { desc = 'Insert mode' })
+    vim.keymap.set(mode, 'j', remaps['j'], { desc = 'End of word' })
 
     -- (NEIO -> KJLH), not symmetrical!
-    vim.keymap.set(mode, 'H', 'N', { desc = 'Previous search result' })
-    vim.keymap.set(mode, 'J', 'E', { desc = 'End of WORD' })
-    vim.keymap.set(mode, 'L', 'I', { desc = 'Enter insert mode at line start' })
+    vim.keymap.set(mode, 'J', remaps['J'], { desc = 'End of next word' })
   end
+
+  -- NORMAL AND VISUAL MODE
+  for _, mode in ipairs { 'n', 'v' } do
+    vim.keymap.set(mode, 'N', remaps['J'], { desc = 'Join line' })
+    vim.keymap.set(mode, 'E', remaps['E'], { desc = 'Keyword search' })
+
+    vim.keymap.set(mode, 'h', remaps['h'], { desc = 'Next search result' })
+    vim.keymap.set(mode, 'H', remaps['H'], { desc = 'Previous search result' })
+    vim.keymap.set(mode, 'L', remaps['L'], { desc = 'Insert mode at line start' })
+  end
+
+  -- NORMAL MODE ONLY
+  vim.keymap.set('n', 'l', remaps['l'], { desc = 'Insert mode' })
+
+  -- OPERATOR MODE ONLY
+  vim.keymap.set('o', 'l', remaps['l'], { desc = 'Inner' })
 
   buf_jump_set('knei', 'hjkl')
   -- return to next position
   vim.keymap.set('n', '<C-l>', '<C-i>')
 
   -- set telescope to colemak mappings
-  require('telescope').setup {
-    defaults = {
-      mappings = {
-        i = {
-          ['<C-n>'] = 'move_selection_next',
-          ['<C-e>'] = 'move_selection_previous',
-        },
-        n = {
-          ['n'] = 'move_selection_next',
-          ['e'] = 'move_selection_previous',
-        },
-      },
+  local telescope_maps = {
+    i = {
+      ['<C-n>'] = 'move_selection_next',
+      ['<C-e>'] = 'move_selection_previous',
+    },
+    n = {
+      ['n'] = 'move_selection_next',
+      ['e'] = 'move_selection_previous',
     },
   }
+  set_telescope_binds(telescope_maps)
 
   vim.g.VM_maps = {
     ['Find Under'] = '<Leader>ah',
@@ -79,41 +123,42 @@ local function enable_colemak()
   print 'Colemak-DH layout enabled'
 end
 
-local function disable_colemak()
+local function enable_qwerty(startup)
   -- remove colemak mappings, we are toggling colemak off
-  vim.keymap.del({ 'n', 'v', 'o' }, 'k')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'n')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'e')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'i')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'K')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'N')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'E')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'I')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'h')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'j')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'l')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'H')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'J')
-  vim.keymap.del({ 'n', 'v', 'o' }, 'L')
+  if not startup then
+    -- we could just set the keymaps to avoid startup check but i find this cleaner since we don't need to add any descriptions
+    vim.keymap.del({ 'n', 'v', 'o' }, 'k')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'n')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'e')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'i')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'K')
+    vim.keymap.del({ 'n', 'v' }, 'N')
+    vim.keymap.del({ 'n', 'v' }, 'E')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'I')
+    vim.keymap.del({ 'n', 'v' }, 'h')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'j')
+    vim.keymap.del({ 'n', 'o' }, 'l')
+    vim.keymap.del({ 'n', 'v' }, 'H')
+    vim.keymap.del({ 'n', 'v', 'o' }, 'J')
+    vim.keymap.del({ 'n', 'v' }, 'L')
+  end
 
   buf_jump_set('hjkl', 'knei')
 
-  -- reset telescope to default qwerty mappings
-  require('telescope').setup {
-    defaults = {
-      mappings = {
-        i = {
-          ['<C-j>'] = 'move_selection_next',
-          ['<C-k>'] = 'move_selection_previous',
-        },
-        n = {
-          ['j'] = 'move_selection_next',
-          ['k'] = 'move_selection_previous',
-        },
-      },
+  -- set telescope to default qwerty mappings
+  local telescope_maps = {
+    i = {
+      ['<C-j>'] = 'move_selection_next',
+      ['<C-k>'] = 'move_selection_previous',
+    },
+    n = {
+      ['j'] = 'move_selection_next',
+      ['k'] = 'move_selection_previous',
     },
   }
+  set_telescope_binds(telescope_maps)
 
+  -- set vim-visual-multi maps
   vim.g.VM_maps = {
     ['Find Under'] = '<Leader>an',
     ['Find Subword Under'] = '<Leader>an',
@@ -129,9 +174,13 @@ end
 
 local function start_layout()
   -- TODO: add persistence
-  vim.g.colemak_enabled = false
+  vim.g.colemak_enabled = true
   if vim.g.colemak_enabled then
-    enable_colemak()
+    -- colemak
+    enable_colemak(1)
+  else
+    -- qwerty
+    enable_qwerty(1)
   end
 end
 
@@ -183,20 +232,21 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- leader <Esc> if you also use vim inside terminal itself (set -o vi)
-vim.keymap.set('t', '<leader><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 start_layout()
 set_message_maps()
 disable_yanks()
 
--- function to toggle between layouts, export for autocmds.lua
-local M = {}
-function M.toggle_colemak()
+-- function to toggle between layouts
+local function toggle_colemak()
   if vim.g.colemak_enabled then
-    disable_colemak()
+    enable_qwerty()
   else -- add colemak mappings, we are toggling it on
     enable_colemak()
   end
 end
 
-return M
+-- create a command to toggle layouts
+vim.api.nvim_create_user_command('ToggleColemak', toggle_colemak, {})
+vim.keymap.set('n', '<leader>tc', ':ToggleColemak<CR>', { desc = '[T]oggle [C]olemak Layout' })

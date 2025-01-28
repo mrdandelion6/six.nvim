@@ -24,7 +24,6 @@ function Get_git_root()
   -- get the current buffer's file path
   local current_file = vim.fn.expand '%:p'
   if current_file == '' then
-    -- print("1: returning '' - " .. vim.api.nvim_get_current_buf())
     return ''
   end
 
@@ -51,7 +50,3 @@ end
 vim.api.nvim_create_user_command('GitRootTest', function()
   local result = Get_git_root()
 end, {})
-
--- create a command to toggle layouts
-vim.api.nvim_create_user_command('ToggleColemak', require('core.keymaps').toggle_colemak, {})
-vim.keymap.set('n', '<leader>tc', ':ToggleColemak<CR>', { desc = '[T]oggle [C]olemak Layout' })

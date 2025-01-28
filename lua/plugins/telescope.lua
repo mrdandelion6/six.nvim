@@ -152,5 +152,23 @@ return { -- Fuzzy Finder (files, lsp, etc)
         prompt_title = 'Live Grep in Open Files',
       }
     end, { desc = '[F]ind [/] in Open Files' })
+
+    vim.api.nvim_create_user_command('UpdateTelescopeMaps', function()
+      local new_maps = vim.g.telescope_maps or {}
+      require('telescope').setup {
+        defaults = {
+          mappings = new_maps,
+        },
+      }
+    end, {})
+
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'TelescopeMapsChanged',
+      callback = function()
+        vim.cmd 'UpdateTelescopeMaps'
+      end,
+    })
+
+    vim.cmd 'UpdateTelescopeMaps' -- run once on load
   end,
 }
