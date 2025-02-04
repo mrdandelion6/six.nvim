@@ -1,7 +1,14 @@
+# default
 tags
-test.sh
 .luarc.json
 nvim
+**/spell/
+.netrwhist
 
-spell/
-recent_pwd.txt
+# lua compiled files
+*.o
+*.so
+*.dll
+
+# local
+.localsettings.json
