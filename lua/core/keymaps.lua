@@ -174,7 +174,7 @@ end
 
 local function start_layout()
   -- TODO: add persistence
-  vim.g.colemak_enabled = true
+  vim.g.colemak_enabled = false
   if vim.g.colemak_enabled then
     -- colemak
     enable_colemak(1)
@@ -198,7 +198,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n', -- normal mode
+    'n',          -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {

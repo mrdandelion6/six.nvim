@@ -27,8 +27,18 @@ return {
         opts = {
           notification = {
             window = {
-              border = 'rounded', -- Change border style
-              relative = 'win', -- Position relative to window
+              border = 'rounded',
+              relative = 'win',
+            },
+            view = {
+              stack_upwards = true,
+              icon_separator = ' ',
+              group_separator = '---',
+              group_separator_hl = 'Comment',
+            },
+            styles = {
+              -- this changes the transparency
+              minimal = false, -- setting minimal to false makes it use background
             },
           },
         },
@@ -64,7 +74,7 @@ return {
       -- and elegantly composed help section, `:help lsp-vs-treesitter`
 
       --  this function gets run when an LSP attaches to a particular buffer.
-      --    That is to say, every time a new file is opened that is associated with
+      --    that is to say, every time a new file is opened that is associated with
       --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
       --    function will be executed to configure the current buffer
       vim.api.nvim_create_autocmd('LspAttach', {
@@ -170,7 +180,7 @@ return {
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       -- enable the following language servers
-      --  feel free to add/remove any LSPs that you want here. They will automatically be installed.
+      --  feel free to add/remove any LSPs that you want here. they will automatically be installed.
       --
       --  add any additional override configuration in the following tables. Available keys are:
       --  - cmd (table): Override the default command used to start the server
@@ -178,19 +188,61 @@ return {
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+
+      local default_settings = {
+        capabilities = capabilities,
+        flags = {
+          debounce_text_changes = 150,
+        },
+        settings = {
+          formatting = {
+            trimTrailingWhitespace = true,
+            trimFinalNewlines = true,
+            insertFinalNewline = true,
+          },
+        },
+        -- unix style endings
+        init_options = {
+          documentFormatting = true,
+          documentRangeFormatting = true,
+        },
+      }
+
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
+        clangd = vim.tbl_deep_extend('force', default_settings, {
+          settings = {
+            filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+            cmd = {
+              'clangd',
+              '--format-style=file:.clang-format',
+              '--enable-config',
+            },
+          },
+        }),
+
+        pyright = vim.tbl_deep_extend('force', default_settings, {
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = 'basic',
+              },
+              formatting = {
+                provider = 'black',
+              },
+            },
+          },
+        }),
+
+        bashls = {},
+        gopls = {},
+        rust_analyzer = {},
+        verible = {},
+
         -- some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- but for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        ts_ls = {},
 
         lua_ls = {
           -- cmd = { ... },
@@ -220,7 +272,10 @@ return {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- used to format Lua code
+        'stylua', -- lua formatter
+        'clang-format', -- c/c++
+        'prettier', -- js/ts
+        'black', -- python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -236,6 +291,24 @@ return {
           end,
         },
       }
+
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        desc = 'Format on save using LSP',
+        group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
+        callback = function()
+          if vim.g.format_on_save then
+            vim.lsp.buf.format { async = false }
+            vim.cmd [[%s/\s\+$//e]]
+            vim.cmd [[%s/\r\+$//e]]
+          end
+        end,
+      })
+
+      vim.api.nvim_create_user_command('ToggleFormatOnSave', function()
+        vim.g.format_on_save = not vim.g.format_on_save
+        print('Format on save: ' .. tostring(vim.g.format_on_save))
+      end, {})
+      vim.g.format_on_save = true
     end,
   },
 
