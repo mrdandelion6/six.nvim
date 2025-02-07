@@ -22,6 +22,8 @@ forked from kickstart.nvim.
 - ftplugin/
 - snippets/
 
+note that `kickstart/` contains configuration from the kickstart.nvim that i am not using.
+
 ## setup
 
 ### ubuntu/debian
@@ -44,7 +46,7 @@ python -m venv neovim
 source ~/.envs/neovim/bin/activate
 
 # install the following deps
-pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext
+pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext jupyter jupyterlab
 ```
 if you want to use a different path than `~/.envs/neovim/`, then you must edit `lua/core/options.lua` and change this line:
 ```lua
