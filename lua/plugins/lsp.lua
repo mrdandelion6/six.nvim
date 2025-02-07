@@ -225,6 +225,9 @@ return {
             python = {
               analysis = {
                 typeCheckingMode = 'basic',
+                diagnosticSeverityOverrides = {
+                  reportMissingImports = 'none',
+                },
               },
               formatting = {
                 provider = 'black',
