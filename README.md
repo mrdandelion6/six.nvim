@@ -53,4 +53,13 @@ if you want to use a different path than `~/.envs/neovim/`, then you must edit `
 vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
 ```
 
+you will also need quarto cli:
+```bash
+# get latest release
+wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.40/quarto-1.6.40-linux-amd64.deb
+
+# install
+sudo dpkg -i quarto-1.6.40-linux-amd64.deb
+```
+
 reach out to me with any questions. happy coding
