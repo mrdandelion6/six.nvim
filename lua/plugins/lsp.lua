@@ -246,7 +246,6 @@ return {
         --
         -- but for many setups, the LSP (`ts_ls`) will work just fine
         ts_ls = {},
-
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -261,6 +260,10 @@ return {
             },
           },
         },
+        cssls = vim.tbl_deep_extend('force', default_settings, {}),
+        emmet_ls = vim.tbl_deep_extend('force', default_settings, {
+          filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
+        }),
       }
 
       -- ensure the servers and tools above are installed
