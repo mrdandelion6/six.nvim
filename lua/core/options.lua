@@ -13,6 +13,12 @@ vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
 
+-- tab
+vim.opt.tabstop = 2 -- number of spaces that a <tab> counts for
+vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
+vim.opt.expandtab = true -- use spaces instead of tabs
+vim.opt.softtabstop = 2 -- number of spaces that a <tab> counts for while performing editing operations
+
 -- text wrapping for buffers
 vim.opt.breakindent = true
 

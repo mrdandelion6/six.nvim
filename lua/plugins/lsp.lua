@@ -201,6 +201,10 @@ return {
             insertFinalNewline = true,
           },
         },
+        editor = {
+          tabSize = 2,
+          insertSpaces = true,
+        },
         -- unix style endings
         init_options = {
           documentFormatting = true,
