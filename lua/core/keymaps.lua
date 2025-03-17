@@ -38,6 +38,19 @@ local function set_telescope_binds(binds)
   end
 end
 
+local function set_layout_persistence(new_layout)
+  local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
+  local settings = { layout = new_layout }
+
+  local settings_json = { vim.fn.json_encode(settings) }
+  local success = pcall(function()
+    return vim.fn.writefile(settings_json, layout_path)
+  end)
+  if not success then
+    print('failed to update persistence for keyboard layout at: ' .. layout_path)
+  end
+end
+
 local function enable_colemak()
   local remaps = {
     ['k'] = 'h',
@@ -119,6 +132,8 @@ local function enable_colemak()
     ['Prev'] = 'H',
   }
 
+  -- set persistence in .localsettings.json
+  set_layout_persistence 'colemak'
   vim.g.colemak_enabled = true
   print 'Colemak-DH layout enabled'
 end
@@ -168,16 +183,45 @@ local function enable_qwerty(startup)
     ['Prev'] = 'N',
   }
 
+  set_layout_persistence 'qwerty'
   vim.g.colemak_enabled = false
   print 'QWERTY layout enabled'
 end
 
 local function start_layout()
-  -- TODO: add persistence
+  --[[
+  this function checks a file: .localsettings.json in the nvim config directory to determine what keyboard layout to start with.
+  the.localsettings.json file is expected to be of the format:
+    {
+      "layout": "colemak"
+    }
+  or alternatively, "qwerty".
+  ]]
+
   vim.g.colemak_enabled = false
+  local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
+
+  if vim.fn.filereadable(layout_path) then
+    local success, layout_settings = pcall(function()
+      return vim.fn.json_decode(vim.fn.readfile(layout_path, 'b'))
+    end)
+
+    -- check if json is in right format
+    if success and layout_settings and layout_settings.layout then
+      local layout = layout_settings.layout
+      if layout == 'colemak' then
+        vim.g.colemak_enabled = true
+      end
+    else
+      print 'error parsing .localsettings: invalid format'
+    end
+  else
+    print('.localsettings.json not found at: ' .. layout_path)
+  end
+
   if vim.g.colemak_enabled then
     -- colemak
-    enable_colemak(1)
+    enable_colemak()
   else
     -- qwerty
     enable_qwerty(1)
@@ -198,7 +242,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n',          -- normal mode
+    'n', -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {

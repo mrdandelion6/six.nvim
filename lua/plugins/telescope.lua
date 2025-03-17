@@ -94,11 +94,30 @@ return { -- Fuzzy Finder (files, lsp, etc)
       local opts = {
         hidden = true,
       }
-      if vim.fn.executable 'fdfind' == 1 then
+      if vim.fn.executable 'rg' == 1 then
+        opts.find_command = {
+          'rg',
+          '--files',
+          '--hidden',
+          '--no-ignore-vcs',
+          '--no-binary',
+          '--glob',
+          '!.git/*',
+          '--glob',
+          '!node_modules/*',
+          '--glob',
+          '!target/*',
+          '--glob',
+          '!dist/*',
+        }
+        vim.notify 'Using ripgrep'
+      elseif vim.fn.executable 'fdfind' == 1 then
         opts.find_command = { -- Ignore .git/, node_modules/, and other directories we typically wouldn't search.
           'fdfind',
           '--type',
           'f',
+          '--hidden',
+          '--no-ignore-vcs',
           '--exclude',
           '.git',
           '--exclude',
