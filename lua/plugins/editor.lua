@@ -13,7 +13,14 @@ return {
       --  - va)  - [V]isually select [A]round [)]paren
       --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
       --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
+      require('mini.ai').setup {
+        n_lines = 500,
+        mappings = { -- disabled these to prevent conflict with colemak-dh mappings
+          inside_last = '',
+          inside_next = '',
+          inside = '',
+        },
+      }
 
       -- add/delete/replace surroundings (brackets, quotes, etc.)
       --

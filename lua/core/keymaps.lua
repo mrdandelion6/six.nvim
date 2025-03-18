@@ -81,7 +81,7 @@ local function enable_colemak()
 
     -- (HJLK -> KNEI)
     vim.keymap.set(mode, 'K', remaps['K'], { desc = 'Top of screen' })
-    vim.keymap.set(mode, 'I', remaps['L'], { desc = 'Bottom of screen' })
+    vim.keymap.set(mode, 'I', remaps['I'], { desc = 'Bottom of screen' })
 
     -- (knei -> ehjl), not symmetrical!
     vim.keymap.set(mode, 'j', remaps['j'], { desc = 'End of word' })
@@ -242,7 +242,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n', -- normal mode
+    'n',          -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {

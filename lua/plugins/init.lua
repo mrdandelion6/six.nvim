@@ -3,6 +3,7 @@ return {
     -- NOTE: have it in plugins/init.lua so it loads before other plugins, making it easier to document keybinds
     'folke/which-key.nvim',
     event = 'VimEnter',
+    -- TODO: currently when remapping i to right movement, which key makes u need to press i twice in operator mode. eg) dii instead of di. not sure why
     opts = {
       icons = {
         -- set icon mappings to true if you have a Nerd Font

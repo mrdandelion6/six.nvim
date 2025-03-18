@@ -1,6 +1,10 @@
 # faisal.nvim
 
-forked from kickstart.nvim.
+Welcome to my custom configuration for neovim. this configuration was originally forked from kickstart.nvim but has been greatly changed.
+
+This is an all purpose configuration with a focus on coding in many different programming languages. Below is an overview of some key features:
+
+## Key features
 
 ## files
 ### non-config
