@@ -109,6 +109,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
           '!target/*',
           '--glob',
           '!dist/*',
+          '--glob',
+          '!.build/*',
         }
         vim.notify 'Using ripgrep'
       elseif vim.fn.executable 'fdfind' == 1 then

@@ -189,6 +189,7 @@ return {
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
+      local sourcekit_script = vim.fn.stdpath 'config' .. '/bash/swift_sourcekit_lsp.sh'
       local default_settings = {
         capabilities = capabilities,
         flags = {
@@ -239,6 +240,13 @@ return {
             },
           },
         }),
+
+        -- TODO: figure out how to get mason to not throw an error
+        -- sourcekit = vim.tbl_deep_extend('force', default_settings, {
+        --   cmd = { sourcekit_script },
+        --   filetypes = { 'swift' },
+        --   root_dir = require('lspconfig.util').root_pattern('Package.swift', '.git'),
+        -- }),
 
         bashls = {},
         gopls = {},
