@@ -20,7 +20,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     { 'nvim-telescope/telescope-ui-select.nvim' },
 
     -- Useful for getting pretty icons, but requires a Nerd Font.
-    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
   },
 
   config = function()
@@ -111,6 +111,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
           '!dist/*',
           '--glob',
           '!.build/*',
+          '--glob',
+          '!.*',
         }
         vim.notify 'Using ripgrep'
       elseif vim.fn.executable 'fdfind' == 1 then
@@ -128,6 +130,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
           'target',
           '--exclude',
           'dist',
+          '--exclude',
+          '.*',
         }
         vim.notify('Using fd-find', vim.log.levels.INFO)
       elseif vim.fn.executable 'fd' == 1 then
@@ -143,6 +147,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
           'target',
           '--exclude',
           'dist',
+          '--exclude',
+          '.*',
         }
         vim.notify('Using fd', vim.log.levels.INFO)
       else

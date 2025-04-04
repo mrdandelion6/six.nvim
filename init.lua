@@ -1,6 +1,6 @@
 --[[
 
-  NOTE: HELP: 
+  NOTE: HELP:
 
     `:help`.
       This will open up a help window with some basic information
@@ -39,6 +39,7 @@ require('core.lazy').boostrap()
 require 'core.options'
 require 'core.keymaps'
 require 'core.autocmds'
+require 'core.cmds'
 
 require('lazy').setup({
   { import = 'plugins' },
