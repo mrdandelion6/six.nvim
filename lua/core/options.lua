@@ -71,4 +71,25 @@ vim.opt.fillchars = {
 -- python virtual environment for any deps
 vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
 
--- use terminal cursor
+local function verify_settings_format(settings)
+  if not settings then
+    print 'ERROR (core/optins.lua): settings is nil'
+    return 1
+  elseif not settings.layout then
+    print 'ERROR (core/optins.lua): settings.layout is nil'
+    return 1
+  end
+  return 0
+end
+-- load local settings globally
+local settings_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
+if vim.fn.filereadable(settings_path) then
+  local success, settings = pcall(function()
+    return vim.fn.json_decode(vim.fn.readfile(settings_path, 'b'))
+  end)
+  if verify_settings_format(settings) == 0 then
+    vim.g.local_settings = settings
+  end
+else
+  print('ERROR: .localsettings.json not found at: ' .. settings_path)
+end
