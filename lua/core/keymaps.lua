@@ -54,6 +54,7 @@ local function set_layout_persistence(new_layout)
     end
   end
 
+  settings.layout = new_layout
   local settings_json = { vim.fn.json_encode(settings) }
   local success = pcall(function()
     return vim.fn.writefile(settings_json, layout_path)
@@ -254,7 +255,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n',          -- normal mode
+    'n', -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {

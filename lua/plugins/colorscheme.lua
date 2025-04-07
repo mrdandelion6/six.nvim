@@ -4,7 +4,7 @@ return {
     name = 'catppuccin',
     priority = 1000,
     init = function()
-      -- Pallete:
+      -- pallete:
       local white = '#d5dae1'
       local grey = '#c4bdd2'
 
@@ -80,9 +80,10 @@ return {
       vim.cmd.colorscheme 'catppuccin'
     end,
   },
-
   {
     'mechatroner/rainbow_csv',
-    ft = { 'csv', 'tsv', 'csv.*' },
+    event = 'BufReadPre',
+    lazy = false,
+    ft = { 'csv', 'tsv' },
   },
 }
