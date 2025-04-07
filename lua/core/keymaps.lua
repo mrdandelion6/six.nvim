@@ -40,7 +40,19 @@ end
 
 local function set_layout_persistence(new_layout)
   local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
-  local settings = { layout = new_layout }
+  local settings = {}
+
+  local file = io.open(layout_path, 'r')
+  if file then
+    local content = file:read '*a'
+    file:close()
+    local ok, parsed = pcall(vim.fn.json_decode, content)
+    if ok and type(parsed) == 'table' then
+      settings = parsed
+    else
+      print('could not parse an existing settings file at: ' .. layout_path)
+    end
+  end
 
   local settings_json = { vim.fn.json_encode(settings) }
   local success = pcall(function()
