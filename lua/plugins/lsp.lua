@@ -212,6 +212,10 @@ return {
         },
       }
 
+      -- TODO: have persistance for ignored files in .localsettings as an array
+      -- ignore lsp for files
+      -- local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
+
       local servers = {
         clangd = vim.tbl_deep_extend('force', default_settings, {
           settings = {
