@@ -3,13 +3,18 @@ return {
   branch = 'master',
   lazy = false,
   init = function()
-    vim.g.VM_default_mappings = 1
-    vim.g.VM_mouse_mappings = 1
+    vim.g.VM_default_mappings = 0
+    vim.g.VM_mouse_mappings = 0
     vim.g.VM_maps = {
       ['Select All'] = '<Leader>aa',
       ['Visual All'] = '<Leader>aa',
       ['Visual Cursors'] = '<Leader>ad',
-      ['Skip Region'] = 'b',
+
+      ['Find Under'] = '<Leader>aj',
+      ['Skip Region'] = 'j',
+
+      ['Add Cursors Down'] = '<Leader>an',
+      ['Add Cursors Up'] = '<Leader>ae',
     }
   end,
 }
