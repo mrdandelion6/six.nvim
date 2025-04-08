@@ -77,6 +77,18 @@ return {
       --    that is to say, every time a new file is opened that is associated with
       --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
       --    function will be executed to configure the current buffer
+
+      -- patterns to exclude from autoformat
+      if vim.g.local_settings then
+        local exclude_autoformat = vim.g.local_settings.exclude_autoformat
+        if not exclude_autoformat then
+          print 'ERROR (lsp.lua): vim.g.local_settings.exclude_autoformat is nil'
+          exclude_autoformat = {}
+        end
+      else
+        print 'ERROR (lsp.lua): vim.g.local_settings is nil'
+      end
+
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
@@ -318,9 +330,24 @@ return {
         group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
         callback = function()
           if vim.g.format_on_save then
-            vim.lsp.buf.format { async = false }
-            vim.cmd [[%s/\s\+$//e]]
-            vim.cmd [[%s/\r\+$//e]]
+            -- check if this file is in our exclude_autoformat
+            local file_path = vim.fn.expand '%:p'
+            local should_format = true
+            if vim.g.local_settings and vim.g.local_settings.exclude_autoformat then
+              for _, pattern in ipairs(vim.g.local_settings.exclude_autoformat) do
+                if file_path:match(pattern) then
+                  should_format = false
+                  break
+                end
+              end
+            end
+
+            if should_format then
+              print 'formatting..'
+              vim.lsp.buf.format { async = false }
+              vim.cmd [[%s/\s\+$//e]]
+              vim.cmd [[%s/\r\+$//e]]
+            end
           end
         end,
       })
