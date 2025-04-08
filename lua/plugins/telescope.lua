@@ -20,13 +20,12 @@ return { -- fuzzy finder (files, lsp, etc)
     { 'nvim-telescope/telescope-ui-select.nvim' },
 
     -- useful for getting pretty icons, but requires a nerd font.
-    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
   },
 
   config = function()
     -- telescope is a fuzzy finder that comes with a lot of different things.
     --  :Telescope help_tags
-
     -- [[ configure telescope ]]
     -- see `:help telescope` and `:help telescope.setup()`
     require('telescope').setup {
@@ -164,12 +163,21 @@ return { -- fuzzy finder (files, lsp, etc)
       builtin.find_files(opts)
     end, { desc = '[F]ind N[e]ovim files' })
 
-    -- shortcut for searching your neovim configuration files
+    -- shortcut for searching files in my Learn_to_Code repository
     vim.keymap.set('n', '<leader>fn', function()
-      local opts = get_opts()
-      opts.cwd = vim.fn.stdpath 'config'
-      builtin.find_files(opts)
-    end, { desc = '[F]ind N[e]ovim files' })
+      if vim.g.local_settings then
+        if vim.g.local_settings.notes_path then
+          local opts = get_opts()
+          opts.cwd = vim.g.local_settings.notes_path
+          print('notes path is: ' .. vim.g.local_settings.notes_path)
+          builtin.find_files(opts)
+        else
+          print 'ERROR (telescope.lua): vim.g.local_settings.notes_path is nil'
+        end
+      else
+        print 'ERROR (telescope.lua): vim.g.local_settings is nil'
+      end
+    end, { desc = '[F]ind [N]otes' })
 
     -- fuzzy search for files in pwd.
     vim.keymap.set('n', '<leader>ff', function()
