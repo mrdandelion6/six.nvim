@@ -147,7 +147,9 @@ local function enable_colemak()
 
   -- set persistence in .localsettings.json
   set_layout_persistence 'colemak'
-  vim.g.colemak_enabled = true
+  local settings = vim.g.local_settings
+  settings.layout = 'colemak'
+  vim.g.local_settings = settings
   print 'Colemak-DH layout enabled'
 end
 
@@ -197,7 +199,9 @@ local function enable_qwerty(startup)
   }
 
   set_layout_persistence 'qwerty'
-  vim.g.colemak_enabled = false
+  local settings = vim.g.local_settings
+  settings.layout = 'qwerty'
+  vim.g.local_settings = settings
   print 'QWERTY layout enabled'
 end
 
@@ -206,38 +210,31 @@ local function start_layout()
   this function checks a file: .localsettings.json in the nvim config directory to determine what keyboard layout to start with.
   the.localsettings.json file is expected to be of the format:
     {
-      "layout": "colemak"
+      "layout": "colemak",
+      ... other settings
     }
   or alternatively, "qwerty".
   ]]
 
-  vim.g.colemak_enabled = false
-  local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
-
-  if vim.fn.filereadable(layout_path) then
-    local success, layout_settings = pcall(function()
-      return vim.fn.json_decode(vim.fn.readfile(layout_path, 'b'))
-    end)
-
-    -- check if json is in right format
-    if success and layout_settings and layout_settings.layout then
-      local layout = layout_settings.layout
-      if layout == 'colemak' then
-        vim.g.colemak_enabled = true
-      end
-    else
-      print 'error parsing .localsettings: invalid format'
-    end
-  else
-    print('.localsettings.json not found at: ' .. layout_path)
+  -- check if settings is in right format
+  local settings = vim.g.local_settings
+  if not settings then
+    print 'ERROR: vim.g.local_settings is nil'
+    return
+  end
+  if not settings.layout then
+    print 'ERROR: parsing vim.g.local_settings: layout key is nil'
+    return
   end
 
-  if vim.g.colemak_enabled then
+  if settings.layout == 'colemak' then
     -- colemak
     enable_colemak()
-  else
+  elseif settings.layout == 'qwerty' then
     -- qwerty
     enable_qwerty(1)
+  else
+    print('unexpected settings layout: ' .. settings.layout)
   end
 end
 
@@ -255,7 +252,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n', -- normal mode
+    'n',          -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {
@@ -297,10 +294,13 @@ disable_yanks()
 
 -- function to toggle between layouts
 local function toggle_colemak()
-  if vim.g.colemak_enabled then
+  local settings = vim.g.local_settings
+  if settings.layout == 'colemak' then
     enable_qwerty()
-  else -- add colemak mappings, we are toggling it on
+  elseif settings.layout == 'qwerty' then -- add colemak mappings, we are toggling it on
     enable_colemak()
+  else
+    print('unexpected settings layout: ' .. settings.layout)
   end
 end
 
