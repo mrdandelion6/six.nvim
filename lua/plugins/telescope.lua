@@ -63,10 +63,11 @@ return { -- fuzzy finder (files, lsp, etc)
       if vim.fn.executable 'rg' == 1 then
         opts.find_command = {
           'rg',
-          '--files',
+          '-l',
+          '.*',
+          '--follow',
           '--hidden',
           '--no-ignore-vcs',
-          '--no-binary',
           '--glob',
           '!.git/*',
           '--glob',
@@ -75,8 +76,6 @@ return { -- fuzzy finder (files, lsp, etc)
           '!target/*',
           '--glob',
           '!dist/*',
-          '--glob',
-          '!.build/*',
           '--glob',
           '!.*/',
         }
