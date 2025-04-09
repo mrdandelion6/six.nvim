@@ -13,8 +13,8 @@ return {
       ['Find Under'] = '<Leader>aj',
       ['Skip Region'] = 'j',
 
-      ['Add Cursors Down'] = '<Leader>an',
-      ['Add Cursors Up'] = '<Leader>ae',
+      ['Add Cursor Down'] = '<Leader>an',
+      ['Add Cursor Up'] = '<Leader>ae',
     }
   end,
 }
