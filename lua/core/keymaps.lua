@@ -136,6 +136,7 @@ local function enable_colemak()
   }
   set_telescope_binds(telescope_maps)
 
+  -- set visual-multi maps
   vim.g.VM_maps = {
     ['Find Under'] = '<Leader>ah',
     ['Find Subword Under'] = '<Leader>ah',
@@ -143,6 +144,14 @@ local function enable_colemak()
     ['Add Cursor Up'] = '<Leader>ae',
     ['Next'] = 'h',
     ['Prev'] = 'H',
+    ['i'] = remaps['i'],
+    ['I'] = remaps['I'],
+  }
+  vim.g.VM_custom_motions = {
+    ['k'] = remaps['k'],
+    ['n'] = remaps['n'], -- TODO: figure out why 'n' won't work for down movement
+    ['e'] = remaps['e'],
+    ['i'] = remaps['i'],
   }
 
   -- set persistence in .localsettings.json
@@ -188,7 +197,7 @@ local function enable_qwerty(startup)
   }
   set_telescope_binds(telescope_maps)
 
-  -- set vim-visual-multi maps
+  -- set visual-multi maps
   vim.g.VM_maps = {
     ['Find Under'] = '<Leader>an',
     ['Find Subword Under'] = '<Leader>an',
@@ -252,7 +261,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n',          -- normal mode
+    'n', -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {
