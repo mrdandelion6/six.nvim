@@ -1,5 +1,5 @@
 return {
-  'mg979/vim-visual-multi', -- allows for multi selection in buffer.
+  'mg979/vim-visual-multi', -- Allows for multi selection in buffer.
   branch = 'master',
   lazy = false,
   init = function()
