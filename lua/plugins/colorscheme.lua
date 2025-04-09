@@ -36,13 +36,13 @@ return {
         custom_highlights = {
 
           CursorLineNr = { fg = light_pink },
-
           ['@variable'] = { fg = lighter_pink },
           ['@property'] = { fg = lighter_pink },
           ['@field'] = { fg = lighter_pink },
           ['@type.definition'] = { fg = lighter_pink },
           ['@constant'] = { fg = strong_purple },
 
+          Function = { fg = light_pink },
           ['@function'] = { fg = light_pink },
           ['@function.builtin'] = { fg = light_pink },
           ['@function.call'] = { fg = light_pink },
@@ -52,12 +52,16 @@ return {
           ['@variable.parameter'] = { fg = strong_orange },
           ['@keyword.return'] = { fg = vibrant_pink },
 
+          Type = { fg = light_red },
           ['@keyword.type'] = { fg = light_purple },
           ['@type'] = { fg = light_red },
           ['@type.builtin'] = { fg = light_red },
           ['@type.builtin.c'] = { fg = light_red },
-          ['@keyword'] = { fg = light_red },
-          ['@keyword.function'] = { fg = light_red },
+          ['@type.builtin.cpp'] = { fg = light_red },
+
+          Keyword = { fg = strong_purple },
+          ['@keyword'] = { fg = strong_purple },
+          ['@keyword.function'] = { fg = strong_purple },
 
           ['@keyword.import'] = { fg = vibrant_red },
           ['@keyword.directive.define.c'] = { fg = vibrant_red },
