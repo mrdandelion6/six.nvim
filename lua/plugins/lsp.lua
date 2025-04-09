@@ -230,13 +230,12 @@ return {
 
       local servers = {
         clangd = vim.tbl_deep_extend('force', default_settings, {
-          settings = {
-            filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
-            cmd = {
-              'clangd',
-              '--format-style=file:.clang-format',
-              '--enable-config',
-            },
+          filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+          cmd = {
+            'clangd',
+            '--enable-config',
+            '--background-index',
+            '--fallback-style=llvm',
           },
         }),
 
