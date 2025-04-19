@@ -14,10 +14,10 @@ vim.schedule(function()
 end)
 
 -- tab
-vim.opt.tabstop = 2 -- number of spaces that a <tab> counts for
-vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
+vim.opt.tabstop = 2      -- number of spaces that a <tab> counts for
+vim.opt.shiftwidth = 2   -- number of spaces to use for autoindent
 vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.softtabstop = 2 -- number of spaces that a <tab> counts for while performing editing operations
+vim.opt.softtabstop = 2  -- number of spaces that a <tab> counts for while performing editing operations
 
 -- text wrapping for buffers
 vim.opt.breakindent = true
@@ -54,7 +54,7 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 999
 
 -- split lines
 vim.opt.laststatus = 3 -- use 3 for global status bar
