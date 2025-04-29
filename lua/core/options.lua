@@ -14,10 +14,10 @@ vim.schedule(function()
 end)
 
 -- tab
-vim.opt.tabstop = 2      -- number of spaces that a <tab> counts for
-vim.opt.shiftwidth = 2   -- number of spaces to use for autoindent
+vim.opt.tabstop = 2 -- number of spaces that a <tab> counts for
+vim.opt.shiftwidth = 2 -- number of spaces to use for autoindent
 vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.softtabstop = 2  -- number of spaces that a <tab> counts for while performing editing operations
+vim.opt.softtabstop = 2 -- number of spaces that a <tab> counts for while performing editing operations
 
 -- text wrapping for buffers
 vim.opt.breakindent = true
@@ -73,14 +73,15 @@ vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
 
 local function verify_settings_format(settings)
   if not settings then
-    print 'ERROR (core/optins.lua): settings is nil'
+    print 'ERROR: (core/options.lua): settings is nil'
     return 1
   elseif not settings.layout then
-    print 'ERROR (core/optins.lua): settings.layout is nil'
+    print 'ERROR: (core/options.lua): settings.layout is nil'
     return 1
   end
   return 0
 end
+
 -- load local settings globally
 local settings_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
 if vim.fn.filereadable(settings_path) then
