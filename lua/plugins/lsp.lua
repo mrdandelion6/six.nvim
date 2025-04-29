@@ -82,11 +82,11 @@ return {
       if vim.g.local_settings then
         local exclude_autoformat = vim.g.local_settings.exclude_autoformat
         if not exclude_autoformat then
-          print 'ERROR (lsp.lua): vim.g.local_settings.exclude_autoformat is nil'
+          print 'ERROR: (lsp.lua): vim.g.local_settings.exclude_autoformat is nil'
           exclude_autoformat = {}
         end
       else
-        print 'ERROR (lsp.lua): vim.g.local_settings is nil'
+        print 'ERROR: (lsp.lua): vim.g.local_settings is nil'
       end
 
       vim.api.nvim_create_autocmd('LspAttach', {
@@ -304,10 +304,10 @@ return {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua',       -- lua formatter
+        'stylua', -- lua formatter
         'clang-format', -- c/c++
-        'prettier',     -- js/ts
-        'black',        -- python
+        'prettier', -- js/ts
+        'black', -- python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
