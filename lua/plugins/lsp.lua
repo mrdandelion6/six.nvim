@@ -255,6 +255,10 @@ return {
           },
         }),
 
+        jdtls = vim.tbl_deep_extend('force', default_settings, {
+          filetypes = { 'java' },
+        }),
+
         -- TODO: figure out how to get mason to not throw an error
         -- sourcekit = vim.tbl_deep_extend('force', default_settings, {
         --   cmd = { sourcekit_script },
@@ -304,10 +308,10 @@ return {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- lua formatter
+        'stylua',       -- lua formatter
         'clang-format', -- c/c++
-        'prettier', -- js/ts
-        'black', -- python
+        'prettier',     -- js/ts
+        'black',        -- python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -342,7 +346,6 @@ return {
             end
 
             if should_format then
-              print 'formatting..'
               vim.lsp.buf.format { async = false }
               vim.cmd [[%s/\s\+$//e]]
               vim.cmd [[%s/\r\+$//e]]
