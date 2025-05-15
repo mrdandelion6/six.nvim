@@ -66,4 +66,11 @@ wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.40/quarto-1
 sudo dpkg -i quarto-1.6.40-linux-amd64.deb
 ```
 
+# TODO
+- on right side add symbol to indicate errors in file (relative to size)
+- fix terminal not updating top bar sometimes
+- make jupyter notebooks work
+- fix bug with ripgrep not finding empty textfiles
+- fix bug with cursor not centering based on height. right now centers based on lines above which is skewed for lines that bleed over to next row.
+
 reach out to me with any questions. happy coding

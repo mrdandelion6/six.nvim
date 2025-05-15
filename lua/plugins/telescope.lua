@@ -60,6 +60,7 @@ return { -- fuzzy finder (files, lsp, etc)
       local opts = {
         hidden = true,
       }
+      -- ripgrep is the best one for ignoring binaries etc.
       if vim.fn.executable 'rg' == 1 then
         opts.find_command = {
           'rg',
@@ -81,7 +82,6 @@ return { -- fuzzy finder (files, lsp, etc)
           '--glob',
           '!.*/',
         }
-        vim.notify 'Using ripgrep'
       elseif vim.fn.executable 'fdfind' == 1 then
         opts.find_command = { -- ignore .git/, node_modules/, and other directories we typically wouldn't search.
           'fdfind',
