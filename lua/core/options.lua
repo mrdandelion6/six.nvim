@@ -73,24 +73,35 @@ vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
 
 local function verify_settings_format(settings)
   if not settings then
-    print 'ERROR: (core/options.lua): settings is nil'
+    print 'ERROR (core/options.lua): settings is nil. TIP: run cp .localsettings_template.json .localsettings.json.'
     return 1
   elseif not settings.layout then
-    print 'ERROR: (core/options.lua): settings.layout is nil'
+    print 'ERROR (core/options.lua): settings.layout is nil. TIP: see .localsettings_template.json for example.'
     return 1
   end
   return 0
 end
 
--- load local settings globally
+-- read .localsettings.json
 local settings_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
-if vim.fn.filereadable(settings_path) then
-  local success, settings = pcall(function()
-    return vim.fn.json_decode(vim.fn.readfile(settings_path, 'b'))
-  end)
-  if verify_settings_format(settings) == 0 then
-    vim.g.local_settings = settings
+local exists = vim.fn.filereadable(settings_path)
+if exists == 0 then
+  print('WARNING (options.lua): .localsettings.json not found at: ' .. settings_path .. '. generating file from .localsettings_template.json')
+  local template_path = vim.fn.stdpath 'config' .. '/.localsettings_template.json'
+  local copy_result
+  vim.fn.system('cp ' .. template_path .. ' ' .. settings_path)
+  local copy_success = vim.v.shell_error == 0
+  if not copy_success then
+    print('ERROR (options.lua): failed to copy template file: ' .. copy_result)
   end
-else
-  print('ERROR: .localsettings.json not found at: ' .. settings_path)
+end
+
+-- load local settings globally
+local success, settings = pcall(function()
+  return vim.fn.json_decode(vim.fn.readfile(settings_path, 'b'))
+end)
+if not success then
+  print('ERROR (options.lua): issue parsing json file' .. settings)
+elseif verify_settings_format(settings) == 0 then
+  vim.g.local_settings = settings
 end

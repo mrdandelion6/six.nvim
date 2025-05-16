@@ -228,7 +228,7 @@ local function start_layout()
   -- check if settings is in right format
   local settings = vim.g.local_settings
   if not settings then
-    print 'ERROR: vim.g.local_settings is nil'
+    print 'ERROR (keymaps.lya): vim.g.local_settings is nil'
     return
   end
   if not settings.layout then
@@ -261,7 +261,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n', -- normal mode
+    'n',          -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {
