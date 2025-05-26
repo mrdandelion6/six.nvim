@@ -160,7 +160,7 @@ return {
             padding = { left = 1, right = 1 },
             separator = {
               right = (function()
-                local root = Get_git_root()
+                local root = vim.g.git_root
                 local sep = (root == '') and '' or ''
                 -- if vim.api.nvim_get_current_buf() == 3 then
                 -- print("Git root value: '" .. tostring(root) .. "'")
@@ -176,7 +176,9 @@ return {
           {
             separator = { right = '' },
             padding = { left = 1, right = 1 },
-            Get_git_root,
+            function()
+              return vim.g.git_root or ''
+            end,
             cond = function()
               return vim.bo.buftype == '' and vim.fn.expand '%:p' ~= ''
             end,

@@ -2,6 +2,7 @@
 --  need to first free <C-l> from netrw. we delete it.
 --  netrw (built in tool of vim) is what we are currently used for file tree.
 --  one of netrw's commands is <C-l> which we need for moving to right split.
+
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'netrw',
   callback = function()
@@ -20,7 +21,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
-function Get_git_root()
+local function get_git_root()
   -- get the current buffer's file path
   local current_file = vim.fn.expand '%:p'
   if current_file == '' then
@@ -47,9 +48,11 @@ function Get_git_root()
   return ''
 end
 
-vim.api.nvim_create_user_command('GitRootTest', function()
-  local result = Get_git_root()
-end, {})
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  callback = function()
+    vim.g.git_root = get_git_root()
+  end,
+})
 
 vim.api.nvim_create_user_command('DisableFormatting', function()
   local bufnr = vim.api.nvim_get_current_buf()

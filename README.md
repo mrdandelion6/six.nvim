@@ -1,8 +1,8 @@
 # faisal.nvim
 
-Welcome to my custom configuration for neovim. this configuration was originally forked from kickstart.nvim but has been greatly changed.
+welcome to my custom configuration for neovim. this configuration was originally forked from kickstart.nvim but has been greatly changed.
 
-This is an all purpose configuration with a focus on coding in many different programming languages. Below is an overview of some key features:
+this is an all purpose configuration with a focus on coding in many different programming languages. below is an overview of some key features:
 
 ## Key features
 
@@ -29,9 +29,7 @@ This is an all purpose configuration with a focus on coding in many different pr
 note that `kickstart/` contains configuration from the kickstart.nvim that i am not using.
 
 ## setup
-
 ### ubuntu/debian
-
 install the following plugin dependencies
 
 #### image.nvim
