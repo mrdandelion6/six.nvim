@@ -32,6 +32,19 @@ note that `kickstart/` contains configuration from the kickstart.nvim that i am 
 ### ubuntu/debian
 install the following plugin dependencies
 
+## Base
+The following dependencies are needed for multliple plugins:
+```bash
+sudo apt install curl
+
+# python
+sudo apt install python3 python3-pip
+
+# node and npm
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install nodejs
+```
+
 #### image.nvim
 ```bash
 # for magick_cli
@@ -63,6 +76,8 @@ wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.40/quarto-1
 # install
 sudo dpkg -i quarto-1.6.40-linux-amd64.deb
 ```
+
+## Windows
 
 # TODO
 - on right side add symbol to indicate errors in file (relative to size)
