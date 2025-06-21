@@ -3,23 +3,21 @@ VISUAL
 
 
 TEXT
-- make stuff like int, void, a purple color (refer to how C code looks)
-- find another color for functions, something more pink
-	- turn properties/fields to a lighter pink if so
+- make class definition orange
+- make class type orange or keep pink
+- make constructor/destructor , method definition/declaration same color as function
 - make (*) same color as string when it's for pointer
 - make (&) same color as string when it's for address
 
 
 PLUGINS
 - autocomplete
-	- disable regular word suggestions
-	- limit autocomplete box height
+- disable regular word suggestions
+- limit autocomplete box height
 - markdown rendering
 - jupyter rendering
 
 LSP
-- python
-- C++
 - CUDA
 - bash
 - x86
@@ -30,7 +28,6 @@ LSP
 - javascript
 - typescript
 - react/express/node
-- R
 - java
 - PHP
 - HTML
