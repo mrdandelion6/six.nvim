@@ -12,3 +12,4 @@ nvim
 
 # local
 .localsettings.json
+*.bak
