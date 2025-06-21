@@ -16,7 +16,9 @@ return {
       local lighter_red = '#e89bb6'
       local light_red = '#de80a1'
       local vibrant_red = '#ff5f83'
+      local danger_red = '#e43b53'
 
+      local test = '#ff86b4'
       local lighter_pink = '#ffddff'
       local light_pink = '#ffb0ff'
       local strong_pink = '#fe89f3'
@@ -25,8 +27,9 @@ return {
       local light_purple = '#a6b2fc'
       local strong_purple = '#a68cf0'
 
-      local light_blue = '#aad3fa'
+      local light_blue = '#52d7ff'
       local strong_blue = '#89b4fa'
+      local turqouise = '#9effe6'
 
       require('catppuccin').setup {
         transparent_background = true,
@@ -37,6 +40,7 @@ return {
 
           CursorLineNr = { fg = light_pink },
           ['@variable'] = { fg = lighter_pink },
+          ['@variable.builtin'] = { fg = light_pink },
           ['@property'] = { fg = lighter_pink },
           ['@field'] = { fg = lighter_pink },
           ['@type.definition'] = { fg = lighter_pink },
@@ -53,18 +57,23 @@ return {
           ['@keyword.return'] = { fg = vibrant_pink },
 
           Type = { fg = light_red },
-          ['@keyword.type'] = { fg = light_purple },
+          ['@keyword.type'] = { fg = vibrant_red },
           ['@type'] = { fg = light_red },
           ['@type.builtin'] = { fg = light_red },
           ['@type.builtin.c'] = { fg = light_red },
+          -- cpp
           ['@type.builtin.cpp'] = { fg = light_red },
+          -- TODO: figure out how to have different priority for class definition, declaration, and type
+          -- ['@lsp.typemod.class.declaration.cpp'] = { fg = light_pink },
+          -- ['@lsp.typemod.class.definition.cpp'] = { fg = light_pink },
+          -- ['@lsp.typemod.class.globalScope.cpp'] = { fg = light_pink },
 
           Keyword = { fg = strong_purple },
           ['@keyword'] = { fg = strong_purple },
           ['@keyword.function'] = { fg = strong_purple },
 
-          ['@keyword.import'] = { fg = vibrant_red },
-          ['@keyword.directive.define.c'] = { fg = vibrant_red },
+          ['@keyword.import'] = { fg = danger_red },
+          ['@keyword.directive.define.c'] = { fg = danger_red },
 
           ['@keyword.repeat'] = { fg = light_purple },
           ['@keyword.conditional'] = { fg = light_purple },
@@ -79,6 +88,8 @@ return {
 
           ['@boolean'] = { fg = light_yellow },
           ['@number'] = { fg = light_yellow },
+
+          ['@module'] = { fg = light_blue },
         },
       }
       vim.cmd.colorscheme 'catppuccin'
