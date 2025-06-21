@@ -86,7 +86,7 @@ return {
       fmt = function(name) -- for terminal, display path of termrinal
         if vim.bo.buftype == 'terminal' then
           local buf = vim.api.nvim_get_current_buf()
-          -- use the local buffer pwd which we set in after/plugin/lualine.lua
+          -- use the local buffer pwd which we set in after/plugin/statusline.lua
           if vim.b[buf].terminal_pwd and vim.b[buf].terminal_pwd ~= '' then
             return vim.b[buf].terminal_pwd
           end
@@ -195,9 +195,9 @@ return {
             'diff',
             symbols = { added = ' ', modified = ' ', removed = ' ' },
             diff_color = {
-              added = { fg = '#98be65' }, -- green
+              added = { fg = '#98be65' },    -- green
               modified = { fg = '#51afef' }, -- blue
-              removed = { fg = '#ff6c6b' }, -- red
+              removed = { fg = '#ff6c6b' },  -- red
             },
             cond = function()
               return vim.b.gitsigns_status_dict ~= nil

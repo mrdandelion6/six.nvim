@@ -20,7 +20,7 @@ return { -- fuzzy finder (files, lsp, etc)
     { 'nvim-telescope/telescope-ui-select.nvim' },
 
     -- useful for getting pretty icons, but requires a nerd font.
-    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
   },
 
   config = function()
@@ -81,6 +81,8 @@ return { -- fuzzy finder (files, lsp, etc)
           '!dist',
           '--glob',
           '!.*/',
+          '--glob',
+          '!build',
         }
       elseif vim.fn.executable 'fdfind' == 1 then
         opts.find_command = { -- ignore .git/, node_modules/, and other directories we typically wouldn't search.
