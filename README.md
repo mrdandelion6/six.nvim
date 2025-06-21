@@ -45,6 +45,11 @@ curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt install nodejs
 ```
 
+#### telescope.nvim
+```bash
+sudo apt install ripgrep
+```
+
 #### image.nvim
 ```bash
 # for magick_cli
