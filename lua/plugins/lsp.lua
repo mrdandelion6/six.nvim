@@ -214,7 +214,7 @@ return {
           },
         },
         editor = {
-          tabSize = 2,
+          tabSize = 4,
           insertSpaces = true,
         },
         -- unix style endings
@@ -235,7 +235,19 @@ return {
             'clangd',
             '--enable-config',
             '--background-index',
-            '--fallback-style=llvm',
+            '--fallback-style={IndentWidth: 4, TabWidth: 4, UseTab: Never}',
+            '--compile-commands-dir=.', -- project root
+          },
+          settings = {
+            clangd = {
+              formatting = {
+                style = {
+                  IndentWidth = 4,
+                  TabWidth = 4,
+                  UseTab = 'Never',
+                },
+              },
+            },
           },
         }),
 
@@ -246,6 +258,8 @@ return {
                 typeCheckingMode = 'basic',
                 diagnosticSeverityOverrides = {
                   reportMissingImports = 'none',
+                  reportMissingModuleSource = 'none',
+                  reportImportCycles = 'none',
                 },
               },
               formatting = {
@@ -346,9 +360,13 @@ return {
             end
 
             if should_format then
+              local cursor_pos = vim.api.nvim_win_get_cursor(0)
               vim.lsp.buf.format { async = false }
               vim.cmd [[%s/\s\+$//e]]
               vim.cmd [[%s/\r\+$//e]]
+              vim.cmd 'normal! gg=G'
+              vim.api.nvim_win_set_cursor(0, cursor_pos)
+              Center_cursor()
             end
           end
         end,
@@ -356,7 +374,6 @@ return {
 
       vim.api.nvim_create_user_command('ToggleFormatOnSave', function()
         vim.g.format_on_save = not vim.g.format_on_save
-        print('Format on save: ' .. tostring(vim.g.format_on_save))
       end, {})
       vim.g.format_on_save = true
     end,
