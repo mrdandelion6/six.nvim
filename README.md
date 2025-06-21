@@ -28,8 +28,8 @@ this is an all purpose configuration with a focus on coding in many different pr
 
 note that `kickstart/` contains configuration from the kickstart.nvim that i am not using.
 
-## setup
-### ubuntu/debian
+## Setup
+### Ubuntu/Debian
 install the following plugin dependencies
 
 ## Base
