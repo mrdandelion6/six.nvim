@@ -2,7 +2,7 @@
 -- this is the file for repl like functionality in code
 -- quarto.nvim is kinda related, as it lets me edit jupyter notebook type files, but that has it's
 -- own config file
-local utils = require 'core.utils'
+local platform = require 'core.platform'
 return {
   {
     'benlubas/molten-nvim',
@@ -10,9 +10,10 @@ return {
     dependencies = { 'image.nvim' },
     ft = { 'python', 'norg', 'markdown', 'quarto' }, -- this is just to avoid loading image.nvim, loading molten at the start has minimal startup time impact
     init = function()
-      if utils.IsWSL() then
+      if platform.is_wsl() then
         vim.g.molten_open_cmd = 'wslview'
-      elseif utils.IsLinux() then
+      elseif platform.is_linux() then
+        -- TODO: figure out if firefox is fine for this or use Falkon
         vim.g.molten_open_cmd = 'firefox'
       end
 

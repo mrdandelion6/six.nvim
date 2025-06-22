@@ -11,6 +11,22 @@ else
   print 'ERROR (platform.lua): platform not recognized'
 end
 
+function M.is_linux()
+  return M.platform == 'linux'
+end
+
+function M.is_wsl()
+  return M.is_linux() and vim.fn.system('uname -r'):lower():match 'microsoft' ~= nil
+end
+
+function M.is_mac()
+  return M.platform == 'mac'
+end
+
+function M.is_windows()
+  return M.platform == 'windows'
+end
+
 -- helper function to handle errors and return results
 local function execute_command(cmd)
   local result = vim.fn.system(cmd)

@@ -10,7 +10,7 @@ return {
     '3rd/image.nvim',
     -- "benlubas/image.nvim",
     -- enabled = false,
-    cond = not utils.MarkdownMode(),
+    cond = not utils.is_markdown_mode(),
     dependencies = { 'https://github.com/leafo/magick' },
     ft = { 'markdown', 'norg' },
     config = function()

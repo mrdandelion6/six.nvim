@@ -195,9 +195,9 @@ return {
             'diff',
             symbols = { added = ' ', modified = ' ', removed = ' ' },
             diff_color = {
-              added = { fg = '#98be65' },    -- green
+              added = { fg = '#98be65' }, -- green
               modified = { fg = '#51afef' }, -- blue
-              removed = { fg = '#ff6c6b' },  -- red
+              removed = { fg = '#ff6c6b' }, -- red
             },
             cond = function()
               return vim.b.gitsigns_status_dict ~= nil
