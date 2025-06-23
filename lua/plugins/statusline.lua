@@ -162,10 +162,6 @@ return {
               right = (function()
                 local root = vim.g.git_root
                 local sep = (root == '') and '' or ''
-                -- if vim.api.nvim_get_current_buf() == 3 then
-                -- print("Git root value: '" .. tostring(root) .. "'")
-                -- print("Separator value: '" .. tostring(sep) .. "'")
-                -- end
                 return sep
               end)(),
             },

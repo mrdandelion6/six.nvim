@@ -82,9 +82,9 @@ Here is a list of featues I plan on implementing.
 
 ### Visual
 - On the right side of buffers , add symbol to indicate errors in file (relative to size).
-- Fix bug with cursor not centering based on height. Right now , cursor centers based on lines above which is skewed for lines that bleed over to next row.
-- Fix top bar not updating with terminal's PWD sometimes.
+- Fix bug with cursor not centering based on height. Right now , cursor centers based on lines above which is skewed for lines that bleed over to next row. Make this into its own plugin.
 - Make bottom right status box transparent and chang the color of text inside it to pink.
+- Add terminal top bar updates for PowerShell users
 
 ### Color Scheme
 - Make class definitions light orange.
@@ -109,5 +109,8 @@ Here is a list of featues I plan on implementing.
 ### Long Term
 Not going to do these anytime soon.
 - Make Jupyter notebooks work using the plugins currently suffixed with `.unstable` in lua/plugins.
+
+### Other Bugs/Featues
+- Get_git_root() causes lag on Windows whenever it runs so set up a cache table for filepaths so it is only called once on files. Also set it to only be called when we are viewing a text file in the buffer (no terminal).
 
 Reach out to me with any questions. Happy coding.

@@ -1,5 +1,8 @@
 return { -- For persisting neovim sessions.
   'rmagatti/auto-session',
+  priority = 999, -- this is needed.
+  -- without the above , if statusline.lua loads first , terminal title won't
+  -- update.
   config = function()
     local auto_session = require 'auto-session'
 
@@ -39,7 +42,7 @@ return { -- For persisting neovim sessions.
       callback = function()
         if not auto_session.session_exists_for_cwd() then
           vim.cmd 'vsplit | wincmd l'
-          local width = math.floor(vim.o.columns * 0.35)
+          local width = math.floor(vim.o.columns * 0.45)
           vim.cmd('vertical resize ' .. width .. ' | terminal')
           vim.cmd 'wincmd h'
         end
