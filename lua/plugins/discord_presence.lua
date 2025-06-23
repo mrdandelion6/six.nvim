@@ -3,7 +3,7 @@ return {
   config = function()
     require('presence').setup {
       auto_update = true,
-      neovim_image_text = 'check out my config... github.com/mrdandelion6/six.nvim',
+      neovim_image_text = 'check out my config... https://github.com/mrdandelion6/six.nvim',
       main_image = 'neovim',
     }
   end,
