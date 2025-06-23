@@ -105,6 +105,7 @@ Here is a list of featues I plan on implementing.
 - Java
 - Rust
 - Verilog
+- Swift : Mason currently throwing an error when using `bash/swift_sourcekit_lsp.sh` in `lua/plugins/lsp.lua`.
 
 ### Long Term
 Not going to do these anytime soon.
