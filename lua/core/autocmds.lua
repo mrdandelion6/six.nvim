@@ -101,4 +101,7 @@ vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'BufEnter' }, {
   callback = Center_cursor,
 })
 
-vim.api.nvim_create_user_command('CenterCursor', Center_cursor, {})
+-- important for things like undo command.
+vim.api.nvim_create_autocmd('TextChanged', {
+  callback = Center_cursor,
+})
