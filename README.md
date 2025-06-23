@@ -48,10 +48,10 @@ Going into Colemak-DH layout swaps your movement keys from **hjkl to knei**. Thi
 ['J'] = 'E',
 ['L'] = 'I',
 ```
-These remaps affect key sequences as well. See [keymaps.lua](lua/core/keymaps.lua) to see in more detail.
+These remaps affect key sequences as well. See [keymaps.lua](lua/core/keymaps.lua) for more detail.
 
 ### Local Settings & Learn-to-Code Notes
-You will find a file `.localsettings_template.json` in the root of this repo. Upon running `nvim` for the first time wit this configuration , a file `.localsettings.json` will be generated. This file allows for persistent local settings that won't push to the repo. For example , when you toggle to Colemak-DH from QWERTY , your next `nvim` session will remember that you are currently on Colemak.
+You will find a file `.localsettings_template.json` in the root of this repo. Upon running `nvim` for the first time with this configuration , a file `.localsettings.json` will be generated. This file allows for persistent local settings that won't push to the repo. For example , when you toggle to Colemak-DH from QWERTY , your next `nvim` session will remember that you are currently on Colemak.
 
 You can also edit the **"notes_path"** JSON key to point to the path of any text notes you want to frequently look at. For instance , I have a big repo of all my various coding notes: [Learn-to-Code](https://github.com/mrdandelion6/Learn-to-Code). Pressing `<leader>fn` opens a telescope that will search through my notes repo. I find myself using this very often , if I ever forget anything and want a quick `man` like seach , or if I want to jot something new down. Feel free to clone my Learn-to-Code repo and use it.
 
@@ -62,12 +62,12 @@ The cursor is always kept centered , even at the end of a file. Normally , even 
 
 <a id="terminal-title"></a>
 ### Terminal Buffers Keep Title as PWD
-There is only one global status line at a time to keep things compact. The global status line displays the git root directory name of file in the current buffer (blank if not a repository). Each buffer also gets its own header at the top to indicate file name. For terminal buffers , this header corresponds to the PWD of the terminal.
+There is only one global status line instead of one per buffer. This is to keep things compact. The global status line displays the git root directory name of file in the current buffer (blank if not a repository). In return, each buffer gets its own small title at the top to indicate file name. For terminal buffers , this header corresponds to the PWD of the terminal.
 
-This is done through modifying `.bashrc` to send a signal to Neovim whenever you change directory. You must copy the contents of `bashrc.sh` into your own `~/.bashrc` script for this to work. This is still very buggy and I am working on a more reliable method. I have not yet implemented a Windows equivalent feature :(
+This is done through modifying `.bashrc` to send a signal to Neovim whenever you change directory or start a shell. You must copy some of the contents of `bashrc.sh` into your own `~/.bashrc` script for this to work. I have not yet implemented a Windows equivalent feature :(
 
 ### Runnable Jupyter Notebooks
-An unstable feature I am working on. Currently the plugin files for this end in the suffix `.unstable`. I didn't make a separate branch for this because I follow bad practices sometimes , cry about it.
+An unstable feature I am working on. Currently the plugin files for this end in the suffix `.unstable`. I didn't make a separate branch for this because I follow bad practices sometimes , sorry.
 
 When complete , should be able to view Jupyter notebooks like they are markdown files with runnable segments of code.
 
@@ -75,7 +75,7 @@ When complete , should be able to view Jupyter notebooks like they are markdown 
 You can find a breakdown of my files and what they are used for in [doc/files.md](doc/files.md).
 
 ## Terminal & Background
-I use Wezterm for my terminal in which I run Neovim as I develop on both Linux and Windows. You can find my configuration for Wezterm on Arch in my [.dotfiles repo](https://github.com/mrdandelion6/.dotfiles) , and for Windows in [.winfiles repo](https://github.com/mrdandelion6/.winfiles).
+I use Wezterm for my terminal , in which I run Neovim as I develop on both Linux and Windows. You can find my configuration for Wezterm on Arch in my [.dotfiles repo](https://github.com/mrdandelion6/.dotfiles) , and for Windows in [.winfiles repo](https://github.com/mrdandelion6/.winfiles).
 
 The background image I use for my terminal can be found [here](). And the different ASCII art I use can be found [here]().
 
@@ -83,10 +83,10 @@ The background image I use for my terminal can be found [here](). And the differ
 Here is a list of featues I plan on implementing.
 
 ### Visual
-- On the right side of buffers , add symbol to indicate errors in file (relative to size).
-- Fix bug with cursor not centering based on height. Right now , cursor centers based on lines above which is skewed for lines that bleed over to next row. Make this into its own plugin.
-- Make bottom right status box transparent and chang the color of text inside it to pink.
-- Add terminal top bar updates for PowerShell users
+- On the right side of buffers , add symbol to indicate where errors are in file (relative to size).
+- Fix bug with cursor not centering based on height. Right now , cursor centers based on 'lines above' which is skewed for lines that bleed to the next row. Make this into its own plugin later.
+- Make bottom right status box transparent and change the color of text inside it to pink.
+- Add terminal top bar updates for PowerShell users.
 
 ### Color Scheme
 - Make class definitions light orange.
