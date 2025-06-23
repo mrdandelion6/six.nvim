@@ -322,10 +322,10 @@ return {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua',       -- lua formatter
+        'stylua', -- lua formatter
         'clang-format', -- c/c++
-        'prettier',     -- js/ts
-        'black',        -- python
+        'prettier', -- js/ts
+        'black', -- python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -361,11 +361,26 @@ return {
 
             if should_format then
               local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
+              -- remove trailing stuff
               vim.lsp.buf.format { async = false }
               vim.cmd [[%s/\s\+$//e]]
               vim.cmd [[%s/\r\+$//e]]
               vim.cmd 'normal! gg=G'
-              vim.api.nvim_win_set_cursor(0, cursor_pos)
+
+              -- this could fail if we are at EOF that had trailing lines.
+              local success = pcall(function()
+                vim.api.nvim_win_set_cursor(0, cursor_pos)
+              end)
+
+              -- if it fails , then we were at some empty lines at EOF that got
+              -- got removed. just go back to new EOF.
+              if not success then
+                local line_count = vim.api.nvim_buf_line_count(0)
+                local last_line = vim.api.nvim_buf_get_lines(0, -2, -1, false)[1] or ''
+                vim.api.nvim_win_set_cursor(0, { line_count, #last_line })
+              end
+
               Center_cursor()
             end
           end
