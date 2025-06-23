@@ -1,6 +1,8 @@
-# faisal.nvim
+# faisal.nvim ![Version](https://img.shields.io/badge/version-1.0-blue)
 
 Welcome to my custom configuration for Neovim. This configuration was originally forked from **kickstart.nvim** but has been greatly changed.
+
+![Screenshot](samples/nvim.png)
 
 ## Setup
 You will generally need the following dependencies installed and on PATH:
