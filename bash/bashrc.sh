@@ -1,17 +1,25 @@
-NEOVIM_PATH="$HOME/.config/nvim/"
+# WELCOME MESSAGE CONFIGURATION
+# config for what you want your shell to print when it starts. not specific to
+# neovim. just in case you wanna copy my aesthetic ;)
 
+# here we have some constants
 # add colors here
 CUSTOM_PINK='\e[38;2;228;171;212m'
 CUSTOM_GRAY='\e[38;2;196;189;210m'
 NC='\e[0m'
 
 # configure these as you like
-lolcat_enabled=0
+fastfetch=true # if you want to print fastfetch
 CENTERED_WELCOME=1
 WELCOME_COLOR=$CUSTOM_GRAY
-ascii_path="${NEOVIM_PATH}bash/ascii_art/"
+
+# change this to a different location if you want. if you want to use the same
+# art as i do , then you can clone my .dotfiles repo in the path below. see the
+# README for .dotfiles repo.
+ascii_path="$HOME/.dotfiles/ascii_art/"
 ascii_art="reaper2.txt"
 
+# function that prints given text centered in the terminal for whatever width.
 center_text() {
     local should_center=$CENTERED_WELCOME
 
@@ -22,38 +30,60 @@ center_text() {
 
     term_width=$(tput cols)
 
-    # Read input line by line while preserving colors
+    # read input line by line while preserving colors
     while IFS= read -r line; do
-        # Strip ANSI color codes for width calculation
+        # strip ansi color codes for width calculation
         plain_line=$(echo -e "$line" | sed 's/\x1b\[[0-9;]*m//g')
-        # Calculate padding
+        # calculate padding
         padding=$(( (term_width - ${#plain_line}) / 2 ))
-        # Add padding before the line
+
+        # add padding before the line
         printf "%${padding}s%s\n" "" "$line"
     done
 }
 
+# print the welcome message , whether fastfetch or ascii art
 welcome() {
     echo; echo
-    if [ -f "$ascii_path$ascii_art" ]; then
-        if [[ $lolcat_enabled -eq 1 ]]; then
-            cat "$ascii_path$ascii_art" | lolcat -S 35 -p 100 -F 0.05 | center_text
-        else
-            echo -e "${WELCOME_COLOR}$(cat "$ascii_path$ascii_art")${NC}" | center_text
-        fi
-    else
-        figlet -f red_phoenix "start" | lolcat -S 13 | center_text
+    if [ "$is_arch" = true ]; then
+        fastfetch
+    elif [ -f "$ascii_path$ascii_art" ]; then
+        echo -e "${WELCOME_COLOR}$(cat "$ascii_path$ascii_art")${NC}" |
+            center_text
     fi
     echo; echo
 }
 
+# NVIM CONFIGS
+# here are some actual functions needed for my nvim config if you want certain
+# features.
+
+# for launching nvim with right venv enabled. needed if using molten.nvim.
+nvim() {
+    if [[ "$VIRTUAL_ENV" != "neovim" ]]; then
+        if [ -n "$VIRTUAL_ENV" ]; then
+            deactivate
+        fi
+        if [ -f "$envdir/neovim" ]; then
+            actenv 'neovim'
+        fi
+    fi
+    command nvim "$@"
+}
+
+# for updating the buffer title for terminal buffers. sets title to pwd and
+# updates on cd.
 notify_nvim() {
-    printf '\033]51;%s\007' $(pwd)
+    # send specific signal to neovim ONLY if this terminal is spawned inside it
+    if [ -n "$NVIM" ]; then
+        printf '\033]51;%s\007' $(pwd)
+    fi
 }
 
 function cd() {
     builtin cd "$@"
-    if [ -n "$NVIM" ]; then
-        notify_nvim
-    fi
+    notify_nvim
 }
+
+# also run it at the moment your terminal loads.
+notify_nvim
