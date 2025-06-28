@@ -40,7 +40,7 @@ sudo apt install luarocks imagemagick libmagick++-dev
 sudo apt install libmagickwand-dev
 ```
 
-#### molten.nvim
+### molten.nvim
 ```bash
 # create a virtual environment
 cd ~/.envs # path matters
