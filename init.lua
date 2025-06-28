@@ -2,7 +2,7 @@
 
   NOTE: HELP:
 
-    `:help`.
+    :help
       This will open up a help window with some basic information
       about reading, navigating and searching the builtin help documentation.
 
@@ -13,11 +13,14 @@
     "<space>sk"
       to [s]earch for the set [k]eymaps easily.
 
-    https://learnxinyminutes.com/docs/lua/
-      crash demo of lua
+    crash demo of lua
+      https://learnxinyminutes.com/docs/lua/
 
     :help lua-guide
       reference for how neovim integrates lua after you understand some basic lua.
+
+    learn lua in depth and how to use it in neovim
+      https://github.com/mrdandelion6/learn-to-code/blob/main/languages/lua/notes.lua
 
     kickstart.nvim setup guide
       https://github.com/mrdandelion6/Learn-to-Code/blob/main/topics/using-vim/neovim.md
