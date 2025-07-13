@@ -12,6 +12,9 @@ sudo pacman -S python python-pip
 
 # node and npm, many LSP need this
 sudo pacman -S nodejs npm
+
+# tree-sitter-cli used by certain LSP like for latex
+sudo npm install -g tree-sitter-cli
 ```
 
 ### telescope.nvim
@@ -28,7 +31,7 @@ sudo pacman -S zathura zathura-pdf-mupdf
 sudo pacman -S zathura-pdf-poppler
 
 # full tex live , includes all major latex packages. ~2-3GB
-sudo pacman -S texlive-most textlive-lang
+sudo pacman -S texlive
 # includes pdflatex , xelatex , lualatex , latexmk , and common latex packages
 ```
 
@@ -68,7 +71,7 @@ vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
 you will also need quarto cli:
 ```bash
 # get latest release
-wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.40/quarto-1.6.40-linux-amd64.deb
+yay -S quarto-cli
 
 # install
 sudo dpkg -i quarto-1.6.40-linux-amd64.deb
