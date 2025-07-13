@@ -1,4 +1,4 @@
-# six.nvim ![Version](https://img.shields.io/badge/version-1.1-blue)
+# six.nvim ![Version](https://img.shields.io/badge/version-1.2-blue)
 
 Welcome to my custom configuration for Neovim. This configuration was originally forked from **kickstart.nvim** but has been greatly changed.
 
@@ -140,14 +140,18 @@ Not going to do these anytime soon.
 - Get_git_root() causes lag on Windows whenever it runs so set up a cache table for filepaths so it is only called once on files. Also set it to only be called when we are viewing a text file in the buffer (no terminal).
 
 ## Latest Changes
+### v1.2
+- **LaTeX compilation support**: Added LaTeX support with automatic compilation and hot reloading using `vimtex` plugin
+- **Git root caching**: Now caching Git root directory paths to reduce calls for `git -C %s rev-parse --show-toplevel` as this caused lag issues on Windows devices
+
 ### v1.1
-- **Terminal title updates** - Resolved plugin loading order issue that prevented terminal titles from updating properly
-- Added plugin for Discord presence
+- **Terminal title updates**: Resolved plugin loading order issue that prevented terminal titles from updating properly
+- **Discord presence**: Added Discord presence using `presence.nvim`
 
 ### v1.0
-- **Renamed to six.nvim** - Updated branding and reached version 1.0 milestone
+- **Renamed to six.nvim**: Updated branding and reached version 1.0 milestone
 - Cursor automatically centers when text changes (undo, edits, etc.) for better focus now
 - Fixed EOF cursor positioning bug and improved save behavior with cursor centering
-- **Added documentation** - Added Windows setup guide alongside existing Arch and Ubuntu documentation
+- **Added documentation**: Added Windows setup guide alongside existing Arch and Ubuntu documentation
 
 Reach out to me with any questions. Happy coding.
