@@ -22,30 +22,54 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 local function get_git_root()
-  -- get the current buffer's file path
-  local current_file = vim.fn.expand '%:p'
-  if current_file == '' then
+  -- only run this function on regular file types
+  if vim.bo.buftype ~= '' then
     return ''
   end
 
   -- get the directory of the current file
+  local current_file = vim.fn.expand '%:p'
   local current_dir = vim.fn.fnamemodify(current_file, ':h')
-
-  -- use git rev-parse with the current file's directory
-  local cmd = string.format('git -C %s rev-parse --show-toplevel', vim.fn.shellescape(current_dir))
-  local git_root = vim.fn.system(cmd)
-
-  if vim.v.shell_error ~= 0 then
-    return ''
+  if not current_dir:match '/$' then
+    current_dir = current_dir .. '/'
   end
 
-  -- clean up the output
-  git_root = git_root:gsub('\n', '')
+  -- check our cache first. this is especialy good for windows , which takes
+  -- longer for git rev-parse.
+  local cache = vim.g.git_root_cache or {}
+  local git_root = nil
 
-  if git_root ~= '' then
-    return vim.fn.fnamemodify(git_root, ':t')
+  for key, value in pairs(cache) do
+    if current_dir:sub(1, #key) == key then
+      git_root = value
+    end
   end
-  return ''
+
+  if git_root then
+    return git_root
+  else
+    -- use git rev-parse with the current file's directory
+    local cmd = string.format('git -C %s rev-parse --show-toplevel', vim.fn.shellescape(current_dir))
+    git_root = vim.fn.system(cmd)
+
+    if vim.v.shell_error ~= 0 then
+      return ''
+    end
+
+    -- clean up the output
+    git_root = git_root:gsub('\\', '/')
+    git_root = git_root:gsub('\n', '')
+    local git_root_dir_name = vim.fn.fnamemodify(git_root, ':t')
+    if not git_root:match '/$' then
+      git_root = git_root .. '/'
+    end
+
+    -- cache it
+    cache[git_root] = git_root_dir_name
+    vim.g.git_root_cache = cache
+
+    return git_root_dir_name
+  end
 end
 
 vim.api.nvim_create_autocmd({ 'BufEnter' }, {
