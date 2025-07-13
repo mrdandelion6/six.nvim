@@ -33,10 +33,8 @@ mv repl.lua.unstable repl.lua
 Now install the following dependendies:
 ### image.nvim
 ```bash
-# for magick_cli
-sudo apt install luarocks imagemagick libmagick++-dev
-# for magick_rock
-sudo apt install libmagickwand-dev
+# for magick_cli and magick_rock
+sudo pacman -S luarocks imagemagick
 ```
 
 ### molten.nvim
