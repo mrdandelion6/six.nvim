@@ -4,19 +4,29 @@ Install the following plugin dependencies:
 ## Base
 The following dependencies are needed for multliple plugins:
 ```bash
-pacman -S curl
-pacman -S unzip
+sudo pacman -S curl
+sudo pacman -S unzip
 
 # python
-pacman -S python python-pip
+sudo pacman -S python python-pip
 
 # node and npm, many LSP need this
-pacman -S nodejs npm
+sudo pacman -S nodejs npm
 ```
 
 ### telescope.nvim
 ```bash
-pacman -S ripgrep
+sudo pacman -S ripgrep
+```
+
+## For LaTeX
+```bash
+# good pdf viewer with hot reloading
+sudo pacman -S zathura zathura-pdf-mupdf
+
+# full tex live , includes all major latex packages
+sudo pacman -S texlive-most textlive-lang
+# includes pdflatex , xelatex , lualatex , latexmk , and common latex packages
 ```
 
 ## For Jupyter Notebooks
