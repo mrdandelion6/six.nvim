@@ -20,6 +20,18 @@ sudo apt install nodejs
 sudo apt install ripgrep
 ```
 
+## For LaTeX
+```bash
+# good pdf viewer with hot reloading
+sudo apt install zathura zathura-pdf-mupdf
+
+# if issuse with mupdf backend , install poppler
+sudo apt install zathura-pdf-poppler
+
+# full tex live , includes all major latex packages. ~4-5GB
+sudo apt install texlive-full
+```
+
 ## For Jupyter Notebooks
 The following plugins are only needed if you want to render and execute code inside Jupyter notebooks. Note that you may run into several problems in making this work properly. If I'm being honest , I've been lazy to figure out how to make this work exactly. I recommend not trying this unless you absolutely want to use Neovim on notebooks.
 
