@@ -30,5 +30,17 @@ scoop install nodejs
 scoop install ripgrep
 ```
 
+## LaTeX
+```bash
+# good pdf viewer with hot reloading on windows
+scoop install sumatrapdf
+
+# miktex from scoop:
+scoop bucket add extras
+scoop install miktex
+
+# or download miktex from: https://miktex.org/
+```
+
 ## For Jupyter Notebooks
 Have not attempted any Windows support for this. You can try to mimic the dependencies in [ubuntu_setup.md](ubuntu_setup.md).
