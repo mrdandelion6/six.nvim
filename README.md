@@ -137,7 +137,7 @@ Not going to do these anytime soon.
 - Make Jupyter notebooks work using the plugins currently suffixed with `.unstable` in lua/plugins.
 
 ### Other Bugs/Featues
-- Get_git_root() causes lag on Windows whenever it runs so set up a cache table for filepaths so it is only called once on files. Also set it to only be called when we are viewing a text file in the buffer (no terminal).
+- Sometimes doing undo via `u` key in normal mode causes an error due to cursor centering leading to an out of bounds cursor position
 
 ## Latest Changes
 ### v1.2
