@@ -70,15 +70,15 @@ vim.opt.fillchars = {
 
 local platform = require 'core.platform'
 
--- python virtual environment for any deps
-vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
-
 local function verify_settings_format(settings)
   if not settings then
     print 'ERROR (core/options.lua): settings is nil. TIP: run cp .localsettings_template.json .localsettings.json.'
     return 1
   elseif not settings.layout then
     print 'ERROR (core/options.lua): settings.layout is nil. TIP: see .localsettings_template.json for example.'
+    return 1
+  elseif not settings.venv_path then
+    print 'ERROR (core/options.lua): settings.env_path is nil. TIP: see .localsettings_template.json for example.'
     return 1
   end
   return 0
@@ -105,6 +105,11 @@ if not success then
   print('ERROR (options.lua): issue parsing json file' .. settings)
 elseif verify_settings_format(settings) == 0 then
   vim.g.local_settings = settings
+end
+
+-- python virtual environment for any deps
+if vim.g.local_settings then
+  vim.g.python3_host_prog = vim.g.local_settings.venv_path
 end
 
 -- set platform specific options
