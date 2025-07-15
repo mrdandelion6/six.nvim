@@ -63,9 +63,10 @@ source ~/.envs/neovim/bin/activate
 # install the following deps
 pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext jupyter jupyterlab
 ```
-if you want to use a different path than `~/.envs/neovim/`, then you must edit `lua/core/options.lua` and change this line:
-```lua
-vim.g.python3_host_prog = vim.fn.expand '~/.envs/neovim/bin/python3'
+
+if you want to use a different path than `~/.envs/neovim/`, then you must edit `.localsettings.json` and change this key:
+```json
+"venv_path": "~/.envs"
 ```
 
 you will also need quarto cli:
