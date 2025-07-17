@@ -17,6 +17,8 @@ return {
     vim.g.vimtex_compiler_method = 'latexmk'
     vim.g.vimtex_compiler_latexmk = {
       build_dir = '',
+      aux_dir = '.tex_info',
+      out_dir = '',
       callback = 1,
       continuous = 1,
       executable = 'latexmk',
@@ -58,14 +60,6 @@ return {
         vim.keymap.set('n', '<leader>ls', '<cmd>VimtexStop<cr>', opts)
         vim.keymap.set('n', '<leader>lt', '<cmd>VimtexTocToggle<cr>', opts)
         vim.keymap.set('n', '<leader>lg', '<cmd>VimtexStatus<cr>', opts)
-      end,
-    })
-
-    -- auto-compile on save
-    vim.api.nvim_create_autocmd('BufWritePost', {
-      pattern = '*.tex',
-      callback = function()
-        vim.cmd 'VimtexCompile'
       end,
     })
   end,
