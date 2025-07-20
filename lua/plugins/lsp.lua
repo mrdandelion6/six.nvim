@@ -111,18 +111,18 @@ return {
           --  useful when your language has ways of declaring types without an actual implementation.
           map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
-          -- jump to the type of the word under your cursor.
+          -- go to the type of the word under your cursor.
           --  useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          map('gt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype')
 
           -- fuzzy find all the symbols in your current document.
           --  symbols are things like variables, functions, types, etc.
-          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          map('<leader>fs', require('telescope.builtin').lsp_document_symbols, '[F]ind Document [S]ymbols')
 
           -- fuzzy find all the symbols in your current workspace.
           --  similar to document symbols, except searches over your entire project.
-          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          map('<leader>fS', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[F]ind Workspace [S]ymbols')
 
           -- rename the variable under your cursor.
           --  most Language Servers support renaming across files, etc.

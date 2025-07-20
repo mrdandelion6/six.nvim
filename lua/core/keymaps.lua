@@ -292,7 +292,8 @@ end
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- diagnostics
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = '[D]isplay [D]iagnostics Under Cursor' })
+vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Open [D]iagnostic [L]ist' })
 
 -- leader <Esc> if you also use vim inside terminal itself (set -o vi)
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
@@ -301,7 +302,7 @@ start_layout()
 set_message_maps()
 disable_yanks()
 
--- function to toggle between layouts
+-- function to toggle between layouts: <leader>tc
 local function toggle_colemak()
   local settings = vim.g.local_settings
   if settings.layout == 'colemak' then
