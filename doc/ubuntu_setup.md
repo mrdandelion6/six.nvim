@@ -25,7 +25,7 @@ sudo apt install ripgrep
 # good pdf viewer with hot reloading
 sudo apt install zathura zathura-pdf-mupdf
 
-# if issuse with mupdf backend , install poppler
+# if issues with mupdf backend , install poppler
 sudo apt install zathura-pdf-poppler
 
 # full tex live , includes all major latex packages. ~4-5GB
