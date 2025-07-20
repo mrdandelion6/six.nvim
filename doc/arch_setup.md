@@ -27,7 +27,7 @@ sudo pacman -S ripgrep
 # good pdf viewer with hot reloading
 sudo pacman -S zathura zathura-pdf-mupdf
 
-# if issuse with mupdf backend , install poppler
+# if issues with mupdf backend , install poppler
 sudo pacman -S zathura-pdf-poppler
 
 # full tex live , includes all major latex packages. ~2-3GB
