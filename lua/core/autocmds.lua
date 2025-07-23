@@ -47,7 +47,6 @@ local function get_git_root()
 
   for key, value in pairs(cache) do
     if current_dir:sub(1, #key) == key then
-      print(current_dir:sub(1, #key) .. ' VS ' .. key)
       return value
     end
   end
@@ -58,7 +57,6 @@ local function get_git_root()
 
   if vim.v.shell_error ~= 0 then
     -- no match found , cache
-    print 'no match found..'
     cache[current_dir] = ''
     vim.g.git_root_cache = cache
     return ''
