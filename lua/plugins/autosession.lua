@@ -1,4 +1,4 @@
-return { -- For persisting neovim sessions.
+return {          -- For persisting neovim sessions.
   'rmagatti/auto-session',
   priority = 999, -- this is needed.
   -- without the above , if statusline.lua loads first , terminal title won't
@@ -40,9 +40,16 @@ return { -- For persisting neovim sessions.
     -- If opened CWD isn't an existing session, spawn a terminal on the right
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
+        local platform = require 'core.platform'
         if not auto_session.session_exists_for_cwd() then
           vim.cmd 'vsplit | wincmd l'
-          local width = math.floor(vim.o.columns * 0.45)
+          local ratio = 0.45
+          if platform.is_windows() then
+            -- terminals spawned inside windows for nvim cant shrink fastfetch
+            -- output for some reason , so need more space.
+            ratio = 0.52
+          end
+          local width = math.floor(vim.o.columns * ratio)
           vim.cmd('vertical resize ' .. width .. ' | terminal')
           vim.cmd 'wincmd h'
         end
@@ -61,7 +68,8 @@ return { -- For persisting neovim sessions.
 
     vim.keymap.set('n', '<leader>sq', auto_session.SaveSession, { desc = '[S]ession [Q]uicksave(CWD)' })
 
-    vim.keymap.set('n', '<leader>ss', require('auto-session.session-lens').search_session, { desc = '[S]earch [S]essions' })
+    vim.keymap.set('n', '<leader>ss', require('auto-session.session-lens').search_session,
+      { desc = '[S]earch [S]essions' })
 
     vim.keymap.set('n', '<leader>sd', delete_session_with_notification, { desc = '[S]ession [D]elete (CWD)' })
   end,
