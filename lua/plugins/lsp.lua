@@ -281,7 +281,6 @@ return {
         -- }),
 
         bashls = {},
-        gopls = {},
         rust_analyzer = {},
         verible = {},
 
@@ -322,10 +321,10 @@ return {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- lua formatter
+        'stylua',       -- lua formatter
         'clang-format', -- c/c++
-        'prettier', -- js/ts
-        'black', -- python
+        'prettier',     -- js/ts
+        'black',        -- python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
