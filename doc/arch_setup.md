@@ -38,7 +38,7 @@ sudo pacman -S texlive
 ## For Jupyter Notebooks
 The following plugins are only needed if you want to render and execute code inside Jupyter notebooks. Note that you may run into several problems in making this work properly. If I'm being honest , I've been lazy to figure out how to make this work exactly. I recommend not trying this unless you absolutely want to use Neovim on notebooks.
 
-To begin with, rename the following files:
+To begin with, rename the following files in `lua/plugins/`:
 ```
 mv quarto.lua.unstable quarto.lua
 mv images.lua.unstable images.lua
