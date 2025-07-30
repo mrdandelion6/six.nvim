@@ -47,6 +47,7 @@ require 'core.cmds'
 
 require('lazy').setup({
   { import = 'plugins' },
+  { import = 'local' },
 }, require('core.ui').lazy)
 
 -- the line beneath this is called `modeline`. see `:help modeline`

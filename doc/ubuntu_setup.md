@@ -35,13 +35,16 @@ sudo apt install texlive-full
 ## For Jupyter Notebooks
 The following plugins are only needed if you want to render and execute code inside Jupyter notebooks. Note that you may run into several problems in making this work properly. If I'm being honest , I've been lazy to figure out how to make this work exactly. I recommend not trying this unless you absolutely want to use Neovim on notebooks.
 
-To begin with, rename the following files in `lua/plugins`:
+To begin with , copy the following files from `lua/unstable` to `lua/local`:
+```bash
+cd ~/.config/nvim/lua # or wherever your config is
+mkdir local
+cp unstable/quarto.lua local/quarto.lua
+cp unstable/images.lua local/images.lua
+cp unstable/render.lua local/render.lua
+cp unstable/repl.lua local/repl.lua
 ```
-mv quarto.lua.unstable quarto.lua
-mv images.lua.unstable images.lua
-mv render.lua.unstable render.lua
-mv repl.lua.unstable repl.lua
-```
+Things in `lua/local` are not tracked by git.
 
 Now install the following dependendies:
 ### image.nvim
