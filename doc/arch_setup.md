@@ -4,8 +4,7 @@ Install the following plugin dependencies:
 ## Base
 The following dependencies are needed for multliple plugins:
 ```bash
-sudo pacman -S curl
-sudo pacman -S unzip
+sudo pacman -S curl unzip yarn
 
 # python
 sudo pacman -S python python-pip
@@ -81,3 +80,9 @@ yay -S quarto-cli
 sudo dpkg -i quarto-1.6.40-linux-amd64.deb
 ```
 
+molten is a remote plugin so now you must run `:UpdateRemotePlugins` command in `nvim` , which should output:
+```bash
+remote/host: python3 host registered plugins ['molten']
+remote/host: generated rplugin manifest: $HOME/.local/share/nvim/rplugin.vim
+```
+if you have python3 issues , make sure your `venv_path` points to an existing virtual environment with the required deps listed above.

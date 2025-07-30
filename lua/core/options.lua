@@ -14,10 +14,10 @@ vim.schedule(function()
 end)
 
 -- tab
-vim.opt.tabstop = 4 -- number of spaces that a <tab> counts for
-vim.opt.shiftwidth = 4 -- number of spaces to use for autoindent
+vim.opt.tabstop = 4      -- number of spaces that a <tab> counts for
+vim.opt.shiftwidth = 4   -- number of spaces to use for autoindent
 vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.softtabstop = 4 -- number of spaces that a <tab> counts for while performing editing operations
+vim.opt.softtabstop = 4  -- number of spaces that a <tab> counts for while performing editing operations
 
 -- text wrapping for buffers
 vim.opt.breakindent = true
@@ -88,7 +88,8 @@ end
 local settings_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
 local exists = vim.fn.filereadable(settings_path)
 if exists == 0 then
-  print('WARNING (options.lua): .localsettings.json not found at: ' .. settings_path .. '. generating file from .localsettings_template.json')
+  print('WARNING (options.lua): .localsettings.json not found at: ' ..
+    settings_path .. '. generating file from .localsettings_template.json')
   local template_path = vim.fn.stdpath 'config' .. '/.localsettings_template.json'
   platform.cp(template_path, settings_path)
   local copy_success = vim.v.shell_error == 0
@@ -109,7 +110,7 @@ end
 
 -- python virtual environment for any deps
 if vim.g.local_settings then
-  vim.g.python3_host_prog = vim.g.local_settings.venv_path
+  vim.g.python3_host_prog = vim.g.local_settings.venv_path .. 'neovim/bin/python'
 end
 
 -- set platform specific options
