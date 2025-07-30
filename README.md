@@ -134,7 +134,7 @@ Here is a list of featues I plan on implementing.
 
 ### Long Term
 Not going to do these anytime soon.
-- Make Jupyter notebooks work using the plugins currently suffixed with `.unstable` in lua/plugins.
+- Make Jupyter notebooks work using the plugins currently in `lua/unstable`.
 
 ### Other Bugs/Featues
 - Sometimes doing undo via `u` key in normal mode causes an error due to cursor centering leading to an out of bounds cursor position
