@@ -67,7 +67,7 @@ There is only one global status line instead of one per buffer. This is to keep 
 This is done through modifying `.bashrc` to send a signal to Neovim whenever you change directory or start a shell. You must copy some of the contents of `bashrc.sh` into your own `~/.bashrc` script for this to work. I have not yet implemented a Windows equivalent feature :(
 
 ### Runnable Jupyter Notebooks
-An unstable feature I am working on. Currently the plugin files for this end in the suffix `.unstable`. I didn't make a separate branch for this because I follow bad practices sometimes , sorry.
+An unstable feature I am working on. Currently the plugin files for these are in `lua/unstable`.
 
 When complete , should be able to view Jupyter notebooks like they are markdown files with runnable segments of code.
 
