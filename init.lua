@@ -45,10 +45,12 @@ require 'core.keymaps'
 require 'core.autocmds'
 require 'core.cmds'
 
-require('lazy').setup({
-  { import = 'plugins' },
-  { import = 'local' },
-}, require('core.ui').lazy)
+local specs = { { import = 'plugins' } }
+if pcall(require, 'local') then
+  table.insert(specs, { import = 'local' })
+end
+
+require('lazy').setup(specs, require('core.ui').lazy)
 
 -- the line beneath this is called `modeline`. see `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
