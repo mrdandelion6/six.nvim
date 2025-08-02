@@ -17,8 +17,7 @@ return {
     vim.g.vimtex_compiler_method = 'latexmk'
     vim.g.vimtex_compiler_latexmk = {
       build_dir = '',
-      aux_dir = '.tex_info',
-      out_dir = '',
+      aux_dir = '.tex',
       callback = 1,
       continuous = 1,
       executable = 'latexmk',

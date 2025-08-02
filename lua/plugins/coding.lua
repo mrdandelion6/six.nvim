@@ -84,6 +84,9 @@ return {
       local luasnip = require 'luasnip'
       luasnip.config.setup {}
 
+      -- load custom snippets
+      luasnip.add_snippets('tex', require 'snippets.tex')
+
       cmp.setup {
         snippet = {
           expand = function(args)
