@@ -9,8 +9,8 @@ return {
       vim.g.vimtex_view_method = 'zathura'
     elseif platform.is_windows() or platform.is_wsl() then
       vim.g.vimtex_view_method = 'general'
-      vim.g.vimtex_view_general_viewer = 'SumatraPDF'
-      vim.g.vimtex_view_general_options = '-reuse-instance @pdf'
+      vim.g.vimtex_view_general_viewer = 'texworks'
+      vim.g.vimtex_view_general_options = '@pdf'
     end
 
     -- compiler settings
