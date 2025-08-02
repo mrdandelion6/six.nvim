@@ -23,6 +23,9 @@ scoop install python
 
 # node and npm, many LSP need this
 scoop install nodejs
+
+# used by certain LSP like latex
+npm install -g tree-sitter-cli
 ```
 
 ### telescope.nvim
