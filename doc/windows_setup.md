@@ -45,5 +45,7 @@ scoop install miktex
 # or download miktex from: https://miktex.org/
 ```
 
+Make sure to add SumatrPDF to your `Path` environment variable.
+
 ## For Jupyter Notebooks
 Have not attempted any Windows support for this. You can try to mimic the dependencies in [ubuntu_setup.md](ubuntu_setup.md).

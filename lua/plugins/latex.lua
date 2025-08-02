@@ -10,7 +10,7 @@ return {
     elseif platform.is_windows() or platform.is_wsl() then
       vim.g.vimtex_view_method = 'general'
       vim.g.vimtex_view_general_viewer = 'SumatraPDF'
-      vim.g.vimtex_view_general_options = '-reuse-instance'
+      vim.g.vimtex_view_general_options = '-reuse-instance @pdf'
     end
 
     -- compiler settings
