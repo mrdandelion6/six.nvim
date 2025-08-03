@@ -139,7 +139,7 @@ return {
     t { '', '% ===' },
     t { '', '' },
     t { '', '% === commands ===' },
-    t { '', '\\newcommand{\\sh}[1]{\\vspace{0.2cm}\\textbf{#1}\\\\}' },
+    t { '', '\\newcommand{\\sh}[1]{\\vspace{0.2cm}\\textbf{#1}\\vspace{-0.4cm}\\mbox{}}' },
     t { '', '% ===' },
     t { '', '' },
     t { '', '% === par indentations ===' },
