@@ -2,15 +2,15 @@ local ls = require 'luasnip'
 local s = ls.snippet
 local t = ls.text_node
 local i = ls.insert_node
-local f = ls.function_node
 local c = ls.choice_node
 
 return {
   -- personal enviroments
   s('mpar', {
     t '\\begin{mypar}',
+    t { '', '\t' },
     i(1),
-    t '\\end{mypar}',
+    t { '', '\\end{mypar}' },
   }),
 
   s('thm', {
@@ -57,10 +57,11 @@ return {
   s('sec', {
     t '\\section{',
     i(1, 'title'),
-    t '}',
+    t { '}', '' },
     t '\\begin{mypar}',
+    t { '', '\t' },
     i(0),
-    t '\\end{mypar}',
+    t { '', '\\end{mypar}' },
   }),
 
   s('fig', {
@@ -196,7 +197,6 @@ return {
     t { '', '{\\end{cindent}\\hfill$\\blacklozenge$}' },
     t { '', '% ===' },
     t { '', '' },
-    t { '', '' },
     t { '', '% === tikz ===' },
     t { '', '\\tikzset{' },
     t { '', '    every child/.style={' },
@@ -204,6 +204,10 @@ return {
     t { '', '    }' },
     t { '', '}' },
     t { '', '% ===' },
+    t { '', '' },
+    t { '', '=== other separation ===' },
+    t { '', 'setlist[itemize]{topsep=0.2em}' },
+    t { '', '===' },
     t { '', '' },
     t { '', '% ========== meta ==========' },
     t { '', '% ==========================' },
