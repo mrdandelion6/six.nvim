@@ -1,0 +1,92 @@
+vim.api.nvim_create_autocmd('BufWritePre', {
+  desc = 'Format on save using LSP',
+  group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
+  callback = function()
+    if vim.g.format_on_save then
+      -- check if this file is in our exclude_autoformat
+      local file_path = vim.fn.expand '%:p'
+      local should_format = true
+      if vim.g.local_settings and vim.g.local_settings.exclude_autoformat then
+        for _, pattern in ipairs(vim.g.local_settings.exclude_autoformat) do
+          if file_path:match(pattern) then
+            should_format = false
+            break
+          end
+        end
+      end
+
+      if should_format then
+        local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
+        -- remove trailing stuff
+        vim.lsp.buf.format { async = false }
+        vim.cmd [[%s/\s\+$//e]]
+        vim.cmd [[%s/\r\+$//e]]
+        vim.cmd 'normal! gg=G'
+
+        -- this could fail if we are at EOF that had trailing lines.
+        local success = pcall(function()
+          vim.api.nvim_win_set_cursor(0, cursor_pos)
+        end)
+
+        -- if it fails , then we were at some empty lines at EOF that got
+        -- got removed. just go back to new EOF.
+        if not success then
+          local line_count = vim.api.nvim_buf_line_count(0)
+          local last_line = vim.api.nvim_buf_get_lines(0, -2, -1, false)[1] or ''
+          vim.api.nvim_win_set_cursor(0, { line_count, #last_line })
+        end
+
+        Center_cursor()
+      end
+    end
+  end,
+})
+
+vim.api.nvim_create_user_command('ToggleFormatOnSave', function()
+  vim.g.format_on_save = not vim.g.format_on_save
+end, {})
+vim.g.format_on_save = true
+
+return { -- code autoformat
+  'stevearc/conform.nvim',
+  event = { 'BufWritePre' },
+  cmd = { 'ConformInfo' },
+  keys = {
+    {
+      '<leader>e',
+      function()
+        require('conform').format { async = true, lsp_format = 'fallback' }
+      end,
+      mode = '',
+      desc = '[F]ormat buffer',
+    },
+  },
+  opts = {
+    notify_on_error = false,
+    format_on_save = function(bufnr)
+      -- disable "format_on_save lsp_fallback" for languages that don't
+      -- have a well standardized coding style. you can add additional
+      -- languages here or re-enable it for the disabled ones.
+      local disable_filetypes = { c = true, cpp = true }
+      local lsp_format_opt
+      if disable_filetypes[vim.bo[bufnr].filetype] then
+        lsp_format_opt = 'never'
+      else
+        lsp_format_opt = 'fallback'
+      end
+      return {
+        timeout_ms = 500,
+        lsp_format = lsp_format_opt,
+      }
+    end,
+    formatters_by_ft = {
+      lua = { 'stylua' },
+      -- conform can also run multiple formatters sequentially
+      -- python = { "isort", "black" },
+      --
+      -- you can use 'stop_after_first' to run the first available formatter from the list
+      -- javascript = { "prettierd", "prettier", stop_after_first = true },
+    },
+  },
+}

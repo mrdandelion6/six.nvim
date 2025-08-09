@@ -101,4 +101,14 @@ return {
     lazy = false,
     ft = { 'csv', 'tsv' },
   },
+  {
+    -- spawn color wheel for rgba text. useful for testing different hex codes
+    -- and selecting colors directly inside neovim.
+    'uga-rosa/ccc.nvim',
+    lazy = false, -- make sure it loads right away
+    config = function()
+      require('ccc').setup()
+      vim.keymap.set('n', '<leader>cw', '<cmd>CccPick<CR>', { desc = '[C]olor [W]heel' })
+    end,
+  }
 }

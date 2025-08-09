@@ -5,11 +5,14 @@ return {
     ft = 'lua',
     opts = {
       library = {
-        -- Load luvit types when the `vim.uv` word is found
+        -- load luvit types when the `vim.uv` word is found
         { path = 'luvit-meta/library', words = { 'vim%.uv' } },
       },
     },
   },
+
+  -- more nvim lsp. provides type definitons for vim.uv.
+  { 'Bilal2453/luvit-meta', lazy = true },
 
   {
     -- main lsp configuration
@@ -82,7 +85,7 @@ return {
       if vim.g.local_settings then
         local exclude_autoformat = vim.g.local_settings.exclude_autoformat
         if not exclude_autoformat then
-          print 'ERROR: (lsp.lua): vim.g.local_settings.exclude_autoformat is nil'
+          print 'ERROR: (autoformat.lua): vim.g.local_settings.exclude_autoformat is nil'
           exclude_autoformat = {}
         end
       else
@@ -200,7 +203,6 @@ return {
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
-      local sourcekit_script = vim.fn.stdpath 'config' .. '/bash/swift_sourcekit_lsp.sh'
       local default_settings = {
         capabilities = capabilities,
         flags = {
@@ -340,58 +342,6 @@ return {
           end,
         },
       }
-
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        desc = 'Format on save using LSP',
-        group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
-        callback = function()
-          if vim.g.format_on_save then
-            -- check if this file is in our exclude_autoformat
-            local file_path = vim.fn.expand '%:p'
-            local should_format = true
-            if vim.g.local_settings and vim.g.local_settings.exclude_autoformat then
-              for _, pattern in ipairs(vim.g.local_settings.exclude_autoformat) do
-                if file_path:match(pattern) then
-                  should_format = false
-                  break
-                end
-              end
-            end
-
-            if should_format then
-              local cursor_pos = vim.api.nvim_win_get_cursor(0)
-
-              -- remove trailing stuff
-              vim.lsp.buf.format { async = false }
-              vim.cmd [[%s/\s\+$//e]]
-              vim.cmd [[%s/\r\+$//e]]
-              vim.cmd 'normal! gg=G'
-
-              -- this could fail if we are at EOF that had trailing lines.
-              local success = pcall(function()
-                vim.api.nvim_win_set_cursor(0, cursor_pos)
-              end)
-
-              -- if it fails , then we were at some empty lines at EOF that got
-              -- got removed. just go back to new EOF.
-              if not success then
-                local line_count = vim.api.nvim_buf_line_count(0)
-                local last_line = vim.api.nvim_buf_get_lines(0, -2, -1, false)[1] or ''
-                vim.api.nvim_win_set_cursor(0, { line_count, #last_line })
-              end
-
-              Center_cursor()
-            end
-          end
-        end,
-      })
-
-      vim.api.nvim_create_user_command('ToggleFormatOnSave', function()
-        vim.g.format_on_save = not vim.g.format_on_save
-      end, {})
-      vim.g.format_on_save = true
     end,
   },
-
-  { 'Bilal2453/luvit-meta', lazy = true },
 }
