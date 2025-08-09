@@ -96,9 +96,10 @@ return {
       ensure_installed = {
         -- update this to ensure that you have the debuggers for the langs you want
         -- C/C++
-        'cppdbg',
+        'codelldb',
         -- python
         'debugpy',
+        -- bash
         'bash-debug-adapter',
       },
     }
@@ -160,23 +161,25 @@ return {
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
     -- C/C++ setup
-    dap.adapters.cppdbg = {
-      id = 'cppdbg',
-      type = 'executable',
-      command = 'OpenDebugAD7',
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = "${port}",
+      executable = {
+        command = vim.fn.exepath('codelldb'),
+        args = { "--port", "${port}" },
+      }
     }
 
     local cpp_base_config = {
-      type = 'cppdbg',
+      type = 'codelldb',
       request = 'launch',
       cwd = '${workspaceFolder}',
-      stopAtEntry = false,
+      stopOnEntry = false,
       setupCommands = {
         {
-          text = '-enable-pretty-printing',
-          description = 'enable pretty printing',
-          ignoreFailures = false,
-        },
+          text = "settings set target.inline-breakpoint-strategy always",
+          ignoreFailures = true
+        }
       },
     }
 
@@ -195,13 +198,15 @@ return {
       }
     end
 
+    local utils = require 'core.utils'
     local function check_dir_cpp(executable_path)
       -- this function checks if a C/C++ executable exists within:
       -- project_root .. executable_path.  we check common executable patterns.
       -- if many found: display a picker , if one found: use it , if none found:
       -- ask for name manually
+
       local source_file = vim.fn.expand '%:t:r' -- get filename without extension
-      local project_root = vim.fn.finddir('.git/..', vim.fn.expand '%:p:h' .. ';') or vim.fn.getcwd()
+      local project_root = vim.fs.joinpath(vim.fn.getcwd())
       local executable_dir = vim.fs.joinpath(project_root, executable_path) .. '/'
 
       if vim.fn.isdirectory(executable_dir) ~= 1 then
@@ -249,6 +254,14 @@ return {
       end
     end
 
+    local function cpp_get_args()
+      local args_string = vim.fn.input 'Arguments (space-separated): '
+      if args_string == '' then
+        return {}
+      end
+      return vim.split(args_string, ' ')
+    end
+
     -- dap configuartions for C++
     dap.configurations.cpp = {
       vim.tbl_extend('force', cpp_base_config, {
@@ -256,14 +269,11 @@ return {
         program = function()
           return check_dir_cpp 'build/Debug'
         end,
-        args = function()
-          local args_string = vim.fn.input 'Arguments (space-separated): '
-          return vim.split(args_string, ' ')
-        end,
+        args = cpp_get_args,
       }),
 
       vim.tbl_extend('force', cpp_base_config, {
-        name = 'Launch from source directory',
+        name = 'Simple Launch',
         program = function()
           local source_file = vim.fn.expand '%:t:r' -- get filename without extension
           local source_dir = vim.fn.expand '%:p:h' .. '/'
@@ -281,11 +291,24 @@ return {
           return vim.fn.input('Path to executable: ', source_dir, 'file')
         end,
       }),
+
+      vim.tbl_extend('force', cpp_base_config, {
+        name = 'Launch with CUDA debugging',
+        program = function()
+          return check_dir_cpp 'build/Debug'
+        end,
+        args = cpp_get_args,
+        environment = {
+          { name = "CUDA_LAUNCH_BLOCKING",              value = "1" },
+          { name = "CUDA_DEBUGGER_SOFTWARE_PREEMPTION", value = "1" },
+        },
+      }),
     }
 
     -- same config for C and CUDA
     dap.configurations.c = dap.configurations.cpp
     dap.configurations.cuda = dap.configurations.cpp
+    dap.configurations.hip = dap.configurations.cpp
 
     -- python setup
     require('dap-python').setup 'python'
