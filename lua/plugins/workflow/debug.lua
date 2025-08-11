@@ -198,7 +198,6 @@ return {
       }
     end
 
-    local utils = require 'core.utils'
     local function check_dir_cpp(executable_path)
       -- this function checks if a C/C++ executable exists within:
       -- project_root .. executable_path.  we check common executable patterns.
