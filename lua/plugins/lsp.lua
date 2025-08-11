@@ -200,7 +200,6 @@ return {
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
-      local sourcekit_script = vim.fn.stdpath 'config' .. '/bash/swift_sourcekit_lsp.sh'
       local default_settings = {
         capabilities = capabilities,
         flags = {
@@ -264,6 +263,36 @@ return {
               },
               formatting = {
                 provider = 'black',
+              },
+            },
+          },
+        }),
+
+        texlab = vim.tbl_deep_extend('force', default_settings, {
+          settings = {
+            texlab = {
+              auxDirectory = '.tex', -- matches your vimtex aux_dir
+              bibtexFormatter = 'texlab',
+              build = {
+                executable = 'latexmk',
+                args = { '-pdf', '-interaction=nonstopmode', '-synctex=1', '%f' },
+                onSave = false, -- let vimtex handle compilation
+                forwardSearchAfter = false,
+              },
+              chktex = {
+                onOpenAndSave = true,
+                onEdit = false,
+              },
+              diagnosticsDelay = 300,
+              formatterLineLength = 80,
+              forwardSearch = {
+                executable = nil, -- let vimtex handle forward search
+                args = {},
+              },
+              latexFormatter = 'latexindent',
+              latexindent = {
+                ['local'] = nil,
+                modifyLineBreaks = false,
               },
             },
           },
