@@ -45,12 +45,21 @@ require 'core.keymaps'
 require 'core.autocmds'
 require 'core.cmds'
 
-local specs = { { import = 'plugins' } }
+local specs = {
+  { import = 'plugins.editor' },
+  { import = 'plugins.integrations' },
+  { import = 'plugins.language_support' },
+  { import = 'plugins.nav' },
+  { import = 'plugins.ui' },
+  { import = 'plugins.workflow' },
+}
+
+-- for local plugins we might have
 if pcall(require, 'local') then
   table.insert(specs, { import = 'local' })
 end
 
-require('lazy').setup(specs, require('core.ui').lazy)
+require('lazy').setup(specs, require('core.icons').lazy)
 
 -- the line beneath this is called `modeline`. see `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
