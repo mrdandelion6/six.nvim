@@ -27,13 +27,6 @@ return {
   keys = {
     -- basic debugging keymaps, feel free to change to your liking!
     {
-      '<F5>',
-      function()
-        require('dap').continue()
-      end,
-      desc = 'Debug: Start/Continue',
-    },
-    {
       '<F1>',
       function()
         require('dap').step_into()
@@ -53,6 +46,27 @@ return {
         require('dap').step_out()
       end,
       desc = 'Debug: Step Out',
+    },
+    {
+      '<F4>',
+      function()
+        require('dap').terminate()
+      end,
+      desc = 'Debug: Terminate',
+    },
+    {
+      '<F5>',
+      function()
+        require('dap').continue()
+      end,
+      desc = 'Debug: Start/Continue',
+    },
+    {
+      '<F6>',
+      function()
+        require('dap').restart()
+      end,
+      desc = 'Debug: Restart',
     },
     {
       '<leader>b',
@@ -75,6 +89,11 @@ return {
         require('dapui').toggle()
       end,
       desc = 'Debug: See last session result.',
+    },
+    {
+      '<leader>fb',
+      '<cmd>Telescope dap list_breakpoints<cr>',
+      desc = '[F]ind [B]reakpoints',
     },
   },
 
@@ -163,11 +182,11 @@ return {
     -- C/C++ setup
     dap.adapters.codelldb = {
       type = 'server',
-      port = "${port}",
+      port = '${port}',
       executable = {
-        command = vim.fn.exepath('codelldb'),
-        args = { "--port", "${port}" },
-      }
+        command = vim.fn.exepath 'codelldb',
+        args = { '--port', '${port}' },
+      },
     }
 
     local cpp_base_config = {
@@ -177,9 +196,9 @@ return {
       stopOnEntry = false,
       setupCommands = {
         {
-          text = "settings set target.inline-breakpoint-strategy always",
-          ignoreFailures = true
-        }
+          text = 'settings set target.inline-breakpoint-strategy always',
+          ignoreFailures = true,
+        },
       },
     }
 
@@ -298,8 +317,8 @@ return {
         end,
         args = cpp_get_args,
         environment = {
-          { name = "CUDA_LAUNCH_BLOCKING",              value = "1" },
-          { name = "CUDA_DEBUGGER_SOFTWARE_PREEMPTION", value = "1" },
+          { name = 'CUDA_LAUNCH_BLOCKING',              value = '1' },
+          { name = 'CUDA_DEBUGGER_SOFTWARE_PREEMPTION', value = '1' },
         },
       }),
     }
