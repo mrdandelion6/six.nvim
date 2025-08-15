@@ -1,8 +1,12 @@
+vim.g.format_on_save = true
+vim.b.format_on_save = true
+
+-- TODO: consider migrating entirely to conform.nvim
 vim.api.nvim_create_autocmd('BufWritePre', {
   desc = 'Format on save using LSP',
   group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
   callback = function()
-    if vim.g.format_on_save then
+    if vim.g.format_on_save and vim.b.format_on_save then
       -- check if this file is in our exclude_autoformat
       local file_path = vim.fn.expand '%:p'
       local should_format = true
@@ -46,7 +50,20 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 vim.api.nvim_create_user_command('ToggleFormatOnSave', function()
   vim.g.format_on_save = not vim.g.format_on_save
 end, {})
-vim.g.format_on_save = true
+
+vim.api.nvim_create_user_command('ToggleFormatOnSaveBuffer', function()
+  vim.b.format_on_save = not vim.b.format_on_save
+end, {})
+
+vim.keymap.set('n', '<leader>tf', ':ToggleFormatOnSaveBuffer<CR>', { desc = '[T]oggle [F]ormat on Save for Buffer' })
+
+vim.api.nvim_create_user_command('W', function()
+  -- write without autoformat
+  local prev_state = vim.g.format_on_save
+  vim.b.format_on_save = false
+  vim.cmd 'write'
+  vim.b.format_on_save = prev_state
+end, {})
 
 return { -- code autoformat
   'stevearc/conform.nvim',
@@ -55,6 +72,11 @@ return { -- code autoformat
   opts = {
     notify_on_error = false,
     format_on_save = function(bufnr)
+      -- respect our local format settings
+      if not vim.g.format_on_save or not vim.b.format_on_save then
+        return nil -- disable formatting
+      end
+
       -- disable "format_on_save lsp_fallback" for languages that don't
       -- have a well standardized coding style. you can add additional
       -- languages here or re-enable it for the disabled ones.
