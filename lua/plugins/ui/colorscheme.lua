@@ -1,3 +1,30 @@
+-- colors
+local white = '#d5dae1'
+local grey = '#c4bdd2'
+
+local light_yellow = '#f5c287'
+
+local light_orange = '#f5b579'
+local strong_orange = '#eaa658'
+
+local lighter_red = '#e89bb6'
+local light_red = '#de80a1'
+local vibrant_red = '#ff5f83'
+local danger_red = '#e43b53'
+
+local test = '#ff86b4'
+local lighter_pink = '#ffddff'
+local light_pink = '#ffb0ff'
+local strong_pink = '#fe89f3'
+local vibrant_pink = '#ff6dba'
+
+local light_purple = '#a6b2fc'
+local strong_purple = '#a68cf0'
+
+local light_blue = '#52d7ff'
+local strong_blue = '#89b4fa'
+local turqouise = '#9effe6'
+
 return {
   {
     'catppuccin/nvim',
@@ -5,31 +32,6 @@ return {
     priority = 1000,
     init = function()
       -- pallete:
-      local white = '#d5dae1'
-      local grey = '#c4bdd2'
-
-      local light_yellow = '#f5c287'
-
-      local light_orange = '#f5b579'
-      local strong_orange = '#eaa658'
-
-      local lighter_red = '#e89bb6'
-      local light_red = '#de80a1'
-      local vibrant_red = '#ff5f83'
-      local danger_red = '#e43b53'
-
-      local test = '#ff86b4'
-      local lighter_pink = '#ffddff'
-      local light_pink = '#ffb0ff'
-      local strong_pink = '#fe89f3'
-      local vibrant_pink = '#ff6dba'
-
-      local light_purple = '#a6b2fc'
-      local strong_purple = '#a68cf0'
-
-      local light_blue = '#52d7ff'
-      local strong_blue = '#89b4fa'
-      local turqouise = '#9effe6'
 
       require('catppuccin').setup {
         transparent_background = true,
@@ -110,5 +112,5 @@ return {
       require('ccc').setup()
       vim.keymap.set('n', '<leader>cw', '<cmd>CccPick<CR>', { desc = '[C]olor [W]heel' })
     end,
-  }
+  },
 }
