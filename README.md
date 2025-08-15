@@ -1,4 +1,4 @@
-# six.nvim ![Version](https://img.shields.io/badge/version-1.2-blue)
+# six.nvim ![Version](https://img.shields.io/badge/version-1.3-blue)
 
 Welcome to my custom configuration for Neovim. This configuration was originally forked from **kickstart.nvim** but has been greatly changed.
 
@@ -121,6 +121,7 @@ Here is a list of featues I plan on implementing.
 
 ### Plugins
 - Fix Telescope bug with `ripgrep` not finding empty textfiles.
+- Fix `nvim-dap` not working with `codelldb` adapter for `mingw g++` compiled binaries.
 
 ### Add LSP
 - CUDA
@@ -130,7 +131,6 @@ Here is a list of featues I plan on implementing.
 - Java
 - Rust
 - Verilog
-- Swift : Mason currently throwing an error when using `bash/swift_sourcekit_lsp.sh` in `lua/plugins/lsp.lua`.
 
 ### Long Term
 Not going to do these anytime soon.
@@ -140,6 +140,11 @@ Not going to do these anytime soon.
 - Sometimes doing undo via `u` key in normal mode causes an error due to cursor centering leading to an out of bounds cursor position
 
 ## Latest Changes
+### v1.3
+- **Restructured plugin files**: Refactored all plugin code into files with accuarate naming. Created subdirectories under `lua/plugins/` for better organization.
+- **Debug support**: Finally added debugging support with `nvim-dap` for C/C++ , Python , and Bash. This is a major feature I've been looking into.
+- **Oil.nvim**: Now using `oil.nvim` for quick file creation and deletion.
+
 ### v1.2
 - **LaTeX compilation support**: Added LaTeX support with automatic compilation and hot reloading using `vimtex` plugin
 - **Git root caching**: Now caching Git root directory paths to reduce calls for `git -C %s rev-parse --show-toplevel` as this caused lag issues on Windows devices
