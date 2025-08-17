@@ -79,6 +79,7 @@ return {
           ['@keyword.function'] = { fg = strong_purple },
 
           ['@keyword.import'] = { fg = danger_red },
+          ['@keyword.import.cpp'] = { fg = danger_red },
           ['@keyword.directive.define.c'] = { fg = danger_red },
 
           ['@keyword.repeat'] = { fg = light_purple },
