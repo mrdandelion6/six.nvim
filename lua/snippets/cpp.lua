@@ -44,7 +44,7 @@ return {
     t("std::endl")
   }),
 
-  -- Range-based for loop
+  -- range-based for loop
   s("forr", {
     t("for ("),
     c(1, {
@@ -61,7 +61,7 @@ return {
     t({ "", "}" })
   }),
 
-  -- Traditional for loop
+  -- traditional for loop
   s("fort", {
     t("for ("),
     c(1, {
@@ -84,7 +84,7 @@ return {
     t({ "", "}" })
   }),
 
-  -- Do-while macro with clang-format guards
+  -- do-while macro with clang-format guards
   s("mac", {
     t("// clang-format off"),
     t({ "", "#define " }),
@@ -98,4 +98,15 @@ return {
     t({ "", "} while (0)" }),
     t({ "", "// clang-format on" })
   }),
+
+  -- class
+  s("cls", {
+    t("class "),
+    i(1, "Class"),
+    t(" {"),
+    t({"", "public:"}),
+    t({"", "\t"}),
+    i(0),
+    t({"", "};"})
+  })
 }
