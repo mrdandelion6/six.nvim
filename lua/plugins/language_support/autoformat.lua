@@ -6,7 +6,8 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   desc = 'Format on save using LSP',
   group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
   callback = function()
-    if vim.g.format_on_save and vim.b.format_on_save then
+    -- vim.b.format_on_save can be nil , treat as true !
+    if vim.g.format_on_save and (vim.b.format_on_save ~= false) then
       -- check if this file is in our exclude_autoformat
       local file_path = vim.fn.expand '%:p'
       local should_format = true
