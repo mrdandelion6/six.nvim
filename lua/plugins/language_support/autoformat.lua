@@ -27,7 +27,11 @@ vim.api.nvim_create_autocmd('BufWritePre', {
         vim.lsp.buf.format { async = false }
         vim.cmd [[%s/\s\+$//e]]
         vim.cmd [[%s/\r\+$//e]]
-        vim.cmd 'normal! gg=G'
+
+        -- skip gg=g for c/c++ files since it ignores clang-format comments
+        if not (vim.bo.filetype == 'c' or vim.bo.filetype == 'cpp') then
+          vim.cmd 'normal! gg=G'
+        end
 
         -- this could fail if we are at EOF that had trailing lines.
         local success = pcall(function()
@@ -95,6 +99,8 @@ return { -- code autoformat
     end,
     formatters_by_ft = {
       lua = { 'stylua' },
+      cpp = { 'clang_format' },
+      c = { 'clang_format' },
       -- conform can also run multiple formatters sequentially
       -- python = { "isort", "black" },
       --
