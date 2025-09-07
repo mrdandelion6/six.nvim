@@ -34,18 +34,18 @@ return {
         end, keymap_opts)
       end
 
-      -- navigation using the jump api
-      vim.keymap.set({ "n", "v" }, "<Tab>", function()
-        require('csvview.jump').next_field_end(buf)
-      end, keymap_opts)
-      vim.keymap.set({ "n", "v" }, "<S-Tab>", function()
+      -- pure arrow key navigation
+      vim.keymap.set({ "n", "v" }, "<Left>", function()
         require('csvview.jump').prev_field_end(buf)
       end, keymap_opts)
-      vim.keymap.set({ "n", "v" }, "<Enter>", function()
-        require('csvview.jump').next_field_start(buf)   -- Move to next row
+      vim.keymap.set({ "n", "v" }, "<Right>", function()
+        require('csvview.jump').next_field_end(buf)
       end, keymap_opts)
-      vim.keymap.set({ "n", "v" }, "<S-Enter>", function()
-        require('csvview.jump').prev_field_start(buf)   -- Move to prev row
+      vim.keymap.set({ "n", "v" }, "<Down>", function()
+        require('csvview.jump').next_field_start(buf)
+      end, keymap_opts)
+      vim.keymap.set({ "n", "v" }, "<Up>", function()
+        require('csvview.jump').prev_field_start(buf)
       end, keymap_opts)
     end
 

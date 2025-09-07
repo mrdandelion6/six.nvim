@@ -261,7 +261,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n', -- normal mode
+    'n',          -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
     {
