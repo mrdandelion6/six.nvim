@@ -294,6 +294,21 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- diagnostics
 vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = '[D]isplay [D]iagnostics Under Cursor' })
 vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Open [D]iagnostic [L]ist' })
+vim.keymap.set('n', '<leader>dy', function()
+  local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
+  if #diagnostics > 0 then
+    local messages = {}
+    for _, diagnostic in ipairs(diagnostics) do
+      table.insert(messages, diagnostic.message)
+    end
+    local text = table.concat(messages, '\n')
+    vim.fn.setreg('+', text) -- copy to system clipboard
+    vim.fn.setreg('"', text) -- copy to unnamed register
+    vim.notify('Diagnostic copied to clipboard')
+  else
+    vim.notify('No diagnostics under cursor')
+  end
+end, { desc = '[D]iagnostic [Y]ank/Copy' })
 
 -- leader <Esc> if you also use vim inside terminal itself (set -o vi)
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
