@@ -13,6 +13,10 @@ vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
 
+-- disable netrw completely
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- tab
 vim.opt.tabstop = 4      -- number of spaces that a <tab> counts for
 vim.opt.shiftwidth = 4   -- number of spaces to use for autoindent

@@ -28,7 +28,7 @@ return {          -- For persisting neovim sessions.
       },
     }
 
-    -- Automatically save the session when exiting Nvim if session exists.
+    -- automatically save the session when exiting nvim if session exists.
     vim.api.nvim_create_autocmd('VimLeavePre', {
       callback = function()
         if auto_session.session_exists_for_cwd() then
@@ -37,11 +37,15 @@ return {          -- For persisting neovim sessions.
       end,
     })
 
-    -- If opened CWD isn't an existing session, spawn a terminal on the right
+    -- if opened cwd isn't an existing session, spawn a terminal on the right
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
         local platform = require 'core.platform'
         if not auto_session.session_exists_for_cwd() then
+          -- check if we started with a directory argument
+          local args = vim.fn.argv()
+          local started_with_directory = #args == 1 and vim.fn.isdirectory(args[1]) == 1
+
           vim.cmd 'vsplit | wincmd l'
           local ratio = 0.45
           if platform.is_windows() then
@@ -52,11 +56,16 @@ return {          -- For persisting neovim sessions.
           local width = math.floor(vim.o.columns * ratio)
           vim.cmd('vertical resize ' .. width .. ' | terminal')
           vim.cmd 'wincmd h'
+
+          -- if we started with a directory, open it with oil in the left pane
+          if started_with_directory then
+            require('oil').open(args[1])
+          end
         end
       end,
     })
 
-    -- Added this because no message was displaying automatically.
+    -- added this because no message was displaying automatically.
     local function delete_session_with_notification()
       if auto_session.session_exists_for_cwd() then
         auto_session.DeleteSession()
