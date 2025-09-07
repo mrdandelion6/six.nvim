@@ -231,27 +231,17 @@ return {
       -- local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
 
       local servers = {
-        clangd = vim.tbl_deep_extend('force', default_settings, {
+
+        -- no default settings for clangd
+        clangd = {
           filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
           cmd = {
             'clangd',
-            '--enable-config',
             '--background-index',
-            '--fallback-style={IndentWidth: 4, TabWidth: 4, UseTab: Never}',
+            '--fallback-style=webkit',
             '--compile-commands-dir=.', -- project root
           },
-          settings = {
-            clangd = {
-              formatting = {
-                style = {
-                  IndentWidth = 4,
-                  TabWidth = 4,
-                  UseTab = 'Never',
-                },
-              },
-            },
-          },
-        }),
+        },
 
         pyright = vim.tbl_deep_extend('force', default_settings, {
           settings = {
@@ -305,13 +295,6 @@ return {
           filetypes = { 'java' },
         }),
 
-        -- TODO: figure out how to get mason to not throw an error
-        -- sourcekit = vim.tbl_deep_extend('force', default_settings, {
-        --   cmd = { sourcekit_script },
-        --   filetypes = { 'swift' },
-        --   root_dir = require('lspconfig.util').root_pattern('Package.swift', '.git'),
-        -- }),
-
         bashls = {},
         rust_analyzer = {},
         verible = {},
@@ -362,15 +345,29 @@ return {
 
       require('mason-lspconfig').setup {
         handlers = {
+          -- Default handler for all servers except clangd
           function(server_name)
-            local server = servers[server_name] or {}
-            -- this handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            if server_name ~= "clangd" then
+              local server = servers[server_name] or {}
+              server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+              require('lspconfig')[server_name].setup(server)
+            end
           end,
-        },
+
+          -- explicit handler for clangd
+          ["clangd"] = function()
+            require('lspconfig').clangd.setup({
+              filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+              cmd = {
+                'clangd',
+                '--background-index',
+                '--fallback-style=webkit',
+                '--compile-commands-dir=.',
+              },
+              capabilities = capabilities,
+            })
+          end,
+        }
       }
     end,
   },

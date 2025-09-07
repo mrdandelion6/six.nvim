@@ -23,15 +23,21 @@ vim.api.nvim_create_autocmd('BufWritePre', {
       if should_format then
         local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
-        -- remove trailing stuff
+        -- calls your lsp servers from lsp.lua
         vim.lsp.buf.format { async = false }
+
+        -- remove trailing stuff
         vim.cmd [[%s/\s\+$//e]]
         vim.cmd [[%s/\r\+$//e]]
 
         -- skip gg=g for c/c++ files since it ignores clang-format comments
-        if not (vim.bo.filetype == 'c' or vim.bo.filetype == 'cpp') then
-          vim.cmd 'normal! gg=G'
-        end
+        -- if not (vim.bo.filetype == 'c' or vim.bo.filetype == 'cpp') then
+        --   vim.cmd 'normal! gg=G'
+        -- end
+
+        -- TODO: delete this later when u figure out the bug causing clangd to
+        -- receive no args , and uncomment the above
+        vim.cmd 'normal! gg=G'
 
         -- this could fail if we are at EOF that had trailing lines.
         local success = pcall(function()
@@ -99,8 +105,6 @@ return { -- code autoformat
     end,
     formatters_by_ft = {
       lua = { 'stylua' },
-      cpp = { 'clang_format' },
-      c = { 'clang_format' },
       -- conform can also run multiple formatters sequentially
       -- python = { "isort", "black" },
       --
