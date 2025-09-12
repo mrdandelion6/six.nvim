@@ -64,6 +64,19 @@ return {
     t { '', '\\end{mypar}' },
   }),
 
+  s('aln', {
+    t { '\\begin{align*}' },
+    t { '', '    ' }, i(1), t { ' &= ' }, i(2), t { ' \\\\' },
+    t { '', '    &= ' }, i(0),
+    t { '', '\\end{align*}' }
+  }),
+
+  s('[]', {
+    t { '\\[' },
+    t { '', '    ' }, i(0),
+    t { '', '\\]' }
+  }),
+
   s('fig', {
     t '\\begin{figure}[',
     c(1, { t 'h', t 't', t 'b', t 'H' }),
@@ -127,7 +140,7 @@ return {
     i(2, 'mrdandelion6'),
     t '}',
     t { '', '\\date{' },
-    i(3, 'august 2024'),
+    i(3, 'September 2025'),
     t '}',
     t { '', '' },
     t { '', '% === link colors ===' },
@@ -139,7 +152,7 @@ return {
     t { '', '% ===' },
     t { '', '' },
     t { '', '% === commands ===' },
-    t { '', '\\newcommand{\\sh}[1]{\\vspace{0.2cm}\\textbf{#1}\\vspace{-0.4cm}\\mbox{}}' },
+    t { '', '\\newcommand{\\sh}[1]{\\par\vspace{0.2cm}{\\fontsize{10.5}{14}\\selectfont\\bfseries #1}\\par}' },
     t { '', '% ===' },
     t { '', '' },
     t { '', '% === par indentations ===' },
@@ -175,6 +188,7 @@ return {
     t { '', '\\renewenvironment{proof}[1][]{\\noindent{\\textit{Proof%' },
     t { '', '    \\if\\relax\\detokenize{#1}\\relax\\else\\ \\textnormal{#1}\\fi.}}\\\\' },
     t { '', '    \\begin{cindent}{0.5cm}' },
+    t { '', '        \\vspace{-0.6cm}' },
     t { '', '' },
     t { '', '    \\vspace{-0.5cm}}' },
     t { '', '{\\end{cindent}\\hfill$\\square$}' },
@@ -192,6 +206,7 @@ return {
     t { '', '    \\vspace{0.2cm}' },
     t { '', '    \\noindent{\\textbf{#1} \\ifthenelse{\\equal{#2}{\\unskip}}{}{#2}}% check if the second argument is provided' },
     t { '', '    \\begin{cindent}{0.5cm}' },
+    t { '', '        \\vspace{-0.6cm}' },
     t { '', '' },
     t { '', '    \\vspace{-0.5cm}}' },
     t { '', '{\\end{cindent}\\hfill$\\blacklozenge$}' },
