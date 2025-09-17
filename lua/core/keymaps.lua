@@ -263,7 +263,7 @@ local function set_message_maps()
   vim.api.nvim_set_keymap(
     'n',          -- normal mode
     '<leader>mm', -- key combination
-    "<cmd>lua require('core.utils').Copy_recent_message()<CR>",
+    "<cmd>lua require('core.utils').copy_recent_message()<CR>",
     {
       noremap = true,
       silent = true,
