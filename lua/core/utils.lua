@@ -53,7 +53,7 @@ function M.get_git_root(return_full_path)
 
   for key, value in pairs(cache) do
     if current_dir:sub(1, #key) == key then
-      -- value in cache is the dir name, but we need to check what to return
+      -- value in cache is the dir name , but we need to check what to return
       if return_full_path then
         return key:gsub('/$', '') -- remove trailing slash for full path
       else
@@ -63,15 +63,23 @@ function M.get_git_root(return_full_path)
   end
 
   -- use git rev-parse with the current file's directory
-  local cmd = string.format('git -C %s rev-parse --show-toplevel', vim.fn.shellescape(current_dir))
-  git_root = vim.fn.system(cmd)
 
-  if vim.v.shell_error ~= 0 then
-    -- no match found, cache
+  local rev_parse_result = vim.system({ 'git', '-C', current_dir, 'rev-parse', '--show-toplevel' }):wait()
+
+  -- git rev-parse found no git root
+  local no_git_root_found = (not rev_parse_result)
+  or (rev_parse_result.code ~= 0)
+  or (not rev_parse_result.stdout)
+  or (rev_parse_result.stdout == '')
+
+  if no_git_root_found then
+    -- cache that this path has no git root
     cache[current_dir] = ''
     vim.g.git_root_cache = cache
     return ''
   end
+
+  git_root = rev_parse_result.stdout
 
   -- clean up the output
   git_root = git_root:gsub('\\', '/')
