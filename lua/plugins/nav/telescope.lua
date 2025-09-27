@@ -20,7 +20,7 @@ return {
     { 'nvim-telescope/telescope-ui-select.nvim' },
 
     -- useful for getting pretty icons, but requires a nerd font.
-    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
   },
 
   config = function()
@@ -91,8 +91,7 @@ return {
           '!build',
         }
       else
-        vim.notify('WARNING (telescope.lua): ripgrep not found! ripgrep is the recommended finder to use.',
-          vim.log.levels.INFO)
+        vim.notify('WARNING (telescope.lua): ripgrep not found! ripgrep is the recommended finder to use.', vim.log.levels.INFO)
 
         if vim.fn.executable 'fdfind' == 1 then
           opts.find_command = {
@@ -151,7 +150,7 @@ return {
         if vim.fn.isdirectory(expanded_path) == 1 then
           ts_opts.cwd = expanded_path
         else
-          vim.notify("Directory does not exist: " .. expanded_path, vim.log.levels.ERROR)
+          vim.notify('Directory does not exist: ' .. expanded_path, vim.log.levels.ERROR)
           return
         end
       end
@@ -160,9 +159,9 @@ return {
     end
 
     --[[
-    ********************
-          COMMANDS
-    ********************
+    ****************************************************************************
+                                        COMMANDS
+    ****************************************************************************
     --]]
 
     vim.api.nvim_create_user_command('Ff', function(opts)
@@ -190,9 +189,9 @@ return {
     })
 
     --[[
-    ********************
-          KEYMAPS
-    ********************
+    ****************************************************************************
+                                        KEYMAPS
+    ****************************************************************************
     --]]
 
     -- help
@@ -264,7 +263,6 @@ return {
         prompt_title = 'Live Grep in Open Files',
       }
     end, { desc = '[F]ind [/] in Open Files' })
-
 
     vim.cmd 'UpdateTelescopeMaps' -- run once on load
   end,
