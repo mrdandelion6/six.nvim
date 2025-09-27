@@ -105,7 +105,7 @@ local function enable_colemak()
 
   -- NORMAL AND VISUAL MODE
   for _, mode in ipairs { 'n', 'v' } do
-    vim.keymap.set(mode, 'N', remaps['J'], { desc = 'Join line' })
+    vim.keymap.set(mode, 'N', remaps['N'], { desc = 'Join line' })
     vim.keymap.set(mode, 'E', remaps['E'], { desc = 'Keyword search' })
 
     vim.keymap.set(mode, 'h', remaps['h'], { desc = 'Next search result' })
@@ -261,7 +261,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n',          -- normal mode
+    'n', -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').copy_recent_message()<CR>",
     {
@@ -295,7 +295,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = '[D]isplay [D]iagnostics Under Cursor' })
 vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Open [D]iagnostic [L]ist' })
 vim.keymap.set('n', '<leader>dy', function()
-  local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
+  local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line '.' - 1 })
   if #diagnostics > 0 then
     local messages = {}
     for _, diagnostic in ipairs(diagnostics) do
@@ -304,9 +304,9 @@ vim.keymap.set('n', '<leader>dy', function()
     local text = table.concat(messages, '\n')
     vim.fn.setreg('+', text) -- copy to system clipboard
     vim.fn.setreg('"', text) -- copy to unnamed register
-    vim.notify('Diagnostic copied to clipboard')
+    vim.notify 'Diagnostic copied to clipboard'
   else
-    vim.notify('No diagnostics under cursor')
+    vim.notify 'No diagnostics under cursor'
   end
 end, { desc = '[D]iagnostic [Y]ank/Copy' })
 
