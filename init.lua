@@ -44,6 +44,7 @@ require 'core.options'
 require 'core.keymaps'
 require 'core.autocmds'
 require 'core.cmds'
+require 'core.format'
 
 local specs = {
   { import = 'plugins.editor' },

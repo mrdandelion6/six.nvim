@@ -1,6 +1,8 @@
+-- note that core/format.lua controls whether LSP or conform will format the
+-- file.
 return {
-  { -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
-    -- used for completion, annotations and signatures of Neovim apis
+  -- configures lua LSP for nvim
+  {
     'folke/lazydev.nvim',
     ft = 'lua',
     opts = {
@@ -11,11 +13,11 @@ return {
     },
   },
 
-  -- more nvim lsp. provides type definitons for vim.uv.
+  -- more lua LSP config for nvim. provides type definitons for vim.uv.
   { 'Bilal2453/luvit-meta', lazy = true },
 
+  -- main lsp configuration
   {
-    -- main lsp configuration
     'neovim/nvim-lspconfig',
     dependencies = {
       -- automatically install lsps and related tools to stdpath for neovim
@@ -80,17 +82,6 @@ return {
       --    that is to say, every time a new file is opened that is associated with
       --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
       --    function will be executed to configure the current buffer
-
-      -- patterns to exclude from autoformat
-      if vim.g.local_settings then
-        local exclude_autoformat = vim.g.local_settings.exclude_autoformat
-        if not exclude_autoformat then
-          print 'ERROR: (autoformat.lua): vim.g.local_settings.exclude_autoformat is nil'
-          exclude_autoformat = {}
-        end
-      else
-        print 'ERROR: (lsp.lua): vim.g.local_settings is nil'
-      end
 
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
@@ -234,7 +225,7 @@ return {
 
         -- no default settings for clangd
         clangd = {
-          filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+          filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'hip' },
           cmd = {
             'clangd',
             '--background-index',
@@ -243,7 +234,8 @@ return {
           },
         },
 
-        pyright = vim.tbl_deep_extend('force', default_settings, {
+        -- formatting handled by conform
+        pyright = {
           settings = {
             python = {
               analysis = {
@@ -254,17 +246,14 @@ return {
                   reportImportCycles = 'none',
                 },
               },
-              formatting = {
-                provider = 'black',
-              },
             },
           },
-        }),
+        },
 
         texlab = vim.tbl_deep_extend('force', default_settings, {
           settings = {
             texlab = {
-              auxDirectory = '.tex', -- matches your vimtex aux_dir
+              auxDirectory = '.tex', -- matches vimtex aux_dir (latex.lua)
               bibtexFormatter = 'texlab',
               build = {
                 executable = 'latexmk',
@@ -291,37 +280,28 @@ return {
           },
         }),
 
-        jdtls = vim.tbl_deep_extend('force', default_settings, {
-          filetypes = { 'java' },
-        }),
-
-        bashls = {},
-        rust_analyzer = {},
-        verible = {},
-
-        -- some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- but for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+        -- formatting handled by conform
         lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
           settings = {
             Lua = {
               completion = {
                 callSnippet = 'Replace',
               },
               -- you can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { disable = { 'missing-fields' } },
             },
           },
         },
-        cssls = vim.tbl_deep_extend('force', default_settings, {}),
-        emmet_ls = vim.tbl_deep_extend('force', default_settings, {
+
+        bashls = {},
+        rust_analyzer = {},
+
+        -- webdev LSP
+        cssls = {},
+        ts_ls = {},
+        emmet_ls = {
           filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
-        }),
+        },
       }
 
       -- ensure the servers and tools above are installed
@@ -336,18 +316,15 @@ return {
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua',       -- lua formatter
-        'clang-format', -- c/c++
-        'prettier',     -- js/ts
-        'black',        -- python
+        'clang-format',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
         handlers = {
-          -- Default handler for all servers except clangd
+          -- default handler for all servers except clangd
           function(server_name)
-            if server_name ~= "clangd" then
+            if server_name ~= 'clangd' then
               local server = servers[server_name] or {}
               server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
               require('lspconfig')[server_name].setup(server)
@@ -355,9 +332,9 @@ return {
           end,
 
           -- explicit handler for clangd
-          ["clangd"] = function()
-            require('lspconfig').clangd.setup({
-              filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+          ['clangd'] = function()
+            require('lspconfig').clangd.setup {
+              filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'hip' },
               cmd = {
                 'clangd',
                 '--background-index',
@@ -365,9 +342,9 @@ return {
                 '--compile-commands-dir=.',
               },
               capabilities = capabilities,
-            })
+            }
           end,
-        }
+        },
       }
     end,
   },
