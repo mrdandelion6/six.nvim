@@ -122,6 +122,18 @@ return {
     t '}',
   }),
 
+  s('<=', {
+    t '\\textbf{($\\impliedby$): ',
+    i(0),
+    t '}',
+  }),
+
+  s('=>', {
+    t '\\textbf{($\\implies$): ',
+    i(0),
+    t '}',
+  }),
+
   -- personal typesetting
   s('meta', {
     t '\\documentclass{article}',
