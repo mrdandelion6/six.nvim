@@ -14,16 +14,9 @@ return {
   }),
 
   s('thm', {
-    t '\\begin{thm}',
-    c(1, {
-      t '', -- no optional argument
-      t '[theorem]',
-      t '[lemma]',
-      t '[proposition]',
-      t '[corollary]',
-      t '[definition]',
-    }),
-    t '{',
+    t '\\begin{thm}[',
+    i(1, "Claim."),
+    t ']{',
     i(2, 'Statement'),
     t '}',
     t { '', '\t' },
@@ -31,14 +24,14 @@ return {
     t { '', '\\end{thm}' },
   }),
 
-  s('proof', {
+  s('pf', {
     t '\\begin{proof}',
     t { '', '\t' },
     i(1),
     t { '', '\\end{proof}' },
   }),
 
-  s('subproof', {
+  s('spf', {
     t '\\begin{subproof}',
     t { '', '\t' },
     i(1),
@@ -53,7 +46,13 @@ return {
     i(0),
   }),
 
-  -- useful general enviroments
+  -- regular commands
+  s('-2', { t '\\vspace{-0.2cm}' }),
+  s('-4', { t '\\vspace{-0.4cm}' }),
+  s('+2', { t '\\vspace{0.2cm}' }),
+  s('+4', { t '\\vspace{0.4cm}' }),
+
+  -- regular enviroments
   s('sec', {
     t '\\section{',
     i(1, 'title'),
@@ -69,12 +68,6 @@ return {
     t { '', '    ' }, i(1), t { ' &= ' }, i(2), t { ' \\\\' },
     t { '', '    &= ' }, i(0),
     t { '', '\\end{align*}' }
-  }),
-
-  s('[]', {
-    t { '\\[' },
-    t { '', '    ' }, i(0),
-    t { '', '\\]' }
   }),
 
   s('fig', {
@@ -110,9 +103,29 @@ return {
     t { '', '\\end{enumerate}' },
   }),
 
+  -- math snippets
+  s('[]', {
+    t { '\\[' },
+    t { '', '    ' }, i(0),
+    t { '', '\\]' }
+  }),
+
+  s('||', {
+    t { '\\|' },
+    i(1, ''),
+    t { '\\|' },
+  }),
+
+  s('mb', {
+    t '\\mathbb{',
+    i(1),
+    t '}',
+  }),
+
   -- personal typesetting
   s('meta', {
     t '\\documentclass{article}',
+    t { '', '\\usepackage[utf8]{inputenc}' },
     t { '', '\\usepackage{amsmath}' },
     t { '', '\\usepackage{amsthm}' },
     t { '', '\\usepackage{amssymb}' },
@@ -129,6 +142,7 @@ return {
     t { '', '\\usepackage{forest}' },
     t { '', '\\usepackage{xcolor}' },
     t { '', '\\usepackage{ifthen}' },
+    t { '', '\\usepackage{tocloft}' },
     t { '', '' },
     t { '', '% ==========================' },
     t { '', '% ========== meta ==========' },
@@ -146,13 +160,18 @@ return {
     t { '', '% === link colors ===' },
     t { '', '\\hypersetup{' },
     t { '', '    colorlinks=true,' },
-    t { '', '    linkcolor=blue,' },
+    t { '', '    linkcolor=darkgray,' },
     t { '', '    urlcolor=blue,' },
     t { '', '}' },
     t { '', '% ===' },
     t { '', '' },
+    t { '', '% === table of contents ===' },
+    t { '', '\\renewcommand{\\cftsecleader}{\\cftdotfill{\\cftdotsep}}  % dots for sections' },
+    t { '', '\\renewcommand{\\cftsubsecleader}{\\cftdotfill{\\cftdotsep}}  % dots for subsections' },
+    t { '', '% ===' },
+    t { '', '' },
     t { '', '% === commands ===' },
-    t { '', '\\newcommand{\\sh}[1]{\\par\vspace{0.2cm}{\\fontsize{10.5}{14}\\selectfont\\bfseries #1}\\par}' },
+    t { '', '\\newcommand{\\sh}[1]{\\par\\vspace{0.2cm}{\\fontsize{10.5}{14}\\selectfont\\bfseries #1}\\par}' },
     t { '', '% ===' },
     t { '', '' },
     t { '', '% === par indentations ===' },
