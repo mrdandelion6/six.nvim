@@ -8,7 +8,7 @@ local function format_range(start_line, end_line)
   --[[
       this function handles the formatting for all files. it should be the only
       route for files to be directly formatted by the user. a range can be
-      specified with start_line and end_line. othewise the entire file is
+      specified with start_line and end_line. otherwise the entire file is
       formatted.
 
       to format files , this function does the following things in order:
@@ -92,6 +92,12 @@ local function format_range(start_line, end_line)
   Center_cursor()
 end
 
+--[[
+********************************************************************************
+                                    COMMANDS
+********************************************************************************
+--]]
+
 vim.api.nvim_create_user_command('Format', function(opts)
   -- user command that works in visual mode and normal mode
   if opts.range > 0 then
@@ -106,38 +112,63 @@ end, {
   range = true, -- this allows the command to work with visual selections
 })
 
---[[
-********************************************************************************
-                                    COMMANDS
-********************************************************************************
---]]
+-- format on save should start as true for every buffer
+vim.api.nvim_create_autocmd('BufAdd', {
+  callback = function(args)
+    vim.b[args.buf].format_on_save = true
+  end,
+})
 
 vim.api.nvim_create_autocmd('BufWritePre', {
   desc = 'Format on save using LSP',
   group = vim.api.nvim_create_augroup('format_on_save', { clear = true }),
   callback = function()
-    -- first determine if we should format the file
-    local should_format = true
+    local bufnr = vim.api.nvim_get_current_buf()
 
-    -- vim.b.format_on_save can be nil , treat as true !
-    if vim.g.format_on_save and (vim.b.format_on_save ~= false) then
+    -- skip if binary file
+    if vim.bo[bufnr].binary then
+      return
+    end
+
+    -- skip if file is too large (> 1MB)
+    local max_filesize = 1024 * 1024 -- 1MB
+    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(bufnr))
+    if ok and stats and stats.size > max_filesize then
+      return
+    end
+
+    -- skip special buffer types
+    local buftype = vim.bo[bufnr].buftype
+    if buftype ~= '' then -- non-empty means special (quickfix, terminal, etc.)
+      return
+    end
+
+    -- skip if readonly
+    if vim.bo[bufnr].readonly then
+      return
+    end
+
+    -- skip certain filetypes entirely
+    local skip_filetypes = { 'gitcommit', 'gitrebase', 'help', 'man' }
+    if vim.tbl_contains(skip_filetypes, vim.bo[bufnr].filetype) then
+      return
+    end
+
+    if vim.g.format_on_save and vim.b.format_on_save then
       -- check if this file is in our exclude_autoformat
       local file_path = vim.fn.expand '%:p'
       if vim.g.local_settings and vim.g.local_settings.exclude_autoformat then
         for _, pattern in ipairs(vim.g.local_settings.exclude_autoformat) do
           if file_path:match(pattern) then
-            should_format = false
-            break
+            return -- match found in exclude_autoformat
           end
         end
       end
     else
-      should_format = false
+      return -- global or local format_on_save is false
     end
 
-    if should_format then
-      format_range()
-    end
+    format_range()
   end,
 })
 
