@@ -27,6 +27,8 @@ return {
 
     -- install formatters
     local conform_tools = { 'stylua', 'prettier', 'black', 'isort' }
+    -- if you have issues with stylua being used as an LSP , :MasonUninstall stylua
+    -- and just install it system wide , pacman -S stylua
     require('mason-tool-installer').setup {
       ensure_installed = conform_tools,
     }

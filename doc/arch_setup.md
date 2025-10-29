@@ -14,7 +14,11 @@ sudo pacman -S nodejs npm
 
 # tree-sitter-cli used by certain LSP like for latex
 sudo npm install -g tree-sitter-cli
+
+# lua formatting
+sudo pacman -S stylua
 ```
+Usually , we install formatters / LSP tools through Mason , which is automatically handled by the plugins. But installing `stylua` through Mason leads `nvim-lspconfig` to launch it as an LSP server , even though we only want to use it as a formatter. This causes errors , hence we install it manually.
 
 ### telescope.nvim
 ```bash
@@ -52,7 +56,7 @@ Now install the following dependendies:
 ### image.nvim
 ```bash
 # for magick_cli and magick_rock
-sudo pacman -S luarocks imagemagick
+sudo pacman -S luarocks imagemagick lua51
 ```
 
 ### molten.nvim

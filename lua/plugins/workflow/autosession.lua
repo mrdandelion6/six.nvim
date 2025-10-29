@@ -1,4 +1,4 @@
-return {          -- For persisting neovim sessions.
+return { -- for persisting neovim sessions.
   'rmagatti/auto-session',
   priority = 999, -- this is needed.
   -- without the above , if statusline.lua loads first , terminal title won't
@@ -77,8 +77,7 @@ return {          -- For persisting neovim sessions.
 
     vim.keymap.set('n', '<leader>sq', auto_session.SaveSession, { desc = '[S]ession [Q]uicksave(CWD)' })
 
-    vim.keymap.set('n', '<leader>ss', require('auto-session.session-lens').search_session,
-      { desc = '[S]earch [S]essions' })
+    vim.keymap.set('n', '<leader>ss', '<cmd>Telescope session-lens<CR>', { desc = '[S]earch [S]essions' })
 
     vim.keymap.set('n', '<leader>sd', delete_session_with_notification, { desc = '[S]ession [D]elete (CWD)' })
   end,

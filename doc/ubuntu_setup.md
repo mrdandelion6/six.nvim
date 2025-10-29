@@ -12,7 +12,14 @@ sudo apt install python3 python3-pip
 # node and npm, many LSP need this
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt install nodejs
+
+# tree-sitter-cli used by certain LSP like for latex
+sudo npm install -g tree-sitter-cli
+
+# lua formatting
+sudo apt install stylua
 ```
+Usually , we install formatters / LSP tools through Mason , which is automatically handled by the plugins. But installing `stylua` through Mason leads `nvim-lspconfig` to launch it as an LSP server , even though we only want to use it as a formatter. This causes errors , hence we install it manually.
 
 ### telescope.nvim
 ```bash

@@ -55,8 +55,8 @@ local specs = {
   { import = 'plugins.workflow' },
 }
 
--- for local plugins we might have
-if pcall(require, 'local') then
+local local_path = vim.fn.stdpath 'config' .. '/lua/local'
+if vim.fn.isdirectory(local_path) == 1 then
   table.insert(specs, { import = 'local' })
 end
 
