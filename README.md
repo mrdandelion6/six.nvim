@@ -1,8 +1,22 @@
-# six.nvim ![Version](https://img.shields.io/badge/version-1.3-blue)
+# six.nvim ![Version](https://img.shields.io/badge/version-2.0-blue)
 
 Welcome to my custom configuration for Neovim. This configuration was originally forked from **kickstart.nvim** but has been greatly changed.
 
 ![Screenshot](samples/nvim.png)
+
+## Latest Changes
+### v2.0
+- **Jupyter notebooks & code execution**: Major feature addition - execute code cells in `.ipynb` , `.md` , and `.qmd` files using Jupyter kernels via `molten.nvim` and `quarto.nvim`. Navigate cells with `]]`/`[[` , run with `<leader>rc`. Currently Linux-only.
+- **Treesitter text objects**: Added custom text objects for markdown code cells - select with `ac`/`ic` , jump between cells , and navigate functions
+- **Formatting system overhaul**: Unified formatting with LSP and Conform integration. Toggle per-buffer formatting with `<leader>tf`
+- **Improved performance**: Replaced `vim.fn.system()` with `vim.system()` for Git operations , eliminating shell profile invocations and significantly reducing lag
+- **CSV rendering**: Added `csvview.nvim` for readable CSV display with automatic view toggling
+- **Documentation refactor**: Reorganized setup guides and added comprehensive notebooks documentation
+- **Plugin cleanup**: Removed `mini.nvim` , fixed various keybinding conflicts , improved Oil.nvim integration
+- **LaTeX snippets**: Expanded snippet collection with proof environments , math commands , and custom macros
+- **Bug fixes**: Fixed autoformatting on new buffers , Clangd arguments , CSV navigation conflicts , and Stylua LSP false positives
+
+See more in [CHANGELOG.md](CHANGELOG.md)
 
 ## Setup
 You will generally need the following dependencies installed and on PATH:
@@ -64,12 +78,14 @@ The cursor is always kept centered , even at the end of a file. Normally , even 
 ### Terminal Buffers Keep Title as PWD
 There is only one global status line instead of one per buffer. This is to keep things compact. The global status line displays the git root directory name of file in the current buffer (blank if not a repository). In return, each buffer gets its own small title at the top to indicate file name. For terminal buffers , this header corresponds to the PWD of the terminal.
 
-This is done through modifying `.bashrc` to send a signal to Neovim whenever you change directory or start a shell. You must copy some of the contents of `bashrc.sh` into your own `~/.bashrc` script for this to work. I have not yet implemented a Windows equivalent feature :(
+This is done through modifying `.bashrc` to send a signal to Neovim whenever you change directory or start a shell. You must copy some of the contents of `shell/bashrc.sh` into your own `~/.bashrc` script for this to work. I have not yet implemented a Windows equivalent feature :(
 
 ### Runnable Jupyter Notebooks
-An unstable feature I am working on. Currently the plugin files for these are in `lua/unstable`.
+Execute code cells in `.ipynb` , `.md` , and `.qmd` files directly in Neovim using Jupyter kernels. Navigate between cells with `]]`/`[[` , initialize kernels with `<leader>ri` , and run cells with `<leader>rc`.
 
-When complete , should be able to view Jupyter notebooks like they are markdown files with runnable segments of code.
+**Note:** This feature is currently only enabled on Linux. Windows support is not yet implemented. If you want to experiment with it on Windows, you'll need to modify the platform check in `init.lua`.
+
+See the full guide: [doc/linux/notebooks.md](doc/linux/notebooks.md).
 
 ### LaTeX Compilation
 You can type and compile LaTeX locally through Neovim instead of using Overleaf. This is mostly handled my the `lervag/vimtex` plugin. You will need to install the following dependencies:
@@ -98,65 +114,8 @@ Hot reloading should be enabled by default for either Zathura or SumatraPDF (thi
 You can find a breakdown of my files and what they are used for in [doc/files.md](doc/files.md).
 
 ## Terminal & Background
-I use Wezterm for my terminal , in which I run Neovim as I develop on both Linux and Windows. You can find my configuration for Wezterm on Arch in my [.dotfiles repo](https://github.com/mrdandelion6/.dotfiles) , and for Windows in [.winfiles repo](https://github.com/mrdandelion6/.winfiles).
+I use Wezterm for my terminal since it works well for both Linux and Windows. You can find my configuration for Wezterm on Arch in my [.dotfiles repo](https://github.com/mrdandelion6/.dotfiles) , and for Windows in [.winfiles repo](https://github.com/mrdandelion6/.winfiles).
 
-The background image I use for my terminal can be found [here](). And the different ASCII art I use can be found [here]().
-
-## TODO
-Here is a list of featues I plan on implementing.
-
-### Visual
-- On the right side of buffers , add symbol to indicate where errors are in file (relative to size).
-- Fix bug with cursor not centering based on height. Right now , cursor centers based on 'lines above' which is skewed for lines that bleed to the next row. Make this into its own plugin later.
-- Make bottom right status box transparent and change the color of text inside it to pink.
-- Add terminal top bar updates for PowerShell users.
-
-### Color Scheme
-- Make class definitions light orange.
-- Make constructor/destructor definition and calls same color as functions (light pink).
-- Make class type light orange or keep it as light red depending on definition and constructor/destructor colors.
-- Make (*) same color as string when it's for pointer.
-- Make (&) same color as string when it's for address.
-- Make header name color different than regular string color if possible. Make it grey or light red.
-
-### Plugins
-- Fix Telescope bug with `ripgrep` not finding empty textfiles.
-- Fix `nvim-dap` not working with `codelldb` adapter for `mingw g++` compiled binaries.
-
-### Add LSP
-- CUDA
-- x86
-- LaTeX
-- PowerShell
-- Java
-- Rust
-- Verilog
-
-### Long Term
-Not going to do these anytime soon.
-- Make Jupyter notebooks work using the plugins currently in `lua/unstable`.
-
-### Other Bugs/Featues
-- Sometimes doing undo via `u` key in normal mode causes an error due to cursor centering leading to an out of bounds cursor position
-
-## Latest Changes
-### v1.3
-- **Restructured plugin files**: Refactored all plugin code into files with accuarate naming. Created subdirectories under `lua/plugins/` for better organization.
-- **Debug support**: Finally added debugging support with `nvim-dap` for C/C++ , Python , and Bash. This is a major feature I've been looking into.
-- **Oil.nvim**: Now using `oil.nvim` for quick file creation and deletion.
-
-### v1.2
-- **LaTeX compilation support**: Added LaTeX support with automatic compilation and hot reloading using `vimtex` plugin
-- **Git root caching**: Now caching Git root directory paths to reduce calls for `git -C %s rev-parse --show-toplevel` as this caused lag issues on Windows devices
-
-### v1.1
-- **Terminal title updates**: Resolved plugin loading order issue that prevented terminal titles from updating properly
-- **Discord presence**: Added Discord presence using `presence.nvim`
-
-### v1.0
-- **Renamed to six.nvim**: Updated branding and reached version 1.0 milestone
-- Cursor automatically centers when text changes (undo, edits, etc.) for better focus now
-- Fixed EOF cursor positioning bug and improved save behavior with cursor centering
-- **Added documentation**: Added Windows setup guide alongside existing Arch and Ubuntu documentation
+You can also find the background image I use for my terminal and my fastfetch configuration in my `.dotfiles` repo.
 
 Reach out to me with any questions. Happy coding.
