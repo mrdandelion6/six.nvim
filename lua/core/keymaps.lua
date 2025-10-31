@@ -149,7 +149,7 @@ local function enable_colemak()
   }
   vim.g.VM_custom_motions = {
     ['k'] = remaps['k'],
-    ['n'] = remaps['n'], -- TODO: figure out why 'n' won't work for down movement
+    ['n'] = remaps['n'], -- FIXME: figure out why 'n' won't work for down movement
     ['e'] = remaps['e'],
     ['i'] = remaps['i'],
   }

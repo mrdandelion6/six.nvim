@@ -15,22 +15,6 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   end,
 })
 
-vim.api.nvim_create_user_command('DisableFormatting', function()
-  local bufnr = vim.api.nvim_get_current_buf()
-
-  -- disable lsp formatting capabilities for this buffer only
-  vim.b.disable_formatting = true
-
-  -- get all attached clients for this buffer
-  local clients = vim.lsp.get_clients { buffer = bufnr }
-  for _, client in ipairs(clients) do
-    client.server_capabilities.documentFormattingProvider = false
-    client.server_capabilities.documentRangeFormattingProvider = false
-  end
-
-  print 'Formatting disabled for current buffer'
-end, {})
-
 -- always center
 local original_scrolloff = vim.o.scrolloff
 function Center_cursor()

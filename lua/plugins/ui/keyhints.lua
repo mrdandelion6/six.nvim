@@ -2,7 +2,7 @@ return { -- useful plugin to show you pending keybinds.
   -- NOTE: have it in plugins/init.lua so it loads before other plugins, making it easier to document keybinds
   'folke/which-key.nvim',
   event = 'VimEnter',
-  -- TODO: currently when remapping i to right movement, which key makes u need to press i twice in operator mode. eg) dii instead of di. not sure why
+  -- FIXME: currently when remapping 'i' to right movement , which-key adds a delay for executing commands. eg) di takes a second to have affect. probably conflicting with other operator commands
   opts = {
     icons = {
       -- set icon mappings to true if you have a Nerd Font
@@ -43,15 +43,15 @@ return { -- useful plugin to show you pending keybinds.
 
     -- document existing key chains
     spec = {
-      { '<leader>c', group = '[C]ode',          mode = { 'n', 'x' } },
+      { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
       { '<leader>d', group = '[D]iagnose' },
-      { '<leader>r', group = '[R]ename' },
+      { '<leader>r', group = '[R]un Code' },
       { '<leader>f', group = '[F]ind' },
       { '<leader>a', group = '[A]nother Cursor' },
       { '<leader>s', group = '[S]ession' },
       { '<leader>w', group = '[W]orkspace' },
       { '<leader>t', group = '[T]oggle' },
-      { '<leader>m', group = '[M]essage',       mode = { 'n' } },
+      { '<leader>m', group = '[M]essage', mode = { 'n' } },
     },
   },
 }

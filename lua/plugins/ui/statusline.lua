@@ -113,8 +113,8 @@ return {
     }
 
     -- colors
-    local teal = '#f0a4d0'
-    local pink = '#7bd5af'
+    local pink = '#f0a4d0'
+    local teal = '#7bd5af'
     local light_blue = '#87ceeb'
     local red = '#ffb6c1'
 
@@ -125,16 +125,16 @@ return {
         globalstatus = true, -- this allows the bar to split in the middle
         theme = {
           normal = {
-            a = { fg = '#000000', bg = teal }, -- teal for normal
-            b = default_b,
-            c = { fg = '#ffffff', bg = 'NONE' },
-            y = { fg = teal, bg = 'NONE' },
-          },
-          insert = {
-            a = { fg = '#000000', bg = pink }, -- pink for insert
+            a = { fg = '#000000', bg = pink }, -- pink for normal
             b = default_b,
             c = { fg = '#ffffff', bg = 'NONE' },
             y = { fg = pink, bg = 'NONE' },
+          },
+          insert = {
+            a = { fg = '#000000', bg = teal }, -- teal for insert
+            b = default_b,
+            c = { fg = '#ffffff', bg = 'NONE' },
+            y = { fg = teal, bg = 'NONE' },
           },
           visual = {
             a = { fg = '#000000', bg = light_blue }, -- light blue for visual
