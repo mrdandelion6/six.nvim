@@ -45,8 +45,12 @@ return { -- code autocompletion
 
     -- load custom c++ snippets
     luasnip.add_snippets('cpp', require 'snippets.cpp', {
-      default_priority = 2000
+      default_priority = 2000,
     })
+
+    -- load custom notebook snippets
+    luasnip.add_snippets('ipynb', require 'snippets.ipynb')
+    luasnip.add_snippets('quarto', require 'snippets.ipynb')
 
     cmp.setup {
       snippet = {
@@ -106,9 +110,9 @@ return { -- code autocompletion
           -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
           group_index = 0,
         },
-        { name = 'luasnip',  priority = 1000 },
+        { name = 'luasnip', priority = 1000 },
         { name = 'nvim_lsp', priority = 900 },
-        { name = 'path',     priority = 100 },
+        { name = 'path', priority = 100 },
       },
     }
   end,
