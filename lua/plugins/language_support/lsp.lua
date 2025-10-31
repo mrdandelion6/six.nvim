@@ -29,24 +29,31 @@ return {
       -- `opts = {}` is the same as calling `require('fidget').setup({})`
       {
         'j-hui/fidget.nvim',
-        opts = {
-          notification = {
-            window = {
-              border = 'rounded',
-              relative = 'win',
+        config = function()
+          require('fidget').setup {
+            notification = {
+              window = {
+                normal_hl = '',
+                winblend = 0,
+                border = 'rounded',
+                border_hl = 'FidgetBorder',
+                relative = 'win',
+              },
+              view = {
+                stack_upwards = true,
+                icon_separator = ' ',
+                group_separator = '---',
+                group_separator_hl = 'Comment',
+              },
             },
-            view = {
-              stack_upwards = true,
-              icon_separator = ' ',
-              group_separator = '---',
-              group_separator_hl = 'Comment',
-            },
-            styles = {
-              -- this changes the transparency
-              minimal = false, -- setting minimal to false makes it use background
-            },
-          },
-        },
+          }
+
+          -- change colors
+          vim.api.nvim_set_hl(0, 'FidgetBorder', { fg = '#f0a4d0', bg = 'NONE' })
+          -- FIXME: the following two lines have no effect
+          vim.api.nvim_set_hl(0, 'FidgetTask', { fg = '#f0a4d0', bg = 'NONE' })
+          vim.api.nvim_set_hl(0, 'FidgetTitle', { fg = '#f0a4d0', bg = 'NONE' })
+        end,
       },
 
       -- allows extra capabilities provided by nvim-cmp
