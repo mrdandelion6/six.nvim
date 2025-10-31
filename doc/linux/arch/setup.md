@@ -1,5 +1,5 @@
 # Arch Setup
-Install the following plugin dependencies:
+Read this to get started with setting up Neovim on Arch Linux. Install the following plugin dependencies:
 
 ## Base
 The following dependencies are needed for multliple plugins:
@@ -39,20 +39,9 @@ sudo pacman -S texlive
 ```
 
 ## For Jupyter Notebooks
-The following plugins are only needed if you want to render and execute code inside Jupyter notebooks. Note that you may run into several problems in making this work properly. If I'm being honest , I've been lazy to figure out how to make this work exactly. I recommend not trying this unless you absolutely want to use Neovim on notebooks.
+The plugins inside `lua/notebooks/` are only needed if you want to render and execute code inside Jupyter notebooks or quarto/markdown files.
 
-To begin with , copy the following files from `lua/unstable` to `lua/local`:
-```bash
-cd ~/.config/nvim/lua # or wherever your config is
-mkdir local
-cp unstable/quarto.lua local/quarto.lua
-cp unstable/images.lua local/images.lua
-cp unstable/render.lua local/render.lua
-cp unstable/repl.lua local/repl.lua
-```
-Things in `lua/local` are not tracked by git.
-
-Now install the following dependendies:
+Install the following dependendies:
 ### image.nvim
 ```bash
 # for magick_cli and magick_rock
@@ -70,12 +59,12 @@ source ~/.envs/neovim/bin/activate
 pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext jupyter jupyterlab
 ```
 
-if you want to use a different path than `~/.envs/neovim/`, then you must edit `.localsettings.json` and change this key:
+If you want to use a different path than `~/.envs/neovim/`, then you must edit `.localsettings.json` and change this key:
 ```json
 "venv_path": "~/.envs"
 ```
 
-you will also need quarto cli:
+You will also need quarto cli:
 ```bash
 # get latest release
 yay -S quarto-cli
@@ -84,9 +73,9 @@ yay -S quarto-cli
 sudo dpkg -i quarto-1.6.40-linux-amd64.deb
 ```
 
-molten is a remote plugin so now you must run `:UpdateRemotePlugins` command in `nvim` , which should output:
+Molten is a remote plugin so now you must run `:UpdateRemotePlugins` command in `nvim` , which should output:
 ```bash
 remote/host: python3 host registered plugins ['molten']
 remote/host: generated rplugin manifest: $HOME/.local/share/nvim/rplugin.vim
 ```
-if you have python3 issues , make sure your `venv_path` points to an existing virtual environment with the required deps listed above.
+If you have python3 issues , make sure your `venv_path` points to an existing virtual environment with the required deps listed above.
