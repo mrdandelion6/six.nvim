@@ -120,7 +120,7 @@ return {
 
           -- rename the variable under your cursor.
           --  most Language Servers support renaming across files, etc.
-          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>cn', vim.lsp.buf.rename, '[C]ode Re[n]ame')
 
           -- execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.

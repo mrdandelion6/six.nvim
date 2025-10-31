@@ -5,7 +5,7 @@ return {
   },
   {
     'GCBallesteros/jupytext.nvim',
-    event = { 'BufReadPre *.ipynb', 'BufNewFile *.ipynb' }, -- change from ft to event
+    event = { 'BufReadPre *.ipynb', 'BufNewFile *.ipynb' },
     dependencies = {
       'nvim-lua/plenary.nvim',
     },
@@ -59,15 +59,19 @@ return {
           enabled = true,
           ft_runners = {
             bash = 'slime',
+            python = 'molten',
+            markdown = 'molten',
           },
           default_method = 'molten',
         },
       }
 
-      vim.keymap.set('n', '<localleader>qp', quarto.quartoPreview, { desc = 'Preview the Quarto document', silent = true, noremap = true })
-      -- to create a cell in insert mode, I have the ` snippet
-      vim.keymap.set('n', '<localleader>cc', 'i`<c-j>', { desc = 'Create a new code cell', silent = true })
-      vim.keymap.set('n', '<localleader>cs', 'i```\r\r```{}<left>', { desc = 'Split code cell', silent = true, noremap = true })
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'markdown', 'quarto' },
+        callback = function()
+          require('quarto').activate()
+        end,
+      })
     end,
   },
 }

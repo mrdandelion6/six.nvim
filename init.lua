@@ -39,7 +39,7 @@ vim.g.have_nerd_font = true
 
 require('core.lazy').boostrap()
 
-require 'core.platform'
+local platform = require 'core.platform'
 require 'core.options'
 require 'core.keymaps'
 require 'core.autocmds'
@@ -55,12 +55,15 @@ local specs = {
   { import = 'plugins.workflow' },
 }
 
+-- notebook plugins are unstable on windows
+if platform.is_linux() then
+  table.insert(specs, { import = 'plugins.notebooks' })
+end
+
+-- import any local plugins not in git if they exist
 local local_path = vim.fn.stdpath 'config' .. '/lua/local'
 if vim.fn.isdirectory(local_path) == 1 then
   table.insert(specs, { import = 'local' })
 end
 
 require('lazy').setup(specs, require('core.icons').lazy)
-
--- the line beneath this is called `modeline`. see `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
