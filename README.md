@@ -29,9 +29,9 @@ You will generally need the following dependencies installed and on PATH:
 - ripgrep
 
 For more **specific set up instructions** depending on your OS and distribution , see the guides inside `doc/`:
-- [Ubuntu/Debian](doc/ubuntu_setup.md)
-- [Windows](doc/windows_setup.md)
-- [Arch](doc/arch_setup.md)
+- [Ubuntu/Debian](doc/linux/ubuntu/setup.md)
+- [Windows](doc/windows/setup.md)
+- [Arch](doc/linux/arch/setup.md)
 
 ## Key Features
 This is an all purpose configuration with a focus on coding in many different programming languages. Below is an overview of some key features of my config. I plan on making separate plugins for all of these eventually.
