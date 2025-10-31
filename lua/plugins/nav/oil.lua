@@ -108,6 +108,7 @@ return {
         ['gx'] = 'actions.open_external',
         ['g.'] = 'actions.toggle_hidden',
         ['g\\'] = 'actions.toggle_trash',
+        ['yp'] = 'actions.yank_entry', -- yank path
       },
 
       -- set to false to disable all of the above keymaps
