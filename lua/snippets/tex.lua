@@ -3,6 +3,7 @@ local s = ls.snippet
 local t = ls.text_node
 local i = ls.insert_node
 local c = ls.choice_node
+local f = ls.function_node
 
 return {
   -- personal enviroments
@@ -52,9 +53,38 @@ return {
   s('+2', { t '\\vspace{0.2cm}' }),
   s('+4', { t '\\vspace{0.4cm}' }),
 
+  s('bf', {
+    t '\\textbf{',
+    i(1),
+    t '}',
+  }),
+
   -- regular enviroments
+  s('b', {
+    t '\\begin{',
+    i(1, 'env'),
+    t { '}', '' },
+    t '\t',
+    i(0),
+    t { '', '\\end{' },
+    f(function(args)
+      return args[1][1]
+    end, { 1 }),
+    t { '}', '' },
+  }),
+
   s('sec', {
     t '\\section{',
+    i(1, 'title'),
+    t { '}', '' },
+    t '\\begin{mypar}',
+    t { '', '\t' },
+    i(0),
+    t { '', '\\end{mypar}' },
+  }),
+
+  s('sub', {
+    t '\\subsection{',
     i(1, 'title'),
     t { '}', '' },
     t '\\begin{mypar}',
