@@ -1,9 +1,11 @@
-# default
 tags
 .luarc.json
 nvim
 **/spell/
 .netrwhist
+
+# note for unstaged local files
+.working
 
 # lua compiled files
 *.o
