@@ -225,18 +225,6 @@ return {
       }
 
       local servers = {
-
-        -- no default settings for clangd
-        clangd = {
-          filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'hip' },
-          cmd = {
-            'clangd',
-            '--background-index',
-            '--fallback-style=webkit',
-            '--compile-commands-dir=.', -- project root
-          },
-        },
-
         -- formatting handled by conform
         pyright = {
           settings = {
@@ -319,38 +307,70 @@ return {
       require('mason').setup()
 
       -- you can add other tools here that you want Mason to install
-      -- for you, so that they are available from within Neovim.
+      -- for you, so that they are available from within neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'clang-format',
-      })
+
+      -- NOTE: we do not have clangd in the servers list. instead we handle the
+      -- configuration of it manually in its own setup call
+      vim.list_extend(ensure_installed, { 'clangd' })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-      require('mason-lspconfig').setup {
-        handlers = {
-          -- default handler for all servers except clangd
-          function(server_name)
-            if server_name ~= 'clangd' then
-              local server = servers[server_name] or {}
-              server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-              require('lspconfig')[server_name].setup(server)
-            end
-          end,
+      -- NOTE: it is important that we manually configure each server instead
+      -- of using mason.setup as the latter configures everything with defaults
+      -- including clangd , and we want custom configurations for that
+      for server_name, server_config in pairs(servers) do
+        local config = vim.tbl_deep_extend('force', { capabilities = capabilities }, server_config)
+        require('lspconfig')[server_name].setup(config)
+      end
 
-          -- explicit handler for clangd
-          ['clangd'] = function()
-            require('lspconfig').clangd.setup {
-              filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'hip' },
-              cmd = {
-                'clangd',
-                '--background-index',
-                '--fallback-style=webkit',
-                '--compile-commands-dir=.',
-              },
-              capabilities = capabilities,
-            }
-          end,
+      -- customly launch clangd lsp with specific args
+      require('lspconfig').clangd.setup {
+        capabilities = capabilities,
+        autostart = true,
+        cmd = {
+          'clangd',
+          '--background-index',
+          '--clang-tidy',
+          '--header-insertion=iwyu',
+          '--completion-style=detailed',
+          '--function-arg-placeholders',
+          '--fallback-style=llvm',
         },
+        init_options = {
+          usePlaceholders = true,
+          completeUnimported = true,
+          clangdFileStatus = true,
+        },
+        filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+      }
+
+      -- separate CUDA-specific clangd setup
+      require('lspconfig').clangd.setup {
+        capabilities = capabilities,
+        autostart = true,
+        name = 'clangd_cuda',
+        cmd = {
+          'clangd',
+          '--background-index',
+          '--query-driver=/opt/cuda/bin/nvcc',
+        },
+        init_options = {
+          usePlaceholders = true,
+          completeUnimported = true,
+          clangdFileStatus = true,
+          fallbackFlags = {
+            '-xcuda',
+            '--cuda-path=/opt/cuda',
+            '-I/opt/cuda/include',
+            '-I/opt/cuda/include/cccl',
+            '--no-cuda-version-check',
+            '-std=c++17',
+            '-D__CUDACC__',
+            '-D_LIBCUDACXX_STD_VER=17',
+          },
+        },
+        filetypes = { 'cuda' },
+        root_dir = require('lspconfig').util.root_pattern '.git',
       }
     end,
   },
