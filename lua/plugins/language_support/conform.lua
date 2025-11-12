@@ -22,6 +22,14 @@ return {
         javascript = { 'prettier' },
         typescript = { 'prettier' },
         json = { 'prettier' },
+        yaml = { 'prettier' },
+        markdown = { 'prettier' },
+        quarto = { 'prettier' },
+      },
+      formatters = {
+        prettier = {
+          prepend_args = { '--tab-width', '4' },
+        },
       },
     }
 
