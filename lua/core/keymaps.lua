@@ -87,12 +87,18 @@ local function enable_colemak()
   }
   -- ALL MODES
   for _, mode in ipairs { 'n', 'v', 'o' } do
+    -- NOTE: (x -> y) means: y now does what x did
+
+    -- (hjkl -> knei)
     vim.keymap.set(mode, 'k', remaps['k'], { desc = 'Left' })
     vim.keymap.set(mode, 'n', remaps['n'], { desc = 'Down' })
     vim.keymap.set(mode, 'e', remaps['e'], { desc = 'Up' })
     vim.keymap.set(mode, 'i', remaps['i'], { desc = 'Right' })
 
-    -- (HJLK -> KNEI)
+    -- TODO: think of replacing (HL -> KI) with something more useful. H and L
+    -- have the same affect as <C-u> and <C-d> with scrolloff=999.
+
+    -- (HJKL -> KNEI)
     vim.keymap.set(mode, 'K', remaps['K'], { desc = 'Top of screen' })
     vim.keymap.set(mode, 'I', remaps['I'], { desc = 'Bottom of screen' })
 
@@ -106,7 +112,11 @@ local function enable_colemak()
   -- NORMAL AND VISUAL MODE
   for _, mode in ipairs { 'n', 'v' } do
     vim.keymap.set(mode, 'N', remaps['N'], { desc = 'Join line' })
-    vim.keymap.set(mode, 'E', remaps['E'], { desc = 'Keyword search' })
+
+    -- instead of (K -> E) , we set it to lsp hover. this is like how we would
+    -- normally have set K to be lsp hover instead of it's vim native bind which
+    -- is just a :man command
+    vim.keymap.set(mode, 'E', vim.lsp.buf.hover, { desc = 'LSP Hover' })
 
     vim.keymap.set(mode, 'h', remaps['h'], { desc = 'Next search result' })
     vim.keymap.set(mode, 'H', remaps['H'], { desc = 'Previous search result' })
@@ -183,6 +193,9 @@ local function enable_qwerty(startup)
   end
 
   buf_jump_set('hjkl', 'knei')
+
+  -- set K to be lsp hover
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = 'LSP Hover' })
 
   -- set telescope to default qwerty mappings
   local telescope_maps = {
