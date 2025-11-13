@@ -90,6 +90,17 @@ return {
       -- an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
       -- function will be executed to configure the current buffer
 
+      -- HACK: suppress lspconfig deprecation warnings
+      local lspconfig_ok, _ = pcall(function()
+        local notify = vim.notify
+        vim.notify = function(msg, ...)
+          if msg and type(msg) == 'string' and msg:match 'lspconfig' then
+            return
+          end
+          notify(msg, ...)
+        end
+      end)
+
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
