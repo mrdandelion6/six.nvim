@@ -353,24 +353,59 @@ return {
           'clangd',
           '--background-index',
           '--query-driver=/opt/cuda/bin/nvcc',
+          '--compile-commands-dir=.',
+          '--header-insertion=never',
+          '-j=4',
+          '--clang-tidy=false',
+          '--completion-style=detailed',
+          '--pch-storage=memory',
         },
         init_options = {
           usePlaceholders = true,
           completeUnimported = true,
           clangdFileStatus = true,
+          -- TODO: have alternate for windows.. or just add field in
+          -- .localsettings.json
           fallbackFlags = {
             '-xcuda',
             '--cuda-path=/opt/cuda',
+            '--cuda-gpu-arch=sm_75',
             '-I/opt/cuda/include',
+            '-I/opt/cuda/targets/x86_64-linux/include',
             '-I/opt/cuda/include/cccl',
             '--no-cuda-version-check',
             '-std=c++17',
             '-D__CUDACC__',
-            '-D_LIBCUDACXX_STD_VER=17',
+            '-Wno-unknown-cuda-version',
           },
         },
         filetypes = { 'cuda' },
-        root_dir = require('lspconfig').util.root_pattern '.git',
+        root_dir = function(fname)
+          return require('lspconfig').util.root_pattern '.git'(fname) or require('lspconfig').util.path.dirname(fname)
+        end,
+
+        -- NOTE: clang might have incomplete support for CUDA , so we suppress
+        -- some false errors.
+        handlers = {
+          ['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
+            if result and result.diagnostics then
+              result.diagnostics = vim.tbl_filter(function(diagnostic)
+                local msg = diagnostic.message or ''
+                -- filter out clang/cuda compatibility errors
+                return not (
+                  msg:match "no type named 'pointer'"
+                  or msg:match 'texture_fetch_functions'
+                  or msg:match 'file not found'
+                  or msg:match '_Tp_alloc_type'
+                  or msg:match '_Vector_base'
+                  or msg:match 'allocator_traits'
+                  or msg:match 'In template:'
+                )
+              end, result.diagnostics)
+            end
+            vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
+          end,
+        },
       }
     end,
   },
