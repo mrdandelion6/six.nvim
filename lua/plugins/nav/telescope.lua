@@ -194,6 +194,10 @@ return {
     ****************************************************************************
     --]]
 
+    -- TODO:
+    -- 1. searching for files in a specific path
+    -- 2. searching for files in the repo of the current buffer
+
     -- help
     vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = '[F]ind [H]elp' })
 
