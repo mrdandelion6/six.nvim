@@ -404,30 +404,9 @@ return {
         root_dir = function(fname)
           return require('lspconfig').util.root_pattern '.git'(fname) or require('lspconfig').util.path.dirname(fname)
         end,
-
-        -- NOTE: clang might have incomplete support for CUDA , so we suppress
-        -- some false errors.
-        handlers = {
-          ['textDocument/publishDiagnostics'] = function(err, result, ctx, config)
-            if result and result.diagnostics then
-              result.diagnostics = vim.tbl_filter(function(diagnostic)
-                local msg = diagnostic.message or ''
-                -- filter out clang/cuda compatibility errors
-                return not (
-                  msg:match "no type named 'pointer'"
-                  or msg:match 'texture_fetch_functions'
-                  or msg:match 'file not found'
-                  or msg:match '_Tp_alloc_type'
-                  or msg:match '_Vector_base'
-                  or msg:match 'allocator_traits'
-                  or msg:match 'In template:'
-                )
-              end, result.diagnostics)
-            end
-            vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx, config)
-          end,
-        },
       }
+
+      -- TODO: have custom config for hip
     end,
   },
 }
