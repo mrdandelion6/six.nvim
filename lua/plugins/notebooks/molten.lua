@@ -21,7 +21,7 @@ return {
     -- vim.g.molten_auto_image_popup = true
     -- vim.g.molten_show_mimetype_debug = true
     vim.g.molten_auto_open_output = false
-    vim.g.molten_image_location = 'float'
+    vim.g.molten_image_location = 'virt'
     vim.g.molten_image_provider = 'image.nvim'
     -- vim.g.molten_output_show_more = true
     vim.g.molten_output_win_border = { '', '━', '', '' }
@@ -60,6 +60,7 @@ return {
         -- setup some molten specific keybindings
         vim.keymap.set('v', '<localleader>rv', ':<C-u>MoltenEvaluateVisual<CR>gv', { silent = true, desc = 'Molten [R]un [V]isual' })
         vim.keymap.set('n', '<localleader>ro', ':noautocmd MoltenEnterOutput<CR>', { desc = 'Molten [R] Open [O]utput', silent = true })
+        vim.keymap.set('n', '<localleader>rp', ':MoltenImagePopup<CR>', { desc = 'Molten [R] [P]op Image', silent = true })
         vim.keymap.set('n', '<localleader>rd', ':MoltenDelete<CR>', { desc = 'Molten [R] [D]elete Cell', silent = true })
 
         local open = false
