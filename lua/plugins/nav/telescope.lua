@@ -256,6 +256,92 @@ return {
       builtin.find_files(get_opts())
     end, { desc = '[F]ind [F]iles' })
 
+    -- fuzzy seach for files in some specified path using zoxide if available
+    vim.keymap.set('n', '<leader>fp', function()
+      -- create a floating window for input
+      local buf = vim.api.nvim_create_buf(false, true) -- no file, scratch buffer
+      local width = 60
+      local height = 1
+      local row = math.floor((vim.o.lines - height) / 2)
+      local col = math.floor((vim.o.columns - width) / 2)
+
+      local win = vim.api.nvim_open_win(buf, true, {
+        relative = 'editor',
+        width = width,
+        height = height,
+        row = row,
+        col = col,
+        style = 'minimal',
+        border = 'rounded',
+        title = ' Search Path ',
+        title_pos = 'center',
+      })
+
+      vim.api.nvim_win_set_option(win, 'winhl', 'FloatBorder:TelescopeBorder')
+
+      -- set up the buffer
+      vim.api.nvim_buf_set_option(buf, 'buftype', 'prompt')
+      vim.fn.prompt_setprompt(buf, '> ')
+
+      -- mark buffer as not modified
+      vim.api.nvim_buf_set_option(buf, 'modified', false)
+
+      -- auto delete buffer when it is hidden
+      vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+
+      -- start insert mode
+      vim.cmd 'startinsert'
+
+      -- handle enter key
+      vim.keymap.set('i', '<CR>', function()
+        local input = vim.api.nvim_buf_get_lines(buf, 0, -1, false)[1]
+        input = input:gsub('^> ', '') -- remove prompt prefix
+
+        -- close the floating window
+        vim.api.nvim_win_close(win, true)
+
+        if input == '' then
+          return
+        end
+
+        local search_path
+
+        if input == '.' then
+          local current_file = vim.fn.expand '%:p'
+          search_path = vim.fn.fnamemodify(current_file, ':h')
+        else
+          -- try zoxide
+          local handle = io.popen('zoxide query ' .. input .. ' 2>/dev/null')
+          if handle then
+            local result = handle:read '*a'
+            handle:close()
+            search_path = result:gsub('%s+$', '')
+
+            if search_path == '' then
+              search_path = vim.fn.expand(input)
+            end
+          else
+            search_path = vim.fn.expand(input)
+          end
+        end
+
+        if vim.fn.isdirectory(search_path) == 0 then
+          vim.notify('Path does not exist: ' .. search_path, vim.log.levels.ERROR)
+          return
+        end
+
+        require('telescope.builtin').find_files {
+          cwd = search_path,
+          prompt_title = 'Find Files in: ' .. search_path,
+        }
+      end, { buffer = buf })
+
+      -- handle escape key
+      vim.keymap.set('i', '<Esc>', function()
+        vim.api.nvim_win_close(win, true)
+      end, { buffer = buf })
+    end, { desc = '[F]ind files in specific [P]ath (with zoxide)' })
+
     -- fuzzy find in current buffer.. like regular / but with a menu
     vim.keymap.set('n', '<leader>/', function()
       -- you can pass additional configuration to telescope to change the theme, layout, etc.
