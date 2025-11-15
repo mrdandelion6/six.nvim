@@ -4,68 +4,6 @@
 vim.g.format_on_save = true
 vim.b.format_on_save = true
 
--- TODO: fix md formatting
-local function find_yaml_frontmatter_end()
-  -- returns the line number of the closing '---' or nil if not found
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-
-  -- check if file starts with frontmatter
-  if lines[1] ~= '---' then
-    return nil
-  end
-
-  -- find the closing '---'
-  for i = 2, #lines do
-    if lines[i] == '---' then
-      return i
-    end
-  end
-
-  return nil
-end
-
-local function format_markdown_with_frontmatter(cursor_pos)
-  local conform = require 'conform'
-  local yaml_end = find_yaml_frontmatter_end()
-
-  if not yaml_end then
-    return false -- no frontmatter found, caller should use regular formatting
-  end
-
-  -- format yaml frontmatter (lines 1 to yaml_end)
-  conform.format {
-    range = {
-      start = { 1, 0 },
-      ['end'] = { yaml_end, 0 },
-    },
-    formatters = { 'prettier' },
-    async = false,
-  }
-
-  -- format the rest of the markdown content
-  if yaml_end < vim.api.nvim_buf_line_count(0) then
-    conform.format {
-      range = {
-        start = { yaml_end + 1, 0 },
-        ['end'] = { vim.api.nvim_buf_line_count(0), 0 },
-      },
-      async = false,
-    }
-  end
-
-  -- remove trailing whitespace (entire file)
-  vim.cmd [[%s/\s\+$//e]]
-  vim.cmd [[%s/\r\+$//e]]
-
-  -- restore cursor position
-  pcall(function()
-    vim.api.nvim_win_set_cursor(0, cursor_pos)
-  end)
-  Center_cursor()
-
-  return true -- Successfully formatted with frontmatter handling
-end
-
 local function format_range(start_line, end_line)
   --[[
       this function handles the formatting for all files. it should be the only
@@ -93,26 +31,13 @@ local function format_range(start_line, end_line)
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   local conform = require 'conform'
 
-  -- check if this is a markdown/quarto file with yaml frontmatter
-  local ft = vim.bo.filetype
-  local is_markdown_like = ft == 'markdown' or ft == 'quarto'
-
-  -- try markdown-specific formatting if applicable
-  if is_markdown_like and not start_line then
-    local first_line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]
-    local has_frontmatter = first_line == '---'
-    if has_frontmatter and format_markdown_with_frontmatter(cursor_pos) then
-      return
-    end
-  end
-  -- otherwise , proceed with regular formatting
-
   -- check if conform handles this filetype
   local has_conform_formatter = #conform.list_formatters() > 0
 
   -- step 1: format using conform or lsp
   if has_conform_formatter then
     if start_line and end_line then
+      -- FIXME: this doesn't seem to work. might be a formatter specific issue
       conform.format {
         range = {
           start = { start_line, 0 },
