@@ -46,13 +46,23 @@ return {
                 group_separator_hl = 'Comment',
               },
             },
+            configs = {
+              default = {
+                group_style = 'FidgetTitle',
+                icon_style = 'FidgetIcon',
+                annote_style = 'FidgetAnnote',
+              },
+            },
           }
 
           -- change colors
-          vim.api.nvim_set_hl(0, 'FidgetBorder', { fg = '#f0a4d0', bg = 'NONE' })
-          -- FIXME: the following two lines have no effect
-          vim.api.nvim_set_hl(0, 'FidgetTask', { fg = '#f0a4d0', bg = 'NONE' })
-          vim.api.nvim_set_hl(0, 'FidgetTitle', { fg = '#f0a4d0', bg = 'NONE' })
+          local colors = require 'core.colors'
+          vim.api.nvim_set_hl(0, 'FidgetBorder', { fg = colors.lighter_pink, bg = 'NONE' })
+
+          -- FIXME: the following have no affect
+          vim.api.nvim_set_hl(0, 'FidgetTitle', { fg = colors.lighter_pink, bg = 'NONE' })
+          vim.api.nvim_set_hl(0, 'FidgetIcon', { fg = colors.lighter_pink, bg = 'NONE' })
+          vim.api.nvim_set_hl(0, 'FidgetAnnote', { fg = colors.lighter_pink, bg = 'NONE' })
         end,
       },
 

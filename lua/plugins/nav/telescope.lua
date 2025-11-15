@@ -45,14 +45,15 @@ return {
       },
     }
 
+    local colors = require 'core.colors'
+
     -- enable telescope extensions if they are installed
     pcall(require('telescope').load_extension, 'fzf')
     pcall(require('telescope').load_extension, 'ui-select')
 
     -- see `:help telescope.builtin`
     local builtin = require 'telescope.builtin'
-
-    vim.api.nvim_set_hl(0, 'TelescopeBorder', { fg = '#e4abd4' })
+    vim.api.nvim_set_hl(0, 'TelescopeBorder', { fg = colors.lighter_pink })
 
     local function get_opts()
       -- return a table of options for telescope fuzzy searching. we need this
@@ -197,7 +198,6 @@ return {
                                         KEYMAPS
     ****************************************************************************
     --]]
-
     -- TODO:
     -- 1. searching for files in a specific path
     -- 2. searching for files in the repo of the current buffer

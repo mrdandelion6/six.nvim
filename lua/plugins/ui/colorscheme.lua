@@ -1,29 +1,4 @@
--- colors
-local white = '#d5dae1'
-local grey = '#c4bdd2'
-
-local light_yellow = '#f5c287'
-
-local light_orange = '#f5b579'
-local strong_orange = '#eaa658'
-
-local lighter_red = '#e89bb6'
-local light_red = '#de80a1'
-local vibrant_red = '#ff5f83'
-local danger_red = '#e43b53'
-
-local test = '#ff86b4'
-local lighter_pink = '#ffddff'
-local light_pink = '#ffb0ff'
-local strong_pink = '#fe89f3'
-local vibrant_pink = '#ff6dba'
-
-local light_purple = '#a6b2fc'
-local strong_purple = '#a68cf0'
-
-local light_blue = '#52d7ff'
-local strong_blue = '#89b4fa'
-local turqouise = '#9effe6'
+local colors = require 'core.colors'
 
 return {
   {
@@ -44,59 +19,63 @@ return {
         flavour = 'mocha',
         custom_highlights = {
 
-          CursorLineNr = { fg = light_pink },
-          ['@variable'] = { fg = lighter_pink },
-          ['@variable.builtin'] = { fg = light_pink },
-          ['@property'] = { fg = lighter_pink },
-          ['@field'] = { fg = lighter_pink },
-          ['@type.definition'] = { fg = lighter_pink },
-          ['@constant'] = { fg = strong_purple },
+          CursorLineNr = { fg = colors.light_pink },
+          ['@variable'] = { fg = colors.lightest_pink },
+          ['@variable.builtin'] = { fg = colors.light_pink },
+          ['@property'] = { fg = colors.lightest_pink },
+          ['@field'] = { fg = colors.lightest_pink },
+          ['@type.definition'] = { fg = colors.lightest_pink },
+          ['@constant'] = { fg = colors.strong_purple },
 
-          Function = { fg = light_pink },
-          ['@function'] = { fg = light_pink },
-          ['@function.builtin'] = { fg = light_pink },
-          ['@function.call'] = { fg = light_pink },
-          ['@keyword.operator'] = { fg = light_pink },
+          Function = { fg = colors.light_pink },
+          ['@function'] = { fg = colors.light_pink },
+          ['@function.builtin'] = { fg = colors.light_pink },
+          ['@function.call'] = { fg = colors.light_pink },
+          ['@keyword.operator'] = { fg = colors.light_pink },
 
-          ['@parameter'] = { fg = strong_orange },
-          ['@variable.parameter'] = { fg = strong_orange },
-          ['@keyword.return'] = { fg = vibrant_pink },
+          ['@parameter'] = { fg = colors.strong_orange },
+          ['@variable.parameter'] = { fg = colors.strong_orange },
+          ['@keyword.return'] = { fg = colors.vibrant_pink },
 
-          Type = { fg = light_red },
-          ['@keyword.type'] = { fg = vibrant_red },
-          ['@type'] = { fg = light_red },
-          ['@type.builtin'] = { fg = light_red },
-          ['@type.builtin.c'] = { fg = light_red },
+          Type = { fg = colors.light_red },
+          ['@keyword.type'] = { fg = colors.vibrant_red },
+          ['@type'] = { fg = colors.light_red },
+          ['@type.builtin'] = { fg = colors.light_red },
+          ['@type.builtin.c'] = { fg = colors.light_red },
           -- cpp
-          ['@type.builtin.cpp'] = { fg = light_red },
+          ['@type.builtin.cpp'] = { fg = colors.light_red },
+
           -- TODO: figure out how to have different priority for class definition, declaration, and type
-          -- ['@lsp.typemod.class.declaration.cpp'] = { fg = light_pink },
-          -- ['@lsp.typemod.class.definition.cpp'] = { fg = light_pink },
-          -- ['@lsp.typemod.class.globalScope.cpp'] = { fg = light_pink },
+          -- ['@lsp.typemod.class.declaration.cpp'] = { fg = colors.light_pink },
+          -- ['@lsp.typemod.class.definition.cpp'] = { fg = colors.light_pink },
+          -- ['@lsp.typemod.class.globalScope.cpp'] = { fg = colors.light_pink },
 
-          Keyword = { fg = strong_purple },
-          ['@keyword'] = { fg = strong_purple },
-          ['@keyword.function'] = { fg = strong_purple },
+          -- cuda
+          ['@lsp.type.enumMember.cuda'] = { fg = colors.light_yellow },
 
-          ['@keyword.import'] = { fg = danger_red },
-          ['@keyword.import.cpp'] = { fg = danger_red },
-          ['@keyword.directive.define.c'] = { fg = danger_red },
+          Keyword = { fg = colors.strong_purple },
+          ['@keyword'] = { fg = colors.strong_purple },
+          ['@keyword.function'] = { fg = colors.strong_purple },
 
-          ['@keyword.repeat'] = { fg = light_purple },
-          ['@keyword.conditional'] = { fg = light_purple },
+          ['@keyword.import'] = { fg = colors.danger_red },
+          ['@keyword.import.cpp'] = { fg = colors.danger_red },
+          ['@keyword.directive.define.c'] = { fg = colors.danger_red },
 
-          ['@string'] = { fg = lighter_red },
-          ['@character'] = { fg = lighter_red },
+          ['@keyword.repeat'] = { fg = colors.light_purple },
+          ['@keyword.conditional'] = { fg = colors.light_purple },
 
-          ['@comment'] = { fg = grey },
-          ['@punctuation.bracket'] = { fg = grey },
+          ['@string'] = { fg = colors.lighter_red },
+          ['@character'] = { fg = colors.lighter_red },
 
-          ['@operator'] = { fg = white },
+          ['@comment'] = { fg = colors.grey },
+          ['@punctuation.bracket'] = { fg = colors.grey },
 
-          ['@boolean'] = { fg = light_yellow },
-          ['@number'] = { fg = light_yellow },
+          ['@operator'] = { fg = colors.white },
 
-          ['@module'] = { fg = light_blue },
+          ['@boolean'] = { fg = colors.light_yellow },
+          ['@number'] = { fg = colors.light_yellow },
+
+          ['@module'] = { fg = colors.light_blue },
         },
       }
       vim.cmd.colorscheme 'catppuccin'
@@ -115,6 +94,7 @@ return {
     lazy = false, -- make sure it loads right away
     config = function()
       require('ccc').setup()
+      vim.api.nvim_set_hl(0, 'CccFloatBorder', { fg = colors.lighter_pink, bg = 'NONE' })
       vim.keymap.set('n', '<leader>cw', '<cmd>CccPick<CR>', { desc = '[C]olor [W]heel' })
     end,
   },
