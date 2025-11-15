@@ -68,28 +68,32 @@ return {
       local opts = {
         hidden = true,
       }
-      -- ripgrep is the best one for ignoring binaries.
+
+      local platform = require 'core.platform'
+
+      -- NOTE: rg is great for ignoring binaries , but it also ignores empty
+      -- files. to include empty files we combine rg with find.
       if vim.fn.executable 'rg' == 1 then
-        opts.find_command = {
-          'rg',
-          '-l',
-          '.*',
-          '--follow',
-          '--hidden',
-          '--no-ignore-vcs',
-          '--glob',
-          '!.git',
-          '--glob',
-          '!lib',
-          '--glob',
-          '!node_modules',
-          '--glob',
-          '!target',
-          '--glob',
-          '!dist',
-          '--glob',
-          '!build',
-        }
+        if platform.is_windows() then
+          opts.find_command = {
+            'powershell',
+            '-NoProfile',
+            '-Command',
+            'rg -l ".*" --follow --hidden --no-ignore-vcs '
+              .. '--glob "!.git" --glob "!lib" --glob "!node_modules" '
+              .. '--glob "!target" --glob "!dist" --glob "!build" 2>$null; '
+              .. 'Get-ChildItem -Recurse -File | Where-Object {$_.Length -eq 0} | Select-Object -ExpandProperty FullName',
+          }
+        else
+          opts.find_command = {
+            'sh',
+            '-c',
+            'rg -l ".*" --follow --hidden --no-ignore-vcs '
+              .. '--glob "!.git" --glob "!lib" --glob "!node_modules" '
+              .. '--glob "!target" --glob "!dist" --glob "!build" 2>/dev/null; '
+              .. 'find . -type f -empty', -- also consider any empty files
+          }
+        end
       else
         vim.notify('WARNING (telescope.lua): ripgrep not found! ripgrep is the recommended finder to use.', vim.log.levels.INFO)
 
