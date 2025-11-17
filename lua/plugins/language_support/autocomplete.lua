@@ -47,6 +47,12 @@ return { -- code autocompletion
     luasnip.add_snippets('cpp', require 'snippets.cpp', {
       default_priority = 2000,
     })
+    luasnip.add_snippets('cuda', require 'snippets.cpp', {
+      default_priority = 2000,
+    })
+    luasnip.add_snippets('hip', require 'snippets.cpp', {
+      default_priority = 2000,
+    })
 
     -- load custom notebook snippets
     luasnip.add_snippets('ipynb', require 'snippets.ipynb')
