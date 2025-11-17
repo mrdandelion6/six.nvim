@@ -258,8 +258,12 @@ return {
       builtin.find_files(get_opts())
     end, { desc = '[F]ind [F]iles' })
 
-    -- fuzzy seach for files in some specified path using zoxide if available
     vim.keymap.set('n', '<leader>fp', function()
+      -- fuzzy seach for files in some specified path using zoxide if available.
+      -- if the path provided is "." , then fuzzy find files in the pwd of the
+      -- current buffer. if nothing is provided (enter was pressed without)
+      -- any path , fuzzy find files in the entire system (slow).
+
       -- create a floating window for input
       local buf = vim.api.nvim_create_buf(false, true) -- no file, scratch buffer
       local width = 60
@@ -296,21 +300,29 @@ return {
 
       -- handle enter key
       vim.keymap.set('i', '<CR>', function()
+        local utils = require 'core.utils'
         local input = vim.api.nvim_buf_get_lines(buf, 0, -1, false)[1]
         input = input:gsub('^> ', '') -- remove prompt prefix
 
         -- close the floating window
         vim.api.nvim_win_close(win, true)
 
-        if input == '' then
-          return
-        end
-
         local search_path
 
-        if input == '.' then
-          local current_file = vim.fn.expand '%:p'
-          search_path = vim.fn.fnamemodify(current_file, ':h')
+        if input == '' or input == '/' then
+          local confirm = vim.fn.confirm('Searching from root (/) can be very slow. Continue?', '&Yes\n&No', 2)
+          if confirm ~= 1 then
+            return
+          end
+          search_path = '/'
+        elseif input == '.' then
+          -- first try to get the git root of the buffer's file if it exists
+          search_path = utils.get_git_root(true)
+          -- if the file doesn't have a git root then just get its parent dir
+          if search_path == '' then
+            local current_file = vim.fn.expand '%:p'
+            search_path = vim.fn.fnamemodify(current_file, ':h')
+          end
         else
           -- try zoxide
           local handle = io.popen('zoxide query ' .. input .. ' 2>/dev/null')
