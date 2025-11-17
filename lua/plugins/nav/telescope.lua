@@ -233,6 +233,7 @@ return {
     vim.keymap.set('n', '<leader>fe', function()
       local opts = get_opts()
       opts.cwd = vim.fn.stdpath 'config'
+      opts.prompt_title = 'Find Files in Neovim Config'
       builtin.find_files(opts)
     end, { desc = '[F]ind N[e]ovim files' })
 
@@ -242,6 +243,7 @@ return {
         if vim.g.local_settings.notes_path then
           local opts = get_opts()
           opts.cwd = vim.g.local_settings.notes_path
+          opts.prompt_title = 'Find Code Notes'
           builtin.find_files(opts)
         else
           print 'ERROR (telescope.lua): vim.g.local_settings.notes_path is nil'
@@ -330,10 +332,10 @@ return {
           return
         end
 
-        require('telescope.builtin').find_files {
-          cwd = search_path,
-          prompt_title = 'Find Files in: ' .. search_path,
-        }
+        local opts = get_opts()
+        opts.cwd = search_path
+        opts.prompt_title = 'Find Files in: ' .. search_path
+        require('telescope.builtin').find_files(opts)
       end, { buffer = buf })
 
       -- handle escape key

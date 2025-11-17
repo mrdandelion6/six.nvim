@@ -1,5 +1,5 @@
 {
-  "exclude_autoformat": ["notes%..+", "ViMak%-Moonlander/src/keymap%.c$"],
+  "exclude_autoformat": ["ViMak%-Moonlander/src/keymap%.c$"],
   "layout": "qwerty",
   "venv_path": "~/.envs",
   "notes_path": "~/code/learn-to-code/"
