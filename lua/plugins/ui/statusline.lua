@@ -98,7 +98,7 @@ return {
     }
 
     -- create copy of file_name table with slight modifications
-    local file_name_winbar = utils.deepcopy(file_name)
+    local file_name_winbar = vim.deepcopy(file_name)
     file_name_winbar.color = { fg = '#364140', bg = 'NONE' }
 
     local winbar_config = {
