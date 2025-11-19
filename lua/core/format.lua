@@ -11,22 +11,24 @@ local function format_range(start_line, end_line)
       specified with start_line and end_line. otherwise the entire file is
       formatted.
 
-      to format files , this function does the following things in order:
+      to format files, this function does the following things in order:
         1. apply LSP or conform formatting based on filetype if applicable
-        2. remove all trailing spaces , tabs , and carriage returns (CRLF -> LF)
+        2. remove all trailing spaces, tabs, and carriage returns (CRLF -> LF)
+           - skipped for filetypes whose formatters already handle this
         3. auto-indent lines with vim's built-in indentation engine
+           - skipped if conform formatter or LSP is available for this filetype
 
-      we use LSP formatting for languages with good quality LSPs (clangd). for
-      languages with poor LSP formatting (eg. pyright) , we use conform which
-      wraps around other formatting tools (eg. black for python , prettier for
-      javascript).
+      we use conform formatters for most languages (clang-format for c/cpp/cuda,
+      prettier for js/ts/json/yaml/markdown, black for python, stylua for lua).
+      for languages without a conform formatter, we fall back to LSP formatting
+      if available (eg. rust-analyzer, pyright).
 
-      LSP configurations can be found in lua/plugins/lsp.lua. this does most of
-      the heavy lifting using the nvim-lspconfig plugin which uses installed
-      language server protocols such as clangd , rust-analyzer , pyright , etc.
-      if a filetype has no matching LSP (eg. file.txt) , then only steps 2 and 3
-      will affect it. for certain filetypes like .c and .cpp , step 3 is skipped
-      as to not conflict with LSPs like clangd.
+      LSP configurations can be found in lua/plugins/lsp.lua. conform
+      configurations can be found in lua/plugins/conform.lua.
+
+      if a filetype has neither a conform formatter nor an LSP (eg. .txt files),
+      then only steps 2 and 3 will affect it, providing basic cleanup and
+      indentation using vim's built-in capabilities.
   --]]
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   local conform = require 'conform'
@@ -34,8 +36,12 @@ local function format_range(start_line, end_line)
   -- check if conform handles this filetype
   local has_conform_formatter = #conform.list_formatters() > 0
 
+  -- also check if there is an lsp for this filetype
+  local clients = vim.lsp.get_clients { bufnr = 0 }
+  local has_lsp = #clients > 0
+
   -- step 1: format using conform or lsp
-  if has_conform_formatter then
+  if has_conform_formatter then -- always prefer conform first
     if start_line and end_line then
       -- FIXME: this doesn't seem to work. might be a formatter specific issue
       conform.format {
@@ -48,7 +54,7 @@ local function format_range(start_line, end_line)
     else
       conform.format { async = false }
     end
-  else -- lsp formatter
+  elseif has_lsp then -- lsp formatter
     vim.lsp.buf.format {
       async = false,
       range = start_line and {
@@ -59,19 +65,35 @@ local function format_range(start_line, end_line)
   end
 
   -- step 2: remove trailing whitespace and carriage returns
+  -- skip file types whose formatters handle this
+  local formatters_handle_cleanup = {
+    cuda = true,
+    cpp = true,
+    c = true,
+    lua = true,
+    python = true,
+    javascript = true,
+    typescript = true,
+    json = true,
+    yaml = true,
+    markdown = true,
+  }
+
   if start_line and end_line then
-    -- apply to specific range
-    vim.cmd(string.format('%d,%ds/\\s\\+$//e', start_line, end_line))
-    vim.cmd(string.format('%d,%ds/\\r\\+$//e', start_line, end_line))
+    if not formatters_handle_cleanup[vim.bo.filetype] then
+      vim.cmd(string.format('%d,%ds/\\s\\+$//e', start_line, end_line))
+      vim.cmd(string.format('%d,%ds/\\r\\+$//e', start_line, end_line))
+    end
   else
-    -- apply to entire file
-    vim.cmd [[%s/\s\+$//e]]
-    vim.cmd [[%s/\r\+$//e]]
+    if not formatters_handle_cleanup[vim.bo.filetype] then
+      vim.cmd [[%s/\s\+$//e]]
+      vim.cmd [[%s/\r\+$//e]]
+    end
   end
 
-  -- step 3: auto-indent. skip filetypes with good formatters
-  local skip_autoindent = { c = true, cpp = true, lua = true, python = true, javascript = true }
-  if not skip_autoindent[vim.bo.filetype] then
+  -- step 3: auto-indent
+  -- skip indentation if we have an lsp or formatter for the ft
+  if not has_conform_formatter and not has_lsp then
     if start_line and end_line then
       vim.cmd(string.format('normal! %dgg==%dgg', start_line, end_line - start_line + 1))
     else
