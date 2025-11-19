@@ -55,7 +55,7 @@ return {
     local builtin = require 'telescope.builtin'
     vim.api.nvim_set_hl(0, 'TelescopeBorder', { fg = colors.lighter_pink })
 
-    local function get_opts()
+    local function get_opts(path)
       -- return a table of options for telescope fuzzy searching. we need this
       -- to determine what finder backend we are using and the proper commands
       -- for them.
@@ -66,101 +66,142 @@ return {
       --  3. fd
       --  4. vim's built in file funding functions
 
+      -- HACK: later on , add an efficient way to gauge how many children files
+      -- there are in the path being searched. for now we just assume that we
+      -- are in a big dir if we are in some hardcoded paths
+      local home = vim.fn.expand '~'
+      local big_dir_paths = {
+        ['/'] = true,
+        [home] = true,
+        ['/usr'] = true,
+        ['/opt'] = true,
+        ['/var'] = true,
+      }
+
+      local big_dir = path and big_dir_paths[path] or false
+
+      if big_dir then
+        vim.notify('Searching large directory: ' .. path .. ' (binary filtering disabled)', vim.log.levels.INFO)
+      end
+
       local opts = {
         hidden = true,
       }
 
       local platform = require 'core.platform'
+      local utils = require 'core.utils'
 
       -- NOTE: rg is great for ignoring binaries , but it also ignores empty
       -- files. to include empty files we combine rg with find.
       if vim.fn.executable 'rg' == 1 then
+        local common_excludes = {
+          '--glob',
+          '!.git/',
+          '--glob',
+          '!lib/',
+          '--glob',
+          '!node_modules/',
+          '--glob',
+          '!target/',
+          '--glob',
+          '!dist/',
+          '--glob',
+          '!build/',
+        }
+
+        local cache_excludes = {
+          '--glob',
+          '!.cache/',
+          '--glob',
+          '!.npm/',
+          '--glob',
+          '!.cargo/',
+        }
+
+        local linux_system_excludes = {
+          '--glob',
+          '!.rustup/',
+          '--glob',
+          '!.local/share/',
+          '--glob',
+          '!/tmp/**',
+          '--glob',
+          '!/snap/**',
+          '--glob',
+          '!/proc/**',
+          '--glob',
+          '!/sys/**',
+          '--glob',
+          '!/boot/**',
+          '--glob',
+          '!/dev/**',
+        }
+
+        local windows_system_excludes = {
+          '--glob',
+          '!AppData/Local/',
+          '--glob',
+          '!AppData/Roaming/npm-cache/',
+        }
+
+        -- helper to convert exclude table to string
+        local function excludes_to_string(exclude_tables)
+          local parts = {}
+          for _, tbl in ipairs(exclude_tables) do
+            for i = 1, #tbl, 2 do
+              -- skip the '--glob' and just get the pattern
+              table.insert(parts, tbl[i + 1])
+            end
+          end
+          return table.concat(
+            vim.tbl_map(function(pattern)
+              return '--glob "' .. pattern .. '"'
+            end, parts),
+            ' '
+          )
+        end
+
+        local base_rg_args = {
+          'rg',
+          '--files',
+          '--follow',
+          '--hidden',
+          '--no-ignore-vcs',
+          '--max-filesize',
+          '10M',
+        }
+
         if platform.is_windows() then
-          opts.find_command = {
-            'powershell',
-            '-NoProfile',
-            '-Command',
-            'rg -l ".*" --follow --hidden --no-ignore-vcs '
-              .. '--glob "!.git" --glob "!lib" --glob "!node_modules" '
-              .. '--glob "!target" --glob "!dist" --glob "!build" 2>$null; '
-              .. 'Get-ChildItem -Recurse -File | Where-Object {$_.Length -eq 0} | Select-Object -ExpandProperty FullName',
-          }
-        else
-          opts.find_command = {
-            'sh',
-            '-c',
-            'rg -l ".*" --follow --hidden --no-ignore-vcs '
-              .. '--glob "!.git" --glob "!lib" --glob "!node_modules" '
-              .. '--glob "!target" --glob "!dist" --glob "!build" 2>/dev/null; '
-              .. 'find . -type f -empty', -- also consider any empty files
-          }
+          if big_dir then
+            opts.find_command = utils.union_tables(base_rg_args, common_excludes, cache_excludes, windows_system_excludes)
+          else
+            local exclude_str = excludes_to_string { common_excludes, cache_excludes }
+            opts.find_command = {
+              'powershell',
+              '-NoProfile',
+              '-Command',
+              'rg -l "" --follow --hidden --no-ignore-vcs --max-filesize 10M '
+                .. exclude_str
+                .. ' 2>$null; '
+                .. 'Get-ChildItem -Recurse -File | Where-Object {$_.Length -eq 0} | Select-Object -ExpandProperty FullName',
+            }
+          end
+        else -- linux
+          if big_dir then
+            opts.find_command = utils.union_tables(base_rg_args, common_excludes, cache_excludes, linux_system_excludes)
+          else
+            local exclude_str = excludes_to_string { common_excludes, cache_excludes }
+            opts.find_command = {
+              'sh',
+              '-c',
+              'rg -l "" --follow --hidden --no-ignore-vcs --max-filesize 10M ' .. exclude_str .. ' 2>/dev/null; ' .. 'find . -type f -empty',
+            }
+          end
         end
       else
-        vim.notify('WARNING (telescope.lua): ripgrep not found! ripgrep is the recommended finder to use.', vim.log.levels.INFO)
-
-        if vim.fn.executable 'fdfind' == 1 then
-          opts.find_command = {
-            -- ignore .git/ , node_modules/ , etc.
-            'fdfind',
-            '--type',
-            'f',
-            '--hidden',
-            '--no-ignore-vcs',
-            '--exclude',
-            '.git',
-            '--exclude',
-            'node_modules',
-            '--exclude',
-            'target',
-            '--exclude',
-            'dist',
-            '--exclude',
-            '.*/',
-          }
-        elseif vim.fn.executable 'fd' == 1 then
-          opts.find_command = {
-            'fd',
-            '--type',
-            'f',
-            '--exclude',
-            '.git',
-            '--exclude',
-            'node_modules',
-            '--exclude',
-            'target',
-            '--exclude',
-            'dist',
-            '--exclude',
-            '.*/',
-          }
-        else
-          opts.file_ignore_patterns = {
-            '^.git/',
-            'node_modules/',
-            'target/',
-            'dist/',
-          }
-        end
+        vim.notify 'ripgrep missing. Telescope.nvim uses ripgrep on your system to find files.'
       end
       return opts
-    end
-
-    local function fuzzy_find_in_path(path, fuzzy_command)
-      -- call the fuzzy_command with a specific path
-
-      local ts_opts = get_opts()
-
-      if path and path ~= '' then
-        local expanded_path = vim.fn.expand(path)
-        if vim.fn.isdirectory(expanded_path) == 1 then
-          ts_opts.cwd = expanded_path
-        else
-          vim.notify('Directory does not exist: ' .. expanded_path, vim.log.levels.ERROR)
-          return
-        end
-      end
-
-      fuzzy_command(ts_opts)
     end
 
     --[[
@@ -168,14 +209,6 @@ return {
                                         COMMANDS
     ****************************************************************************
     --]]
-
-    vim.api.nvim_create_user_command('Ff', function(opts)
-      fuzzy_find_in_path(opts.args, builtin.find_files)
-    end, { nargs = 1 })
-
-    vim.api.nvim_create_user_command('Fg', function(opts)
-      fuzzy_find_in_path(opts.args, builtin.live_grep)
-    end, { nargs = 1 })
 
     vim.api.nvim_create_user_command('UpdateTelescopeMaps', function()
       local new_maps = vim.g.telescope_maps or {}
@@ -255,7 +288,7 @@ return {
 
     -- fuzzy search for files in pwd.
     vim.keymap.set('n', '<leader>ff', function()
-      builtin.find_files(get_opts())
+      builtin.find_files(get_opts(vim.fn.getcwd()))
     end, { desc = '[F]ind [F]iles' })
 
     vim.keymap.set('n', '<leader>fp', function()
@@ -310,10 +343,6 @@ return {
         local search_path
 
         if input == '' or input == '/' then
-          local confirm = vim.fn.confirm('Searching from root (/) can be very slow. Continue?', '&Yes\n&No', 2)
-          if confirm ~= 1 then
-            return
-          end
           search_path = '/'
         elseif input == '.' then
           -- first try to get the git root of the buffer's file if it exists
@@ -344,7 +373,7 @@ return {
           return
         end
 
-        local opts = get_opts()
+        local opts = get_opts(search_path)
         opts.cwd = search_path
         opts.prompt_title = 'Find Files in: ' .. search_path
         require('telescope.builtin').find_files(opts)
