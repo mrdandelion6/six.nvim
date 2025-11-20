@@ -24,48 +24,7 @@ return {
       { 'williamboman/mason.nvim', config = true }, -- must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-
-      -- useful status updates for LSP.
-      -- `opts = {}` is the same as calling `require('fidget').setup({})`
-      {
-        'j-hui/fidget.nvim',
-        config = function()
-          require('fidget').setup {
-            notification = {
-              window = {
-                normal_hl = '',
-                winblend = 0,
-                border = 'rounded',
-                border_hl = 'FidgetBorder',
-                relative = 'win',
-              },
-              view = {
-                stack_upwards = true,
-                icon_separator = ' ',
-                group_separator = '---',
-                group_separator_hl = 'Comment',
-              },
-            },
-            configs = {
-              default = {
-                group_style = 'FidgetTitle',
-                icon_style = 'FidgetIcon',
-                annote_style = 'FidgetAnnote',
-              },
-            },
-          }
-
-          -- change colors
-          local colors = require 'core.colors'
-          vim.api.nvim_set_hl(0, 'FidgetBorder', { fg = colors.lighter_pink, bg = 'NONE' })
-
-          -- FIXME: the following have no affect
-          vim.api.nvim_set_hl(0, 'FidgetTitle', { fg = colors.lighter_pink, bg = 'NONE' })
-          vim.api.nvim_set_hl(0, 'FidgetIcon', { fg = colors.lighter_pink, bg = 'NONE' })
-          vim.api.nvim_set_hl(0, 'FidgetAnnote', { fg = colors.lighter_pink, bg = 'NONE' })
-        end,
-      },
-
+      'j-hui/fidget.nvim',
       -- allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
     },
