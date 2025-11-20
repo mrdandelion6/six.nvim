@@ -324,46 +324,98 @@ return {
         filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
       }
 
-      -- separate CUDA-specific clangd setup
-      require('lspconfig').clangd.setup {
-        capabilities = capabilities,
-        autostart = true,
-        name = 'clangd_cuda',
-        cmd = {
-          'clangd',
-          '--background-index',
-          '--query-driver=/opt/cuda/bin/nvcc',
-          '--compile-commands-dir=.',
-          '--header-insertion=never',
-          '-j=4',
-          '--clang-tidy=false',
-          '--completion-style=detailed',
-          '--pch-storage=memory',
-        },
-        init_options = {
-          usePlaceholders = true,
-          completeUnimported = true,
-          clangdFileStatus = true,
-          -- TODO: have alternate for windows.. or just add field in
-          -- .localsettings.json
-          fallbackFlags = {
-            '-xcuda',
-            '--cuda-path=/opt/cuda',
-            '--cuda-gpu-arch=sm_75',
-            '-I/opt/cuda/include',
-            '-I/opt/cuda/targets/x86_64-linux/include',
-            '-I/opt/cuda/include/cccl',
-            '--no-cuda-version-check',
-            '-std=c++17',
-            '-D__CUDACC__',
-            '-Wno-unknown-cuda-version',
+      -- TODO: verify this works for cuda files.
+      -- separate CUDA-specific clangd setup using configs
+      local configs = require 'lspconfig.configs'
+
+      -- only define clangd_cuda if it doesn't already exist
+      if not configs.clangd_cuda then
+        configs.clangd_cuda = {
+          default_config = {
+            name = 'clangd_cuda',
+            cmd = {
+              'clangd',
+              '--background-index',
+              '--query-driver=/opt/cuda/bin/nvcc',
+              '--compile-commands-dir=.',
+              '--header-insertion=never',
+              '-j=4',
+              '--clang-tidy=false',
+              '--completion-style=detailed',
+              '--pch-storage=memory',
+            },
+            filetypes = { 'cuda' },
+            root_dir = function(fname)
+              return require('lspconfig').util.root_pattern '.git'(fname) or require('lspconfig').util.path.dirname(fname)
+            end,
+            init_options = {
+              usePlaceholders = true,
+              completeUnimported = true,
+              clangdFileStatus = true,
+              -- TODO: have alternate for windows.. or just add field in
+              -- .localsettings.json
+              fallbackFlags = {
+                '-xcuda',
+                '--cuda-path=/opt/cuda',
+                '--cuda-gpu-arch=sm_75',
+                '-I/opt/cuda/include',
+                '-I/opt/cuda/targets/x86_64-linux/include',
+                '-I/opt/cuda/include/cccl',
+                '--no-cuda-version-check',
+                '-std=c++17',
+                '-D__CUDACC__',
+                '-Wno-unknown-cuda-version',
+              },
+            },
           },
-        },
-        filetypes = { 'cuda' },
-        root_dir = function(fname)
-          return require('lspconfig').util.root_pattern '.git'(fname) or require('lspconfig').util.path.dirname(fname)
-        end,
+        }
+      end
+
+      -- setup the cuda clangd
+      require('lspconfig').clangd_cuda.setup {
+        capabilities = capabilities,
       }
+
+      -- TODO: remove this if the above works
+      -- require('lspconfig').clangd.setup {
+      --   capabilities = capabilities,
+      --   autostart = true,
+      --   name = 'clangd_cuda',
+      --   cmd = {
+      --     'clangd',
+      --     '--background-index',
+      --     '--query-driver=/opt/cuda/bin/nvcc',
+      --     '--compile-commands-dir=.',
+      --     '--header-insertion=never',
+      --     '-j=4',
+      --     '--clang-tidy=false',
+      --     '--completion-style=detailed',
+      --     '--pch-storage=memory',
+      --   },
+      --   init_options = {
+      --     usePlaceholders = true,
+      --     completeUnimported = true,
+      --     clangdFileStatus = true,
+      --     -- TODO: have alternate for windows.. or just add field in
+      --     -- .localsettings.json
+      --     fallbackFlags = {
+      --       '-xcuda',
+      --       '--cuda-path=/opt/cuda',
+      --       '--cuda-gpu-arch=sm_75',
+      --       '-I/opt/cuda/include',
+      --       '-I/opt/cuda/targets/x86_64-linux/include',
+      --       '-I/opt/cuda/include/cccl',
+      --       '--no-cuda-version-check',
+      --       '-std=c++17',
+      --       '-D__CUDACC__',
+      --       '-Wno-unknown-cuda-version',
+      --     },
+      --   },
+      --   filetypes = { 'cuda' },
+      --   root_dir = function(fname)
+      --     return require('lspconfig').util.root_pattern '.git'(fname) or require('lspconfig').util.path.dirname(fname)
+      --   end,
+      -- }
 
       -- TODO: have custom config for hip
     end,
