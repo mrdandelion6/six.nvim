@@ -175,22 +175,25 @@ return {
           if big_dir then
             opts.find_command = utils.union_tables(base_rg_args, common_excludes, cache_excludes, windows_system_excludes)
           else
-            local exclude_str = excludes_to_string { common_excludes, cache_excludes }
-            opts.find_command = {
-              'powershell',
-              '-NoProfile',
-              '-Command',
-              'rg -l "" --follow --hidden --no-ignore-vcs --max-filesize 10M '
-                .. exclude_str
-                .. ' 2>$null; '
-                .. 'Get-ChildItem -Recurse -File | Where-Object {$_.Length -eq 0} | Select-Object -ExpandProperty FullName',
-            }
+            -- TODO: on windows , we ignore empty files for performance. test
+            -- how big the performance is later
+            opts.find_command = utils.union_tables({
+              'rg',
+              '-l',
+              '.*',
+              '--follow',
+              '--hidden',
+              '--no-ignore-vcs',
+              '--max-filesize',
+              '10M',
+            }, common_excludes, cache_excludes)
           end
         else -- linux
           if big_dir then
             opts.find_command = utils.union_tables(base_rg_args, common_excludes, cache_excludes, linux_system_excludes)
           else
             local exclude_str = excludes_to_string { common_excludes, cache_excludes }
+            -- NOTE: combine rg with find command to also find empty files
             opts.find_command = {
               'sh',
               '-c',
