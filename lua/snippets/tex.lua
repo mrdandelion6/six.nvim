@@ -139,6 +139,30 @@ return {
   }),
 
   -- math snippets
+  s('fr', {
+    t '\\frac{',
+    i(1),
+    t '}{',
+    i(2),
+    t '}',
+  }),
+
+  s('pr', {
+    t '\\frac{\\partial',
+    i(1),
+    t '}{\\partial',
+    i(2),
+    t '}',
+  }),
+
+  s('vec', {
+    t '\\begin{pmatrix} ',
+    i(1),
+    t ' \\\\ ',
+    i(2),
+    t ' \\end{pmatrix} ',
+  }),
+
   s('[]', {
     t { '\\[' },
     t { '', '    ' },
@@ -154,6 +178,12 @@ return {
 
   s('mb', {
     t '\\mathbb{',
+    i(1),
+    t '}',
+  }),
+
+  s('mbf', {
+    t '\\mathbf{',
     i(1),
     t '}',
   }),
