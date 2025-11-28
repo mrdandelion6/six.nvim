@@ -91,9 +91,13 @@ local function format_range(start_line, end_line)
     end
   end
 
+  local needs_auto_indent = {
+    tex = true,
+  }
+
   -- step 3: auto-indent
   -- skip indentation if we have an lsp or formatter for the ft
-  if not has_conform_formatter and not has_lsp then
+  if needs_auto_indent[vim.bo.filetype] or (not has_conform_formatter and not has_lsp) then
     if start_line and end_line then
       vim.cmd(string.format('normal! %dgg==%dgg', start_line, end_line - start_line + 1))
     else
