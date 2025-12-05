@@ -42,6 +42,9 @@ sudo pacman -S zathura-pdf-poppler
 # full tex live , includes all major latex packages. ~2-3GB
 sudo pacman -S texlive
 # includes pdflatex , xelatex , lualatex , latexmk , and common latex packages
+
+# for SVG support
+sudo pacman -S inkscape
 ```
 
 ## For Jupyter Notebooks

@@ -62,6 +62,12 @@ It is recommended to download MiKTeX from: https://miktex.org/ rather than `scoo
     texworks --version
     ```
 
+If you want SVG rendering support , you must install Inkscape. You can do this with Scoop or anything else ,
+
+```sh
+scoop install inkscape
+```
+
 ## For Jupyter Notebooks
 
 Have not attempted any Windows support for this. You can try to mimic the dependencies in [ubuntu_setup.md](ubuntu_setup.md).
