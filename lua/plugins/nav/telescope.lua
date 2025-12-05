@@ -107,6 +107,8 @@ return {
           '!dist/',
           '--glob',
           '!build/',
+          '--glob',
+          '!.tex/',
         }
 
         local cache_excludes = {
