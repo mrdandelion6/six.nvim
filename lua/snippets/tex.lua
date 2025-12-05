@@ -138,6 +138,13 @@ return {
     t { '', '\\end{enumerate}' },
   }),
 
+  s('eqn', {
+    t '\\begin{equation}',
+    t { '', '\t' },
+    i(1),
+    t { '', '\\end{equation}' },
+  }),
+
   -- math snippets
   s('fr', {
     t '\\frac{',
