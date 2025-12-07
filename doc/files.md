@@ -1,5 +1,6 @@
-# Config Files
-Here is a breakdown of the files in my config and what they are for.
+# config files
+
+here is a breakdown of the files in my config and what they are for.
 
 ```
 lua/
@@ -16,96 +17,98 @@ lua/
 │   └── ...
 └── to_try/
 ```
-Note that `to_try/` contains configuration from the originally forked **kickstart.nvim** that I'm not using yet but intending to check out in the future.
 
-## Lua/Core/
-Here's a list of files that are in `lua/core/`:
+note that `to_try/` contains configuration from the originally forked **kickstart.nvim** that i'm not using yet but intending to check out in the future.
+
+## lua/core/
+
+here's a list of files that are in `lua/core/`:
 
 ### autocmds.lua
+
 Sets up Neovim autocommands and utility functions:
-- **Netrw key fix** - Removes `<C-l>` mapping from netrw so it doesn't conflict with window navigation
-- **Yank highlighting** - Briefly highlights text when copying
-- **Git root tracking** - Automatically detects and stores the current git repository name in `vim.g.git_root`
-- **Disable formatting command** - Adds `:DisableFormatting` to turn off LSP auto-formatting for the current buffer
-- **Always center cursor** - Keeps the cursor vertically centered in the window during navigation
+
+- **netrw key fix** - removes `<C-l>` mapping from netrw so it doesn't conflict with window navigation
+- **yank highlighting** - briefly highlights text when copying
+- **git root tracking** - automatically detects and stores the current git repository name in `vim.g.git_root`
+- **disable formatting command** - adds `:DisableFormatting` to turn off LSP auto-formatting for the current buffer
+- **always center cursor** - keeps the cursor vertically centered in the window during navigation
 
 ### cmds.lua
-Defines custom Neovim commands:
-- **Vr** - Shorthand for vertical resize: `:Vr 80` instead of `:vertical resize 80`
-- **Ww** - Write file without triggering auto-formatting
+
+defines custom neovim commands:
+
+- **Vr** - shorthand for vertical resize: `:Vr 80` instead of `:vertical resize 80`
+- **Ww** - write file without triggering auto-formatting
 
 ### keymaps.lua
-Handles keyboard layout switching and key mappings:
-- **Layout switching** - Toggles between QWERTY and Colemak-DH layouts with `:ToggleColemak` or `<leader>tc`
-- **Colemak remapping** - Maps `knei` to `hjkl` for navigation, with comprehensive key remapping across all modes
-- **Buffer jumping** - Sets `<C-hjkl>` or `<C-knei>` for window navigation depending on active layout
-- **Plugin integration** - Updates Telescope and vim-visual-multi keybinds based on current layout
-- **Layout persistence** - Saves current layout to `.localsettings.json` to remember preference across sessions
-- **Message utilities** - `<leader>mm` to copy recent message, `<leader>mn` to open messages in new buffer
-- **Yank modifications** - Disables yanking for change operations (`c`, `C`) and delete key
-- **General bindings** - `<Esc>` clears search highlights, `<leader>q` opens diagnostics, terminal mode escape
-See [here](../README.md#colemak-swappable) for more.
+
+handles keyboard layout switching and key mappings:
+
+- **layout switching** - toggles between qwerty and colemak-dh layouts with `:ToggleColemak` or `<leader>tc`
+- **colemak remapping** - maps `knei` to `hjkl` for navigation, with comprehensive key remapping across all modes
+- **buffer jumping** - bets `<C-hjkl>` or `<C-knei>` for window navigation depending on active layout
+- **plugin integration** - updates telescope and vim-visual-multi keybinds based on current layout
+- **layout persistence** - saves current layout to `.localsettings.json` to remember preference across sessions
+- **message utilities** - `<leader>mm` to copy recent message, `<leader>mn` to open messages in new buffer
+- **yank modifications** - disables yanking for change operations (`c`, `C`) and delete key
+- **general bindings** - `<Esc>` clears search highlights, `<leader>q` opens diagnostics, terminal mode escape
+
+see [here](../readme.md#colemak-swappable) for more.
 
 ### lazy.lua
-Bootstrap module for the Lazy.nvim plugin manager:
-- **Auto-installation** - Automatically clones and installs Lazy.nvim if not present
-- **Path setup** - Adds Lazy.nvim to Neovim's runtime path
-- **Error handling** - Shows git clone errors if bootstrap fails
-- **Usage notes** - Use `:Lazy` to check plugin status, `:Lazy update` to update plugins
+
+bootstrap module for the lazy.nvim plugin manager:
+
+- **auto-installation** - automatically clones and installs lazy.nvim if not present
+- **path setup** - adds lazy.nvim to neovim's runtime path
+- **error handling** - shows git clone errors if bootstrap fails
+- **usage notes** - use `:Lazy` to check plugin status, `:Lazy update` to update plugins
 
 ### options.lua
-Core Neovim configuration and settings:
-- **Basic UI** - Line numbers (absolute + relative), mouse support, no mode display, cursor line highlighting
-- **Clipboard** - Syncs with system clipboard (scheduled after UI loads for faster startup)
-- **Indentation** - 4-space tabs, smart indenting, break indent for wrapped lines
-- **Editor behavior** - Undo history persistence, fast update times, smart splits
-- **Visual elements** - Whitespace characters display, custom fill characters for splits, global status bar
-- **Scrolling** - Always centers cursor (`scrolloff = 999`)
-- **Local settings** - Loads `.localsettings.json` for user preferences, auto-generates from template if missing
-- **Python integration** - Sets virtual environment path for Neovim Python dependencies
-- **Platform setup** - Calls platform-specific startup configuration
+
+core neovim configuration and settings:
+
+- **basic ui** - line numbers (absolute + relative), mouse support, no mode display, cursor line highlighting
+- **clipboard** - syncs with system clipboard (scheduled after ui loads for faster startup)
+- **indentation** - 4-space tabs, smart indenting, break indent for wrapped lines
+- **editor behavior** - undo history persistence, fast update times, smart splits
+- **visual elements** - whitespace characters display, custom fill characters for splits, global status bar
+- **scrolling** - always centers cursor (`scrolloff = 999`)
+- **local settings** - loads `.localsettings.json` for user preferences, auto-generates from template if missing
+- **python integration** - sets virtual environment path for neovim python dependencies
+- **platform setup** - calls platform-specific startup configuration
 
 ### platform.lua
-Cross-platform utilities and platform detection:
-- **Platform detection** - Automatically detects Windows, macOS, or Linux
-- **File operations** - `cp()` and `mv()` functions that work across platforms with proper path escaping
-- **Shell configuration** - Sets PowerShell as default on Windows, keeps bash on Unix systems
-- **Path handling** - Platform-specific path escaping (PowerShell vs Unix shell compatibility)
-- **Startup integration** - Called by options.lua to apply platform-specific settings
+
+cross-platform utilities and platform detection:
+
+- **platform detection** - automatically detects windows, macos, or linux
+- **file operations** - `cp()` and `mv()` functions that work across platforms with proper path escaping
+- **shell configuration** - sets powershell as default on windows, keeps bash on unix systems
+- **path handling** - platform-specific path escaping (powershell vs unix shell compatibility)
+- **startup integration** - called by options.lua to apply platform-specific settings
 
 ### ui.lua
-Sets custom emoji icons for Lazy plugin manager interface when Nerd Fonts aren't available.
+
+sets custom emoji icons for lazy plugin manager interface when nerd fonts aren't available.
 
 ### utils.lua
-Utility functions for common operations:
-- **Deep copy** - Recursively copies tables including metatables
-- **Markdown mode** - Detects if in special markdown mode (Firenvim or MD_MODE environment)
-- **Message copying** - Press `<leader>mm` to use copy the most recent Neovim message to clipboard or `<leader>mn` to open a buffer with all messages.
 
-## Lua/Plugins/
-Too many.. lazy to explain them all. Here's a list of them:
-```
-- autosession.lua
-- coding.lua
-- colorscheme.lua
-- comments.lua
-- editor.lua
-- git.lua
-- images.lua.unstable
-- init.lua
-- lsp.lua
-- multicursor.lua
-- quarto.lua.unstable
-- render.lua.unstable
-- repl.lua.unstable
-- statusline.lua
-- telescope.lua
-- utils.lua
-```
-Maybe one day when I'm not so lazy I will explain them all.
+utility functions for common operations:
 
-## Non-config
-These files are not part of the lua configuration for Neovim but may help with other things.
+- **deep copy** - recursively copies tables including metatables
+- **markdown mode** - detects if in special markdown mode (firenvim or md_mode environment)
+- **message copying** - press `<leader>mm` to use copy the most recent neovim message to clipboard or `<leader>mn` to open a buffer with all messages.
+
+## lua/plugins/
+
+too many.. lazy to explain them. maybe one day when i'm not so lazy i will.
+
+## non-config
+
+these files are not part of the lua configuration for neovim but may help with other things.
 
 ### bashrc.sh
-Copy this into your `~/.bashrc` for features like [Terminal Buffers Keep Title as PWD](../README.md#termnal-title).
+
+copy this into your `~/.bashrc` for features like [Terminal Buffers Keep Title as PWD](../README.md#termnal-title).

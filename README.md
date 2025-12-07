@@ -1,28 +1,28 @@
 # six.nvim ![Version](https://img.shields.io/badge/version-2.0-blue)
 
-Welcome to my custom configuration for Neovim. This configuration was originally forked from **kickstart.nvim** but has been greatly changed.
+welcome to my custom configuration for neovim. this configuration was originally forked from **kickstart.nvim** but has been greatly changed.
 
 ![Screenshot](samples/nvim.png)
 
-## Latest Changes
+## latest changes
 
 ### v2.0
 
-- **Jupyter notebooks & code execution**: Major feature addition - execute code cells in `.ipynb` , `.md` , and `.qmd` files using Jupyter kernels via `molten.nvim` and `quarto.nvim`. Navigate cells with `]]`/`[[` , run with `<leader>rc`. Currently Linux-only.
-- **Treesitter text objects**: Added custom text objects for markdown code cells - select with `ac`/`ic` , jump between cells , and navigate functions
-- **Formatting system overhaul**: Unified formatting with LSP and Conform integration. Toggle per-buffer formatting with `<leader>tf`
-- **Improved performance**: Replaced `vim.fn.system()` with `vim.system()` for Git operations , eliminating shell profile invocations and significantly reducing lag
-- **CSV rendering**: Added `csvview.nvim` for readable CSV display with automatic view toggling
-- **Documentation refactor**: Reorganized setup guides and added comprehensive notebooks documentation
-- **Plugin cleanup**: Removed `mini.nvim` , fixed various keybinding conflicts , improved Oil.nvim integration
-- **LaTeX snippets**: Expanded snippet collection with proof environments , math commands , and custom macros
-- **Bug fixes**: Fixed autoformatting on new buffers , Clangd arguments , CSV navigation conflicts , and Stylua LSP false positives
+- **jupyter notebooks & code execution**: major feature addition - execute code cells in `.ipynb` , `.md` , and `.qmd` files using jupyter kernels via `molten.nvim` and `quarto.nvim`. navigate cells with `]]`/`[[` , run with `<leader>rc`. currently linux-only.
+- **treesitter text objects**: added custom text objects for markdown code cells - select with `ac`/`ic` , jump between cells , and navigate functions
+- **formatting system overhaul**: unified formatting with lsp and conform integration. toggle per-buffer formatting with `<leader>tf`
+- **improved performance**: replaced `vim.fn.system()` with `vim.system()` for git operations , eliminating shell profile invocations and significantly reducing lag
+- **CSV rendering**: added `csvview.nvim` for readable csv display with automatic view toggling
+- **documentation refactor**: reorganized setup guides and added comprehensive notebooks documentation
+- **plugin cleanup**: removed `mini.nvim` , fixed various keybinding conflicts , improved oil.nvim integration
+- **latex snippets**: expanded snippet collection with proof environments , math commands , and custom macros
+- **bug fixes**: fixed autoformatting on new buffers , clangd arguments , csv navigation conflicts , and stylua lsp false positives
 
-See more in [CHANGELOG.md](CHANGELOG.md)
+see more in [CHANGELOG.md](CHANGELOG.md)
 
-## Setup
+## setup
 
-You will generally need the following dependencies installed and on PATH:
+you will generally need the following dependencies installed and on PATH:
 
 - curl
 - unzip
@@ -33,23 +33,23 @@ You will generally need the following dependencies installed and on PATH:
 - ripgrep
 - zoxide
 
-For more **specific set up instructions** depending on your OS and distribution , see the guides inside `doc/`:
+for more **specific set up instructions** depending on your OS and distribution , see the guides inside `doc/`:
 
 - [Ubuntu/Debian](doc/linux/ubuntu/setup.md)
 - [Windows](doc/windows/setup.md)
 - [Arch](doc/linux/arch/setup.md)
 
-## Key Features
+## key features
 
-This is an all purpose configuration with a focus on coding in many different programming languages. Below is an overview of some key features of my config. I plan on making separate plugins for all of these eventually.
+this is an all purpose configuration with a focus on coding in many different programming languages. Below is an overview of some key features of my config. I plan on making separate plugins for all of these eventually.
 
 <a id="colemak-swappable"></a>
 
-### Colemak-DH / QWERTY Swappable
+### colemak-dh / qwerty swappable
 
-I code primarily using Colemak-DH on ZSA's Moonlander keyboard (check out my [keyboard config](https://github.com/mrdandelion6/ViMak-Moonlander)) , and when I have to use a regular staggered keyboard I use QWERTY. For this reason , I made a user command: _ToggleColemak_ , which lets you swap between different key layouts instantly. You can find it in `lua/core/keymaps.lua`. You can also press `<leader>tc` to trigger it.
+i code primarily using colemak-dh on ZSA's Moonlander keyboard (check out my [keyboard config](https://github.com/mrdandelion6/ViMak-Moonlander)) , and when I have to use a regular staggered keyboard I use qwerty. for this reason , i made a user command: _ToggleColemak_ , which lets you swap between different key layouts instantly. you can find it in `lua/core/keymaps.lua`. you can also press `<leader>tc` to trigger it.
 
-Going into Colemak-DH layout swaps your movement keys from **hjkl to knei**. This include buffer jumping , telescope , and everything else I could remember where movement is involved. Here is a list of keys swapped:
+going into colemak-dh layout swaps your movement keys from **hjkl to knei**. this include buffer jumping , telescope , and everything else i could remember where movement is involved. here is a list of keys swapped:
 
 ```bash
 # pressing the left key (in []) triggers the action for key on the right
@@ -73,54 +73,54 @@ Going into Colemak-DH layout swaps your movement keys from **hjkl to knei**. Thi
 ['L'] = 'I',
 ```
 
-These remaps affect key sequences as well. See [keymaps.lua](lua/core/keymaps.lua) for more detail.
+these remaps affect key sequences as well. see [keymaps.lua](lua/core/keymaps.lua) for more detail.
 
-### Local Settings & Learn-to-Code Notes
+### local settings & learn-to-code notes
 
-You will find a file `.localsettings_template.json` in the root of this repo. Upon running `nvim` for the first time with this configuration , a file `.localsettings.json` will be generated. This file allows for persistent local settings that won't push to the repo. For example , when you toggle to Colemak-DH from QWERTY , your next `nvim` session will remember that you are currently on Colemak.
+you will find a file `.localsettings_template.json` in the root of this repo. upon running `nvim` for the first time with this configuration , a file `.localsettings.json` will be generated. this file allows for persistent local settings that won't push to the repo. for example , when you toggle to colemak-dh from qwerty , your next `nvim` session will remember that you are currently on colemak.
 
-You can also edit the **"notes_path"** JSON key to point to the path of any text notes you want to frequently look at. For instance , I have a big repo of all my various coding notes: [Learn-to-Code](https://github.com/mrdandelion6/Learn-to-Code). Pressing `<leader>fn` opens a telescope that will search through my notes repo. I find myself using this very often , if I ever forget anything and want a quick `man` like seach , or if I want to jot something new down. Feel free to clone my Learn-to-Code repo and use it.
+you can also edit the **"notes_path"** json key to point to the path of any text notes you want to frequently look at. for instance , i have a big repo of all my various coding notes: [learn-to-code](https://github.com/mrdandelion6/learn-to-code). pressing `<leader>fn` opens a telescope that will search through my notes repo. i find myself using this very often , if i ever forget anything and want a quick `man` like seach , or if i want to jot something new down. feel free to clone my learn-to-code repo and use it.
 
-If you want to exclude particular file name patterns from being autoformated by `nvim` when saving buffers , then you can also add patterns in the **"exclude_autoformat"** JSON key.
+if you want to exclude particular file name patterns from being autoformated by `nvim` when saving buffers , then you can also add patterns in the **"exclude_autoformat"** json key.
 
-### Cursor Always Centered
+### cursor always centered
 
-The cursor is always kept centered , even at the end of a file. Normally , even with `scrolloff = 999` , Neovim uncenters the cursor at the end of the file. This is very annoying if your coding at the end of a file and have to constantly look down at the bottom edge of your screen. To get around this I made an autocommand that keeps the cursor fixed at the center , even at EOF. Will make this into a standalone plugin soon.
+the cursor is always kept centered , even at the end of a file. normally , even with `scrolloff = 999` , neovim uncenters the cursor at the end of the file. this is very annoying if your coding at the end of a file and have to constantly look down at the bottom edge of your screen. to get around this i made an autocommand that keeps the cursor fixed at the center , even at eof. will make this into a standalone plugin soon.
 
 <a id="terminal-title"></a>
 
-### Terminal Buffers Keep Title as PWD
+### terminal buffers keep title as pwd
 
-There is only one global status line instead of one per buffer. This is to keep things compact. The global status line displays the git root directory name of file in the current buffer (blank if not a repository). In return, each buffer gets its own small title at the top to indicate file name. For terminal buffers , this header corresponds to the PWD of the terminal.
+there is only one global status line instead of one per buffer. this is to keep things compact. the global status line displays the git root directory name of file in the current buffer (blank if not a repository). in return, each buffer gets its own small title at the top to indicate file name. for terminal buffers , this header corresponds to the pwd of the terminal.
 
-This is done through modifying `.bashrc` to send a signal to Neovim whenever you change directory or start a shell. You must copy some of the contents of `shell/bashrc.sh` into your own `~/.bashrc` script for this to work. I have not yet implemented a Windows equivalent feature :(
+this is done through modifying `.bashrc` to send a signal to neovim whenever you change directory or start a shell. you must copy some of the contents of `shell/bashrc.sh` into your own `~/.bashrc` script for this to work. i have not yet implemented a windows equivalent feature :(
 
-### Runnable Jupyter Notebooks
+### runnable jupyter notebooks
 
-Execute code cells in `.ipynb` , `.md` , and `.qmd` files directly in Neovim using Jupyter kernels. Navigate between cells with `]]`/`[[` , initialize kernels with `<leader>ri` , and run cells with `<leader>rc`.
+execute code cells in `.ipynb` , `.md` , and `.qmd` files directly in neovim using jupyter kernels. navigate between cells with `]]`/`[[` , initialize kernels with `<leader>ri` , and run cells with `<leader>rc`.
 
-**Note:** This feature is currently only enabled on Linux. Windows support is not yet implemented. If you want to experiment with it on Windows, you'll need to modify the platform check in `init.lua`.
+**note:** this feature is currently only enabled on linux. windows support is not yet implemented. if you want to experiment with it on windows, you'll need to modify the platform check in `init.lua`.
 
-See the full guide: [doc/linux/notebooks.md](doc/linux/notebooks.md).
+see the full guide: [doc/linux/notebooks.md](doc/linux/notebooks.md).
 
-### LaTeX Compilation
+### latex compilation
 
-You can type and compile LaTeX locally through Neovim instead of using Overleaf. This is mostly handled my the `lervag/vimtex` plugin. You will need to install the following dependencies:
+you can type and compile latex locally through neovim instead of using overleaf. this is mostly handled my the `lervag/vimtex` plugin. you will need to install the following dependencies:
 
 - pdflatex
 - Zathura for linux
-- SumatraPDF for Windows
+- SumatraPDF for windows
 
-See [doc/latex.md](doc/latex.md) for more details.
+see [doc/latex.md](doc/latex.md) for more details.
 
-## Files
+## files
 
-You can find a breakdown of my files and what they are used for in [doc/files.md](doc/files.md).
+you can find a breakdown of my files and what they are used for in [doc/files.md](doc/files.md).
 
-## Terminal & Background
+## terminal & background
 
-I use Wezterm for my terminal since it works well for both Linux and Windows. You can find my configuration for Wezterm on Arch in my [.dotfiles repo](https://github.com/mrdandelion6/.dotfiles) , and for Windows in [.winfiles repo](https://github.com/mrdandelion6/.winfiles).
+i use wezterm for my terminal since it works well for both linux and windows. you can find my configuration for wezterm on arch in my [.dotfiles repo](https://github.com/mrdandelion6/.dotfiles) , and for windows in [.winfiles repo](https://github.com/mrdandelion6/.winfiles).
 
-You can also find the background image I use for my terminal and my fastfetch configuration in my `.dotfiles` repo.
+you can also find the background image i use for my terminal and my fastfetch configuration in my `.dotfiles` repo.
 
-Reach out to me with any questions. Happy coding.
+reach out to me with any questions.

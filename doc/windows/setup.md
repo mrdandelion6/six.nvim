@@ -1,8 +1,8 @@
-# Windows Setup
+# windows setup
 
-I am using `scoop`. You can use whatever package manager that works for you.
+i am using `scoop`. you can use whatever package manager that works for you.
 
-## Installing Scoop
+## installing scoop
 
 ```bash
 # in powershell
@@ -13,11 +13,11 @@ irm get.scoop.sh | iex
 scoop help
 ```
 
-Install the following plugin dependencies:
+install the following plugin dependencies:
 
-## Base
+## base
 
-The following dependencies are needed for multliple plugins:
+the following dependencies are needed for multliple plugins:
 
 ```bash
 scoop install curl unzip
@@ -40,21 +40,21 @@ scoop install ripgrep zoxide
 
 ## LaTeX
 
-It is recommended to download MiKTeX from: https://miktex.org/ rather than `scoop` for better Windows integration, and it also comes with TeXworks, which is the PDF viewer we use.
+it is recommended to download miktex from: https://miktex.org/ rather than `scoop` for better windows integration, and it also comes with texworks, which is the pdf viewer we use.
 
-**Installation:**
+**installation:**
 
-1. Go to https://miktex.org/download
-2. Download the **Net Installer** (not Basic Installer)
-3. Run as Administrator and choose **"Install MiKTeX for all users"**
-4. When prompted for installation scope, select **"Complete MiKTeX"** to install all packages at once (~4GB)
-    - Alternative: Choose "Basic MiKTeX" if you prefer to install packages as needed
+1. go to https://miktex.org/download
+2. download the **net installer** (not basic installer)
+3. run as administrator and choose **"install miktex for all users"**
+4. when prompted for installation scope, select **"complete miktex"** to install all packages at once (~4gb)
+    - alternative: choose "basic miktex" if you prefer to install packages as needed
 
-**After installation:**
+**after installation:**
 
-1. Open **MiKTeX Console** and go to **Updates** tab
-2. Click **"Check for updates"** and install all available updates
-3. Verify installation by running in Command Prompt:
+1. open **miktex console** and go to **updates** tab
+2. click **"check for updates"** and install all available updates
+3. verify installation by running in command prompt:
     ```cmd
     latex --version
     pdflatex --version
@@ -62,12 +62,12 @@ It is recommended to download MiKTeX from: https://miktex.org/ rather than `scoo
     texworks --version
     ```
 
-If you want SVG rendering support , you must install Inkscape. You can do this with Scoop or anything else ,
+if you want svg rendering support , you must install inkscape. you can do this with scoop or anything else ,
 
 ```sh
 scoop install inkscape
 ```
 
-## For Jupyter Notebooks
+## for jupyter notebooks
 
-Have not attempted any Windows support for this. You can try to mimic the dependencies in [ubuntu_setup.md](ubuntu_setup.md).
+have not attempted any windows support for this. you can try to mimic the dependencies in [ubuntu_setup.md](ubuntu_setup.md).

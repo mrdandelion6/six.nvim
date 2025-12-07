@@ -1,10 +1,10 @@
-# Arch Setup
+# arch setup
 
-Read this to get started with setting up Neovim on Arch Linux. Install the following plugin dependencies:
+read this to get started with setting up neovim on arch linux. install the following plugin dependencies:
 
-## Base
+## base
 
-The following dependencies are needed for multliple plugins:
+the following dependencies are needed for multliple plugins:
 
 ```bash
 sudo pacman -S curl unzip yarn
@@ -22,7 +22,7 @@ sudo npm install -g tree-sitter-cli
 sudo pacman -S stylua
 ```
 
-Usually , we install formatters / LSP tools through Mason , which is automatically handled by the plugins. But installing `stylua` through Mason leads `nvim-lspconfig` to launch it as an LSP server , even though we only want to use it as a formatter. This causes errors , hence we install it manually.
+usually , we install formatters / LSP tools through mason , which is automatically handled by the plugins. but installing `stylua` through mason leads `nvim-lspconfig` to launch it as an LSP server , even though we only want to use it as a formatter. this causes errors , hence we install it manually.
 
 ### telescope.nvim
 
@@ -30,7 +30,7 @@ Usually , we install formatters / LSP tools through Mason , which is automatical
 sudo pacman -S ripgrep zoxide
 ```
 
-## For LaTeX
+## for LaTeX
 
 ```bash
 # good pdf viewer with hot reloading
@@ -47,11 +47,11 @@ sudo pacman -S texlive
 sudo pacman -S inkscape
 ```
 
-## For Jupyter Notebooks
+## for jupyter notebooks
 
-The plugins inside `lua/notebooks/` are only needed if you want to render and execute code inside Jupyter notebooks or quarto/markdown files.
+the plugins inside `lua/notebooks/` are only needed if you want to render and execute code inside jupyter notebooks or quarto/markdown files.
 
-Install the following dependendies:
+install the following dependendies:
 
 ### image.nvim
 
@@ -72,13 +72,13 @@ source ~/.envs/neovim/bin/activate
 pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext jupyter jupyterlab
 ```
 
-If you want to use a different path than `~/.envs/neovim/`, then you must edit `.localsettings.json` and change this key:
+if you want to use a different path than `~/.envs/neovim/`, then you must edit `.localsettings.json` and change this key:
 
 ```json
 "venv_path": "~/.envs"
 ```
 
-You will also need quarto cli:
+you will also need quarto cli:
 
 ```bash
 # get latest release
@@ -88,11 +88,11 @@ yay -S quarto-cli
 sudo dpkg -i quarto-1.6.40-linux-amd64.deb
 ```
 
-Molten is a remote plugin so now you must run `:UpdateRemotePlugins` command in `nvim` , which should output:
+molten is a remote plugin so now you must run `:UpdateRemotePlugins` command in `nvim` , which should output:
 
 ```bash
 remote/host: python3 host registered plugins ['molten']
 remote/host: generated rplugin manifest: $HOME/.local/share/nvim/rplugin.vim
 ```
 
-If you have python3 issues , make sure your `venv_path` points to an existing virtual environment with the required deps listed above.
+if you have python3 issues , make sure your `venv_path` points to an existing virtual environment with the required deps listed above.
