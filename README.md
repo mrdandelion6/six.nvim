@@ -41,13 +41,13 @@ for more **specific set up instructions** depending on your OS and distribution 
 
 ## key features
 
-this is an all purpose configuration with a focus on coding in many different programming languages. Below is an overview of some key features of my config. I plan on making separate plugins for all of these eventually.
+this is an all purpose configuration with a focus on coding in many different programming languages. below is an overview of some key features of my config. i plan on making separate plugins for all of these eventually.
 
 <a id="colemak-swappable"></a>
 
 ### colemak-dh / qwerty swappable
 
-i code primarily using colemak-dh on ZSA's Moonlander keyboard (check out my [keyboard config](https://github.com/mrdandelion6/ViMak-Moonlander)) , and when I have to use a regular staggered keyboard I use qwerty. for this reason , i made a user command: _ToggleColemak_ , which lets you swap between different key layouts instantly. you can find it in `lua/core/keymaps.lua`. you can also press `<leader>tc` to trigger it.
+i code primarily using colemak-dh on ZSA's Moonlander keyboard (check out my [keyboard config](https://github.com/mrdandelion6/ViMak-Moonlander)) , and when i have to use a regular staggered keyboard i use qwerty. for this reason , i made a user command: _ToggleColemak_ , which lets you swap between different key layouts instantly. you can find it in `lua/core/keymaps.lua`. you can also press `<leader>tc` to trigger it.
 
 going into colemak-dh layout swaps your movement keys from **hjkl to knei**. this include buffer jumping , telescope , and everything else i could remember where movement is involved. here is a list of keys swapped:
 
