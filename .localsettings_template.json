@@ -1,7 +1,7 @@
 {
-  "exclude_autoformat": ["ViMak%-Moonlander/src/keymap%.c$"],
-  "layout": "qwerty",
-  "venv_path": "~/.envs",
-  "notes_path": "~/code/learn-to-code/",
-  "custom_clang_format": false
+    "exclude_autoformat": ["ViMak%-Moonlander/src/keymap%.c$"],
+    "layout": "qwerty",
+    "venv_path": "~/.envs",
+    "notes_path": "~/code/learn-to-code",
+    "custom_clang_format": false
 }
