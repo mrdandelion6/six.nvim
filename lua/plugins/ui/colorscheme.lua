@@ -32,6 +32,7 @@ return {
           ['@function.builtin'] = { fg = colors.light_pink },
           ['@function.call'] = { fg = colors.light_pink },
           ['@keyword.operator'] = { fg = colors.light_pink },
+          ['@constructor'] = { fg = colors.light_pink },
 
           ['@parameter'] = { fg = colors.strong_orange },
           ['@variable.parameter'] = { fg = colors.strong_orange },
