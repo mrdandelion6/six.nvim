@@ -6,6 +6,28 @@ return {
     if not pcall(require, 'lualine') then
       return
     end
+
+    -- STATUSLINE VS WINBAR PHILOSOPHY:
+    -- this config uses a single global statusline at the bottom and per-window
+    -- winbars at the top.
+    --
+    -- WINBAR (top of each window):
+    --   - shows the filename/path for each individual buffer
+    --   - provides local context
+    --   - you always know what file you're looking at in each split
+    --   - keeps information close to the content it describes
+    --
+    -- GLOBAL STATUSLINE (bottom, shared across all windows):
+    --   - shows mode indicator (N/I/V/R with color coding)
+    --   - shows git root directory (when in a git repo)
+    --   - shows git branch, diff stats (right side)
+    --   - shows cursor location (line/column)
+    --   - does not show filename - this would be redundant with winbars and creates clutter
+    --
+    -- this separation keeps the global statusline clean and focused on editor-wide state
+    -- (mode, git info, location) while winbars handle per-window context (filenames).
+    -- the filename is intentionally omitted from lualine_c to avoid duplication.
+
     MOST_RECENT_PWD = vim.fn.expand '~/.config/nvim/bash/recent_pwd.txt'
 
     -- table of buf_num : bool
@@ -13,12 +35,14 @@ return {
     local created_terminal_pwd_update = {}
 
     local function parse_terminal_request(request)
-      -- the bash code that sends terminal requests with OSC is as follows:
-      --  printf '\033]51;%s\007' $(pwd)
-      -- i have tried many other variations as well, but was not able to get a clean transfer of json or string.
-      -- the requests (collected with vim.v.termrequest), end up having some leading characters.
-      -- to make a quick work around for this with my current config, i am just going to splice them off.
-      -- hopefully one day i can figure out how to properly send/read the OSC requests so i don't need abitrary cleaning like this.
+      -- NOTE: the bash code that sends terminal requests with OSC is below:
+      --    printf '\033]51;%s\007' $(pwd)
+      -- i have tried many other variations as well, but was not able to get a
+      -- clean transfer of json or string. the requests (collected with
+      -- vim.v.termrequest), end up having some leading characters. to make a
+      -- quick work around for this with my current config , i am just going to
+      -- splice them off. hopefully one day i can figure out how to properly
+      -- send/read the OSC requests so i don't need abitrary cleaning like this.
       local cleaned = request:sub(6)
       cleaned = cleaned:gsub('^/home/[^/]+/', '~/')
       return cleaned
@@ -181,8 +205,11 @@ return {
           },
         },
 
+        -- uncomment this to display file name of current buffer at bottom. i
+        -- don't have this to avoid clutter.. the file names are shown at the
+        -- winbar at the top.
         lualine_c = {
-          file_name,
+          -- file_name,
         },
 
         lualine_x = {},
