@@ -110,6 +110,18 @@ return {
     t { '', '};' },
   }),
 
+  -- function
+  s('fun', {
+    i(1, 'int'),
+    t ' ',
+    i(2, 'main'),
+    t '() {',
+    t { '', '\t' },
+    i(0),
+    i(3, 'return 0;'),
+    t { '', '}' },
+  }),
+
   -- gpu programming
   s('ker', {
     t '__global__ void ',
