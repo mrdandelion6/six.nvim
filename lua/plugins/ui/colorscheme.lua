@@ -37,6 +37,7 @@ return {
           ['@parameter'] = { fg = colors.strong_orange },
           ['@variable.parameter'] = { fg = colors.strong_orange },
           ['@keyword.return'] = { fg = colors.vibrant_pink },
+          ['@lsp.type.enumMember'] = { fg = colors.light_yellow },
 
           Type = { fg = colors.light_red },
           ['@keyword.type'] = { fg = colors.vibrant_red },
@@ -50,9 +51,6 @@ return {
           -- ['@lsp.typemod.class.declaration.cpp'] = { fg = colors.light_pink },
           -- ['@lsp.typemod.class.definition.cpp'] = { fg = colors.light_pink },
           -- ['@lsp.typemod.class.globalScope.cpp'] = { fg = colors.light_pink },
-
-          -- cuda
-          ['@lsp.type.enumMember.cuda'] = { fg = colors.light_yellow },
 
           Keyword = { fg = colors.strong_purple },
           ['@keyword'] = { fg = colors.strong_purple },
