@@ -60,6 +60,7 @@ return {
 
           ['@keyword.import'] = { fg = colors.danger_red },
           ['@keyword.import.cpp'] = { fg = colors.danger_red },
+          ['@keyword.directive.cpp'] = { fg = colors.danger_red },
           ['@keyword.directive.define.c'] = { fg = colors.danger_red },
 
           ['@keyword.repeat'] = { fg = colors.light_purple },
