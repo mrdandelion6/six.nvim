@@ -83,9 +83,6 @@ you will also need quarto cli:
 ```bash
 # get latest release
 yay -S quarto-cli
-
-# install
-sudo dpkg -i quarto-1.6.40-linux-amd64.deb
 ```
 
 molten is a remote plugin so now you must run `:UpdateRemotePlugins` command in `nvim` , which should output:
