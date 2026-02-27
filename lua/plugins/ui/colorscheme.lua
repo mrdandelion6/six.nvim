@@ -57,6 +57,7 @@ return {
           ['@keyword.function'] = { fg = colors.strong_purple },
 
           ['@keyword.import'] = { fg = colors.danger_red },
+          ['@keyword.import.c'] = { fg = colors.danger_red },
           ['@keyword.import.cpp'] = { fg = colors.danger_red },
           ['@keyword.directive.cpp'] = { fg = colors.danger_red },
           ['@keyword.directive.define.c'] = { fg = colors.danger_red },
