@@ -1,6 +1,8 @@
 # arch setup
 
-read this to get started with setting up neovim on arch linux. install the following plugin dependencies:
+read this to learn manual set up for neovim on arch linux. if you are looking for a quick install , just use [bootstrap.sh](install/boostrap.sh). read more [here](install/README.md).
+
+install the following plugin dependencies:
 
 ## base
 

@@ -1,6 +1,8 @@
 # ubuntu setup
 
-read this to get started with setting up neovim on ubuntu. install the following plugin dependencies:
+read this to learn manual set up for neovim on ubuntu. if you are looking for a quick install , just use [bootstrap.sh](install/boostrap.sh). read more [here](install/README.md).
+
+install the following:
 
 ## base
 

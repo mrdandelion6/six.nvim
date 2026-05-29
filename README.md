@@ -33,6 +33,13 @@ you will generally need the following dependencies installed and on PATH:
 - ripgrep
 - zoxide
 
+you can do a quick install for one of the following distros by just running [boostrap.sh](install/boostrap.sh):
+- Arch
+- Ubuntu
+- Rocky
+
+see [here](install/README.md) for instructions on running the script.
+
 for more **specific set up instructions** depending on your OS and distribution , see the guides inside `doc/`:
 
 - [Ubuntu/Debian](doc/linux/ubuntu/setup.md)
