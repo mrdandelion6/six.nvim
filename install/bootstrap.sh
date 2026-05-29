@@ -6,13 +6,28 @@
 set -e
 
 # ============================================================
+#  VERSIONS
+# ============================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/versions.env" ]; then
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/versions.env"
+else
+  echo "[warn] versions.env not found, using built-in defaults"
+  NVIM_VERSION="0.11.0"
+  RG_VERSION="14.1.1"
+  STYLUA_VERSION="2.1.0"
+  QUARTO_VERSION="1.6.40"
+fi
+
+# ============================================================
 #  COLORS
 # ============================================================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # no color
+NC='\033[0m'
 
 info()    { echo -e "${BLUE}[info]${NC} $1"; }
 success() { echo -e "${GREEN}[ok]${NC} $1"; }
@@ -30,10 +45,10 @@ detect_distro() {
   elif [ -f /etc/rocky-release ] || [ -f /etc/redhat-release ]; then
     DISTRO="rocky"
   else
-    error "unsupported distro. exiting."
+    error "Unsupported distro. Exiting."
     exit 1
   fi
-  info "Detected distro: $DISTRO"
+  info "detected distro: $DISTRO"
 }
 
 # ============================================================
@@ -58,7 +73,6 @@ detect_sudo() {
 #  PROMPTS
 # ============================================================
 prompt_yes_no() {
-  # $1 = question, returns 0 for yes, 1 for no
   while true; do
     read -rp "$1 [y/n]: " yn
     case $yn in
@@ -70,10 +84,44 @@ prompt_yes_no() {
 }
 
 # ============================================================
+#  INSTALL: BASE SYSTEM DEPS
+# ============================================================
+install_base_deps() {
+  info "installing base dependencies..."
+  if [ "$HAS_SUDO" = true ]; then
+    case $DISTRO in
+      arch)
+        sudo pacman -S --noconfirm --needed curl unzip git make yarn
+        ;;
+      ubuntu)
+        sudo apt update -y
+        sudo apt install -y curl unzip git make
+        if ! command -v yarn &>/dev/null; then
+          sudo npm install -g yarn 2>/dev/null || true
+        fi
+        ;;
+      rocky)
+        sudo dnf install -y curl unzip git make
+        sudo dnf install -y epel-release 2>/dev/null || true
+        ;;
+    esac
+  else
+    for dep in curl unzip git; do
+      if ! command -v "$dep" &>/dev/null; then
+        error "$dep is required but not installed and you have no sudo. please ask your sysadmin."
+        exit 1
+      fi
+    done
+    warn "skipping system dep install (no sudo) — assuming curl/unzip/git are present"
+  fi
+  success "base deps ready"
+}
+
+# ============================================================
 #  INSTALL: NEOVIM
 # ============================================================
 install_neovim() {
-  if vim.fn 2>/dev/null || command -v nvim &>/dev/null; then
+  if command -v nvim &>/dev/null; then
     CURRENT=$(nvim --version 2>/dev/null | head -1)
     info "nvim already installed: $CURRENT"
     if ! prompt_yes_no "reinstall/update nvim?"; then
@@ -81,23 +129,39 @@ install_neovim() {
     fi
   fi
 
-  info "installing neovim from tarball..."
+  if [ "$HAS_SUDO" = true ]; then
+    install_neovim_tarball
+  else
+    install_neovim_appimage
+  fi
+}
+
+install_neovim_tarball() {
+  info "installing neovim v${NVIM_VERSION} from tarball..."
   TMP=$(mktemp -d)
-  curl -L --progress-bar \
-    "https://github.com/neovim/neovim/releases/download/v0.11.0/nvim-linux-x86_64.tar.gz" \
+  curl --connect-timeout 10 --max-time 120 -L --progress-bar \
+    "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux-x86_64.tar.gz" \
     -o "$TMP/nvim.tar.gz"
   tar xf "$TMP/nvim.tar.gz" -C "$TMP"
+  sudo rm -rf /opt/nvim
+  sudo mv "$TMP/nvim-linux-x86_64" /opt/nvim
+  sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
+  rm -rf "$TMP"
+  success "neovim installed: $(nvim --version | head -1)"
+}
 
-  if [ "$HAS_SUDO" = true ]; then
-    sudo rm -rf /opt/nvim
-    sudo mv "$TMP/nvim-linux-x86_64" /opt/nvim
-    sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
-  else
-    rm -rf "$HOME/.local/nvim"
-    mv "$TMP/nvim-linux-x86_64" "$HOME/.local/nvim"
-    ln -sf "$HOME/.local/nvim/bin/nvim" "$HOME/.local/bin/nvim"
-  fi
-
+install_neovim_appimage() {
+  info "installing neovim v${NVIM_VERSION} via appimage (no sudo)..."
+  TMP=$(mktemp -d)
+  curl --connect-timeout 10 --max-time 120 -L --progress-bar \
+    "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux-x86_64.appimage" \
+    -o "$TMP/nvim.appimage"
+  chmod +x "$TMP/nvim.appimage"
+  # extract instead of running directly — avoids needing FUSE
+  cd "$TMP" && ./nvim.appimage --appimage-extract > /dev/null 2>&1
+  rm -rf "$HOME/.local/nvim-appimage"
+  mv "$TMP/squashfs-root" "$HOME/.local/nvim-appimage"
+  ln -sf "$HOME/.local/nvim-appimage/usr/bin/nvim" "$HOME/.local/bin/nvim"
   rm -rf "$TMP"
   success "neovim installed: $(nvim --version | head -1)"
 }
@@ -112,9 +176,9 @@ install_node() {
   fi
 
   info "installing node via nvm..."
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+  curl --connect-timeout 10 --max-time 60 -o- \
+    https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
-  # source nvm for this session
   export NVM_DIR="$HOME/.nvm"
   # shellcheck disable=SC1091
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -124,7 +188,7 @@ install_node() {
 }
 
 # ============================================================
-#  INSTALL: PYTHON (system or venv)
+#  INSTALL: PYTHON
 # ============================================================
 install_python() {
   if command -v python3 &>/dev/null; then
@@ -140,7 +204,7 @@ install_python() {
       rocky)  sudo dnf install -y python3 python3-pip ;;
     esac
   else
-    error "python3 not found and no sudo to install it. please ask your sysadmin."
+    error "python3 not found and no sudo. please ask your sysadmin."
     exit 1
   fi
   success "python3 installed"
@@ -160,10 +224,12 @@ install_ripgrep() {
     case $DISTRO in
       arch)   sudo pacman -S --noconfirm ripgrep ;;
       ubuntu) sudo apt install -y ripgrep ;;
-      rocky)  sudo dnf install -y ripgrep || {
-                warn "ripgrep not in default repos , installing from binary..."
-                install_ripgrep_binary
-              } ;;
+      rocky)
+        sudo dnf install -y ripgrep 2>/dev/null || {
+          warn "ripgrep not in repos, installing from binary..."
+          install_ripgrep_binary
+        }
+        ;;
     esac
   else
     install_ripgrep_binary
@@ -173,14 +239,16 @@ install_ripgrep() {
 
 install_ripgrep_binary() {
   TMP=$(mktemp -d)
-  # get latest version tag
-  LATEST=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest \
-    | grep '"tag_name"' | cut -d '"' -f 4)
-  curl -L --progress-bar \
-    "https://github.com/BurntSushi/ripgrep/releases/download/${LATEST}/ripgrep-${LATEST}-x86_64-unknown-linux-musl.tar.gz" \
-    -o "$TMP/rg.tar.gz"
+  info "downloading ripgrep v${RG_VERSION}..."
+  URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/rg.tar.gz"
+  if ! tar tzf "$TMP/rg.tar.gz" &>/dev/null; then
+    error "ripgrep download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
   tar xf "$TMP/rg.tar.gz" -C "$TMP"
-  mv "$TMP/ripgrep-${LATEST}-x86_64-unknown-linux-musl/rg" "$HOME/.local/bin/"
+  mv "$TMP/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl/rg" "$HOME/.local/bin/"
   chmod +x "$HOME/.local/bin/rg"
   rm -rf "$TMP"
 }
@@ -198,8 +266,8 @@ install_zoxide() {
   if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "arch" ]; then
     sudo pacman -S --noconfirm zoxide
   else
-    # zoxide install script is always no-sudo friendly
-    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    curl --connect-timeout 10 --max-time 60 -sS \
+      https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
   fi
   success "zoxide installed"
 }
@@ -214,7 +282,6 @@ install_tree_sitter() {
   fi
 
   info "installing tree-sitter-cli via npm..."
-  # install to ~/.local so no sudo needed
   npm install --prefix "$HOME/.local" tree-sitter-cli
   success "tree-sitter-cli installed"
 }
@@ -228,10 +295,10 @@ install_stylua() {
     return
   fi
 
-  info "installing stylua from binary..."
+  info "installing stylua v${STYLUA_VERSION}..."
   TMP=$(mktemp -d)
-  curl -L --progress-bar \
-    "https://github.com/JohnnyMorganz/StyLua/releases/latest/download/stylua-linux-x86_64.zip" \
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar \
+    "https://github.com/JohnnyMorganz/StyLua/releases/download/v${STYLUA_VERSION}/stylua-linux-x86_64.zip" \
     -o "$TMP/stylua.zip"
   unzip -q "$TMP/stylua.zip" -d "$TMP"
 
@@ -245,43 +312,6 @@ install_stylua() {
 
   rm -rf "$TMP"
   success "stylua installed"
-}
-
-# ============================================================
-#  INSTALL: BASE SYSTEM DEPS (curl, unzip, git, etc)
-# ============================================================
-install_base_deps() {
-  info "installing base dependencies..."
-  if [ "$HAS_SUDO" = true ]; then
-    case $DISTRO in
-      arch)
-        sudo pacman -S --noconfirm --needed curl unzip git make yarn
-        ;;
-      ubuntu)
-        sudo apt update -y
-        sudo apt install -y curl unzip git make
-        # yarn
-        if ! command -v yarn &>/dev/null; then
-          sudo npm install -g yarn 2>/dev/null || true
-        fi
-        ;;
-      rocky)
-        sudo dnf install -y curl unzip git make
-        # enable epel for more packages
-        sudo dnf install -y epel-release 2>/dev/null || true
-        ;;
-    esac
-  else
-    # check the critical ones are available
-    for dep in curl unzip git; do
-      if ! command -v "$dep" &>/dev/null; then
-        error "$dep is required but not installed and you have no sudo. please ask your sysadmin."
-        exit 1
-      fi
-    done
-    warn "skipping system dep install (no sudo) — assuming curl/unzip/git are present"
-  fi
-  success "base deps ready"
 }
 
 # ============================================================
@@ -304,8 +334,8 @@ install_latex() {
     esac
     success "latex deps installed"
   else
-    warn "latex deps require sudo — skipping system packages"
-    warn "you'll need texlive , zathura , and inkscape installed by your sysadmin"
+    warn "latex deps require sudo — skipping"
+    warn "you'll need texlive, zathura, and inkscape installed by your sysadmin"
   fi
 }
 
@@ -315,7 +345,6 @@ install_latex() {
 install_molten() {
   info "installing molten/jupyter dependencies..."
 
-  # system deps
   if [ "$HAS_SUDO" = true ]; then
     case $DISTRO in
       arch)
@@ -347,19 +376,17 @@ install_molten() {
   success "python venv set up at ~/.envs/neovim"
 
   # quarto
-  info "installing quarto..."
+  info "installing quarto v${QUARTO_VERSION}..."
   TMP=$(mktemp -d)
-  QUARTO_VERSION="1.6.40"
   if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "ubuntu" ]; then
-    curl -L --progress-bar \
+    curl --connect-timeout 10 --max-time 120 -L --progress-bar \
       "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb" \
       -o "$TMP/quarto.deb"
     sudo dpkg -i "$TMP/quarto.deb"
   elif [ "$DISTRO" = "arch" ] && command -v yay &>/dev/null; then
     yay -S --noconfirm quarto-cli
   else
-    # tarball fallback (no sudo)
-    curl -L --progress-bar \
+    curl --connect-timeout 10 --max-time 120 -L --progress-bar \
       "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.tar.gz" \
       -o "$TMP/quarto.tar.gz"
     tar xf "$TMP/quarto.tar.gz" -C "$TMP"
@@ -401,7 +428,6 @@ main() {
   detect_distro
   detect_sudo
 
-  # base
   install_base_deps
   install_neovim
   install_node
@@ -411,24 +437,24 @@ main() {
   install_tree_sitter
   install_stylua
 
-  # optional: latex
   echo ""
-  if prompt_yes_no "install latex support (texlive , zathura , inkscape) ?"; then
+  if prompt_yes_no "install latex support (texlive, zathura, inkscape)?"; then
     install_latex
   else
     info "skipping latex"
   fi
 
-  # optional: molten
   echo ""
-  if prompt_yes_no "install molten/jupyter support (imagemagick , python venv , quarto) ?"; then
+  INSTALLED_MOLTEN=false
+  if prompt_yes_no "install molten/jupyter support (imagemagick, python venv, quarto)?"; then
     install_molten
+    INSTALLED_MOLTEN=true
   else
     info "skipping molten"
   fi
 
-  # nvim config
   echo ""
+  clone_config
 
   echo ""
   echo -e "${GREEN}========================================${NC}"
@@ -437,10 +463,11 @@ main() {
   echo ""
   echo "next steps:"
   echo "  1. source ~/.bashrc  (or open a new terminal)"
-  echo "  2. clone your config to ~/.config/nvim (optional)"
-  echo "  3. open nvim - lazy will auto-install plugins"
-  echo "  4. run :TSUpdate inside nvim"
-  echo "  5. if you installed molten , run :UpdateRemotePlugins inside nvim"
+  echo "  2. open nvim — lazy will auto-install plugins"
+  echo "  3. run :TSUpdate inside nvim"
+  if [ "$INSTALLED_MOLTEN" = true ]; then
+    echo "  4. run :UpdateRemotePlugins inside nvim for molten"
+  fi
   echo ""
 }
 
