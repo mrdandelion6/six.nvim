@@ -196,9 +196,9 @@ install_neovim_from_source() {
     return 1
   fi
 
-  # 0.10.4 has better dep handling on older systems
-  local SRC_VERSION="0.10.4"
-  info "building neovim v${SRC_VERSION} from source (this will take ~10 minutes)..."
+
+  local SRC_VERSION="$NVIM_VERSION"
+  info "building neovim v${NVIM_VERSION} from source (this will take ~10 minutes)..."
 
   TMP=$(mktemp -d)
   OLDDIR=$(pwd)
