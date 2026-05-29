@@ -39,28 +39,12 @@ local function set_telescope_binds(binds)
 end
 
 local function set_layout_persistence(new_layout)
-  local layout_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
-  local settings = {}
-
-  local file = io.open(layout_path, 'r')
-  if file then
-    local content = file:read '*a'
-    file:close()
-    local ok, parsed = pcall(vim.fn.json_decode, content)
-    if ok and type(parsed) == 'table' then
-      settings = parsed
-    else
-      print('could not parse an existing settings file at: ' .. layout_path)
-    end
-  end
-
-  settings.layout = new_layout
-  local settings_json = { vim.fn.json_encode(settings) }
+  local layout_path = vim.g.local_settings.keyboard_layout_path
   local success = pcall(function()
-    return vim.fn.writefile(settings_json, layout_path)
+    return vim.fn.writefile({ new_layout }, layout_path)
   end)
   if not success then
-    print('failed to update persistence for keyboard layout at: ' .. layout_path)
+    print('ERROR (keymaps.lua): failed to update persistence for keyboard layout at: ' .. layout_path)
   end
 end
 
@@ -167,7 +151,7 @@ local function enable_colemak()
   -- set persistence in .localsettings.json
   set_layout_persistence 'colemak'
   local settings = vim.g.local_settings
-  settings.layout = 'colemak'
+  settings.keyboard_layout = 'colemak'
   vim.g.local_settings = settings
   print 'Colemak-DH layout enabled'
 end
@@ -222,7 +206,7 @@ local function enable_qwerty(startup)
 
   set_layout_persistence 'qwerty'
   local settings = vim.g.local_settings
-  settings.layout = 'qwerty'
+  settings.keyboard_layout = 'qwerty'
   vim.g.local_settings = settings
   print 'QWERTY layout enabled'
 end
@@ -244,19 +228,19 @@ local function start_layout()
     print 'ERROR (keymaps.lua): vim.g.local_settings is nil'
     return
   end
-  if not settings.layout then
-    print 'ERROR: parsing vim.g.local_settings: layout key is nil'
+  if not settings.keyboard_layout then
+    print 'ERROR (keymaps.lua): parsing vim.g.local_settings: keyboard_layout is nil'
     return
   end
 
-  if settings.layout == 'colemak' then
+  if settings.keyboard_layout == 'colemak' then
     -- colemak
     enable_colemak()
-  elseif settings.layout == 'qwerty' then
+  elseif settings.keyboard_layout == 'qwerty' then
     -- qwerty
     enable_qwerty(1)
   else
-    print('unexpected settings layout: ' .. settings.layout)
+    print('ERROR (keymaps.lua): unexpected settings layout: ' .. settings.keyboard_layout)
   end
 end
 
@@ -274,7 +258,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n', -- normal mode
+    'n',          -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').copy_recent_message()<CR>",
     {
@@ -333,12 +317,12 @@ disable_yanks()
 -- function to toggle between layouts: <leader>tc
 local function toggle_colemak()
   local settings = vim.g.local_settings
-  if settings.layout == 'colemak' then
+  if settings.keyboard_layout == 'colemak' then
     enable_qwerty()
-  elseif settings.layout == 'qwerty' then -- add colemak mappings, we are toggling it on
+  elseif settings.keyboard_layout == 'qwerty' then -- add colemak mappings, we are toggling it on
     enable_colemak()
   else
-    print('unexpected settings layout: ' .. settings.layout)
+    print('unexpected settings layout: ' .. settings.keyboard_layout)
   end
 end
 

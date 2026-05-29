@@ -19,10 +19,10 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 -- tab
-vim.opt.tabstop = 4 -- number of spaces that a <tab> counts for
-vim.opt.shiftwidth = 4 -- number of spaces to use for autoindent
+vim.opt.tabstop = 4      -- number of spaces that a <tab> counts for
+vim.opt.shiftwidth = 4   -- number of spaces to use for autoindent
 vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.softtabstop = 4 -- number of spaces that a <tab> counts for while performing editing operations
+vim.opt.softtabstop = 4  -- number of spaces that a <tab> counts for while performing editing operations
 
 -- text wrapping for buffers
 vim.opt.breakindent = true
@@ -74,48 +74,6 @@ vim.opt.fillchars = {
 }
 
 local platform = require 'core.platform'
-
-local function verify_settings_format(settings)
-  if not settings then
-    print 'ERROR (core/options.lua): settings is nil. TIP: run cp .localsettings_template.json .localsettings.json.'
-    return 1
-  elseif not settings.layout then
-    print 'ERROR (core/options.lua): settings.layout is nil. TIP: see .localsettings_template.json for example.'
-    return 1
-  elseif not settings.venv_path then
-    print 'ERROR (core/options.lua): settings.env_path is nil. TIP: see .localsettings_template.json for example.'
-    return 1
-  end
-  return 0
-end
-
--- read .localsettings.json
-local settings_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
-local exists = vim.fn.filereadable(settings_path)
-if exists == 0 then
-  print('WARNING (options.lua): .localsettings.json not found at: ' .. settings_path .. '. generating file from .localsettings_template.json')
-  local template_path = vim.fn.stdpath 'config' .. '/.localsettings_template.json'
-  platform.cp(template_path, settings_path)
-  local copy_success = vim.v.shell_error == 0
-  if not copy_success then
-    print 'ERROR (options.lua): failed to copy template file'
-  end
-end
-
--- load local settings globally
-local success, settings = pcall(function()
-  return vim.fn.json_decode(vim.fn.readfile(settings_path, 'b'))
-end)
-if not success then
-  print('ERROR (options.lua): issue parsing json file' .. settings)
-elseif verify_settings_format(settings) == 0 then
-  vim.g.local_settings = settings
-end
-
--- python virtual environment for any deps
-if vim.g.local_settings then
-  vim.g.python3_host_prog = vim.g.local_settings.venv_path .. 'neovim/bin/python'
-end
 
 -- set platform specific options
 platform.startup()
