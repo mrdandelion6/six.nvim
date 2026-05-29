@@ -9,7 +9,7 @@ return {
   {
     '3rd/image.nvim',
     -- "benlubas/image.nvim",
-    -- enabled = false,
+    enabled = vim.env.TMUX == false, -- disable in tmux
     cond = not utils.is_markdown_mode(),
     dependencies = { 'https://github.com/leafo/magick' },
     ft = { 'markdown', 'norg' },
