@@ -10,7 +10,6 @@ set -e
 # ============================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/versions.env" ]; then
-  # shellcheck disable=SC1091
   source "$SCRIPT_DIR/versions.env"
 else
   echo "[warn] versions.env not found, using built-in defaults"
@@ -18,6 +17,7 @@ else
   RG_VERSION="14.1.1"
   STYLUA_VERSION="2.1.0"
   QUARTO_VERSION="1.6.40"
+  ZOXIDE_VERSION="0.9.4"
 fi
 
 # ============================================================
@@ -169,12 +169,11 @@ install_neovim_appimage() {
     warn "appimage failed — likely glibc too old ($(ldd --version 2>&1 | head -1))"
     rm -rf "$TMP"
 
-    # prompt to build from source
     echo ""
     if prompt_yes_no "build neovim from source instead? (requires gcc + cmake, takes ~10 mins)"; then
       install_neovim_from_source
     else
-      warn "skipping neovim install — you can build manually later with:"
+      warn "skipping neovim install — you can build manually later:"
       warn "  make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=~/.local"
     fi
     return
@@ -188,7 +187,6 @@ install_neovim_appimage() {
 }
 
 install_neovim_from_source() {
-  # check deps
   if ! command -v gcc &>/dev/null; then
     error "gcc not found — cannot build from source"
     return 1
@@ -198,8 +196,8 @@ install_neovim_from_source() {
     return 1
   fi
 
-  # use 0.9.5 for source builds — more compatible with older systems
-  local SRC_VERSION="0.9.5"
+  # 0.10.4 has better dep handling on older systems
+  local SRC_VERSION="0.10.4"
   info "building neovim v${SRC_VERSION} from source (this will take ~10 minutes)..."
 
   TMP=$(mktemp -d)
@@ -212,6 +210,7 @@ install_neovim_from_source() {
   if ! tar tzf "$TMP/nvim-src.tar.gz" &>/dev/null; then
     error "neovim source download failed or corrupted"
     rm -rf "$TMP"
+    cd "$OLDDIR"
     return 1
   fi
 
@@ -219,8 +218,17 @@ install_neovim_from_source() {
   cd "$TMP/neovim-${SRC_VERSION}"
 
   info "running make... (grab a coffee)"
-  make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$HOME/.local" 2>&1 \
-    | grep -E "^\[|error:|warning:" || true
+  # USE_BUNDLED_LUAROCKS=OFF avoids luarocks manifest issues on old systems
+  if make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$HOME/.local" \
+      USE_BUNDLED_LUAROCKS=OFF 2>&1 | grep -E "^\[|error:"; then
+    info "build with USE_BUNDLED_LUAROCKS=OFF succeeded"
+  else
+    warn "retrying without USE_BUNDLED_LUAROCKS=OFF..."
+    make clean 2>/dev/null || true
+    make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$HOME/.local" 2>&1 \
+      | grep -E "^\[|error:" || true
+  fi
+
   make install
 
   cd "$OLDDIR"
@@ -247,7 +255,6 @@ install_node() {
     https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
 
   export NVM_DIR="$HOME/.nvm"
-  # shellcheck disable=SC1091
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
   nvm install --lts
@@ -329,12 +336,25 @@ install_zoxide() {
     return
   fi
 
-  info "installing zoxide..."
+  info "installing zoxide v${ZOXIDE_VERSION}..."
   if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "arch" ]; then
     sudo pacman -S --noconfirm zoxide
+  elif [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "ubuntu" ]; then
+    sudo apt install -y zoxide
   else
-    curl --connect-timeout 10 --max-time 60 -sS \
-      https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    # download binary directly — avoids github API rate limit
+    TMP=$(mktemp -d)
+    URL="https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+    curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/zoxide.tar.gz"
+    if ! tar tzf "$TMP/zoxide.tar.gz" &>/dev/null; then
+      error "zoxide download failed or corrupted"
+      rm -rf "$TMP"
+      return 1
+    fi
+    tar xf "$TMP/zoxide.tar.gz" -C "$TMP"
+    mv "$TMP/zoxide" "$HOME/.local/bin/"
+    chmod +x "$HOME/.local/bin/zoxide"
+    rm -rf "$TMP"
   fi
   success "zoxide installed"
 }
@@ -430,11 +450,9 @@ install_molten() {
     warn "image.nvim may not work without them"
   fi
 
-  # python venv (no sudo needed)
   info "setting up python venv for molten at ~/.envs/neovim..."
   mkdir -p "$HOME/.envs"
   python3 -m venv "$HOME/.envs/neovim"
-  # shellcheck disable=SC1091
   source "$HOME/.envs/neovim/bin/activate"
   pip install --quiet \
     pynvim jupyter_client cairosvg plotly kaleido \
@@ -442,7 +460,6 @@ install_molten() {
   deactivate
   success "python venv set up at ~/.envs/neovim"
 
-  # quarto
   info "installing quarto v${QUARTO_VERSION}..."
   TMP=$(mktemp -d)
   if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "ubuntu" ]; then
