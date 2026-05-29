@@ -1,3 +1,7 @@
+if not vim.g_local_settings or not vim.g.local_settings.latex_support then
+  return {}
+end
+
 local platform = require 'core.platform'
 
 return {
