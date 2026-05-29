@@ -153,17 +153,84 @@ install_neovim_tarball() {
 install_neovim_appimage() {
   info "installing neovim v${NVIM_VERSION} via appimage (no sudo)..."
   TMP=$(mktemp -d)
+  OLDDIR=$(pwd)
+
   curl --connect-timeout 10 --max-time 120 -L --progress-bar \
     "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux-x86_64.appimage" \
     -o "$TMP/nvim.appimage"
   chmod +x "$TMP/nvim.appimage"
+
   # extract instead of running directly — avoids needing FUSE
   cd "$TMP" && ./nvim.appimage --appimage-extract > /dev/null 2>&1
+  cd "$OLDDIR"
+
+  # test if the extracted binary actually runs (glibc compat check)
+  if ! "$TMP/squashfs-root/usr/bin/nvim" --version &>/dev/null; then
+    warn "appimage failed — likely glibc too old ($(ldd --version 2>&1 | head -1))"
+    rm -rf "$TMP"
+
+    # prompt to build from source
+    echo ""
+    if prompt_yes_no "build neovim from source instead? (requires gcc + cmake, takes ~10 mins)"; then
+      install_neovim_from_source
+    else
+      warn "skipping neovim install — you can build manually later with:"
+      warn "  make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=~/.local"
+    fi
+    return
+  fi
+
   rm -rf "$HOME/.local/nvim-appimage"
   mv "$TMP/squashfs-root" "$HOME/.local/nvim-appimage"
   ln -sf "$HOME/.local/nvim-appimage/usr/bin/nvim" "$HOME/.local/bin/nvim"
   rm -rf "$TMP"
   success "neovim installed: $(nvim --version | head -1)"
+}
+
+install_neovim_from_source() {
+  # check deps
+  if ! command -v gcc &>/dev/null; then
+    error "gcc not found — cannot build from source"
+    return 1
+  fi
+  if ! command -v cmake &>/dev/null; then
+    error "cmake not found — cannot build from source"
+    return 1
+  fi
+
+  # use 0.9.5 for source builds — more compatible with older systems
+  local SRC_VERSION="0.9.5"
+  info "building neovim v${SRC_VERSION} from source (this will take ~10 minutes)..."
+
+  TMP=$(mktemp -d)
+  OLDDIR=$(pwd)
+
+  curl --connect-timeout 10 --max-time 120 -L --progress-bar \
+    "https://github.com/neovim/neovim/archive/refs/tags/v${SRC_VERSION}.tar.gz" \
+    -o "$TMP/nvim-src.tar.gz"
+
+  if ! tar tzf "$TMP/nvim-src.tar.gz" &>/dev/null; then
+    error "neovim source download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
+
+  tar xf "$TMP/nvim-src.tar.gz" -C "$TMP"
+  cd "$TMP/neovim-${SRC_VERSION}"
+
+  info "running make... (grab a coffee)"
+  make CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX="$HOME/.local" 2>&1 \
+    | grep -E "^\[|error:|warning:" || true
+  make install
+
+  cd "$OLDDIR"
+  rm -rf "$TMP"
+
+  if command -v nvim &>/dev/null; then
+    success "neovim installed: $(nvim --version | head -1)"
+  else
+    error "build completed but nvim not found — check ~/.local/bin is on PATH"
+  fi
 }
 
 # ============================================================
