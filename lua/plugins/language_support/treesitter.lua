@@ -3,11 +3,11 @@ return {
   build = ':TSUpdate',
   dependencies = {
     'nvim-treesitter/nvim-treesitter-textobjects',
-    'nvim-treesitter/playground',
+    -- 'nvim-treesitter/playground',
   },
   config = function()
     ---@diagnostic disable-next-line: missing-fields
-    require('nvim-treesitter.configs').setup {
+    require('nvim-treesitter.config').setup {
       ensure_installed = {
         'bash',
         'c',
@@ -34,9 +34,7 @@ return {
 
       indent = { enable = true, disable = { 'ruby' } },
 
-      playground = {
-        enable = true,
-      },
+      -- playground = { enable = true, },
 
       textobjects = {
         select = {
@@ -71,8 +69,5 @@ return {
         },
       },
     }
-
-    -- force load the textobjects module after setup
-    local ts_repeat_move = require 'nvim-treesitter.textobjects.repeatable_move'
   end,
 }

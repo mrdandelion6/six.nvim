@@ -20,7 +20,7 @@ return {
     { 'nvim-telescope/telescope-ui-select.nvim' },
 
     -- useful for getting pretty icons, but requires a nerd font.
-    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
   },
 
   config = function()
@@ -31,13 +31,11 @@ return {
     require('telescope').setup {
       -- you can put your default mappings / updates / etc. in here
       --  all the info you're looking for is in `:help telescope.setup()`
-      --
-      -- defaults = {
-      --   mappings = {
-      --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-      --   },
-      -- },
-      -- pickers = {}
+
+      defaults = {
+        preview = { treesitter = false },
+      },
+
       extensions = {
         ['ui-select'] = {
           require('telescope.themes').get_dropdown(),
@@ -199,7 +197,8 @@ return {
             opts.find_command = {
               'sh',
               '-c',
-              'rg -l "" --follow --hidden --no-ignore-vcs --max-filesize 10M ' .. exclude_str .. ' 2>/dev/null; ' .. 'find . -type f -empty',
+              'rg -l "" --follow --hidden --no-ignore-vcs --max-filesize 10M ' ..
+              exclude_str .. ' 2>/dev/null; ' .. 'find . -type f -empty',
             }
           end
         end
