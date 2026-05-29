@@ -1,3 +1,7 @@
+if not vim.g_local_settings or not vim.g.local_settings.molten_support then
+  return {}
+end
+
 -- credit: benlubas
 -- this is the file for repl like functionality in code.
 -- quarto.nvim is kinda related , as it lets me edit jupyter notebook type
@@ -58,9 +62,12 @@ return {
         end, { desc = 'Molten [R]un [A]ll Cells of All Languages', silent = true })
 
         -- setup some molten specific keybindings
-        vim.keymap.set('v', '<localleader>rv', ':<C-u>MoltenEvaluateVisual<CR>gv', { silent = true, desc = 'Molten [R]un [V]isual' })
-        vim.keymap.set('n', '<localleader>ro', ':noautocmd MoltenEnterOutput<CR>', { desc = 'Molten [R] Open [O]utput', silent = true })
-        vim.keymap.set('n', '<localleader>rp', ':MoltenImagePopup<CR>', { desc = 'Molten [R] [P]op Image', silent = true })
+        vim.keymap.set('v', '<localleader>rv', ':<C-u>MoltenEvaluateVisual<CR>gv',
+          { silent = true, desc = 'Molten [R]un [V]isual' })
+        vim.keymap.set('n', '<localleader>ro', ':noautocmd MoltenEnterOutput<CR>',
+          { desc = 'Molten [R] Open [O]utput', silent = true })
+        vim.keymap.set('n', '<localleader>rp', ':MoltenImagePopup<CR>',
+          { desc = 'Molten [R] [P]op Image', silent = true })
         vim.keymap.set('n', '<localleader>rd', ':MoltenDelete<CR>', { desc = 'Molten [R] [D]elete Cell', silent = true })
 
         local open = false
