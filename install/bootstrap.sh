@@ -84,6 +84,31 @@ prompt_yes_no() {
 }
 
 # ============================================================
+#  UPDATE LOCAL SETTINGS
+# ============================================================
+update_local_settings() {
+  local key="$1"
+  local value="$2"
+  local settings="$HOME/.config/nvim/.localsettings.json"
+
+  if [ ! -f "$settings" ]; then
+    warn "local settings file not found at $settings — skipping"
+    return
+  fi
+
+  # use python3 to safely edit the json
+  python3 -c "
+import json
+with open('$settings', 'r') as f:
+    data = json.load(f)
+data['$key'] = $value
+with open('$settings', 'w') as f:
+    json.dump(data, f, indent=2)
+"
+  success "set $key = $value in local settings"
+}
+
+# ============================================================
 #  INSTALL: BASE SYSTEM DEPS
 # ============================================================
 install_base_deps() {
@@ -424,6 +449,8 @@ install_latex() {
     warn "latex deps require sudo — skipping"
     warn "you'll need texlive, zathura, and inkscape installed by your sysadmin"
   fi
+
+  update_local_settings "molten_support" "True"
 }
 
 # ============================================================
@@ -479,6 +506,9 @@ install_molten() {
   fi
   rm -rf "$TMP"
   success "quarto installed"
+
+  # set .localsettings.json flag for molten_support
+  update_local_settings "molten_support" "True"
 }
 
 # ============================================================
