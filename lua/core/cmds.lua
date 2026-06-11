@@ -3,6 +3,14 @@
 -- specific plugins.
 local utils = require 'core.utils'
 
+-- VIMENTER (runs once on startup)
+vim.api.nvim_create_autocmd('VimEnter', {
+  once = true,
+  callback = function()
+    vim.g.start_dir = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':p:h')
+  end,
+})
+
 -- PANE
 vim.cmd 'command! -nargs=1 Vr vertical resize <args>'
 vim.cmd 'command! -nargs=1 Hr horizontal resize <args>'
