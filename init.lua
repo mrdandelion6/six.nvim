@@ -36,6 +36,7 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
+vim.g.start_dir = vim.fn.fnamemodify(vim.v.argv[2] or '.', ':p:h')
 
 require('core.lazy').boostrap()
 
