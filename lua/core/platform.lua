@@ -51,7 +51,7 @@ local function escape_path(path)
   end
 end
 
--- Copy file(s) from src to dst
+-- copy file(s) from src to dst
 function M.cp(src, dst)
   -- Ensure paths are provided
   if not src or not dst then
@@ -85,7 +85,7 @@ function M.cp(src, dst)
   return execute_command(cmd)
 end
 
--- Move file(s) from src to dst
+-- move file(s) from src to dst
 function M.mv(src, dst)
   -- Ensure paths are provided
   if not src or not dst then
