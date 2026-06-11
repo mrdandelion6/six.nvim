@@ -37,15 +37,14 @@ return { -- for persisting neovim sessions.
       end,
     })
 
-    -- if opened cwd isn't an existing session, spawn a terminal on the right
+    -- if opened path is a directory and new session , spawn a terminal on the right
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
         local platform = require 'core.platform'
-        if not auto_session.session_exists_for_cwd() then
-          -- check if we started with a directory argument
-          local args = vim.fn.argv()
-          local started_with_directory = #args == 1 and vim.fn.isdirectory(args[1]) == 1
+        local args = vim.fn.argv()
+        local started_with_directory = #args == 1 and vim.fn.isdirectory(args[1]) == 1
 
+        if started_with_directory and not auto_session.session_exists_for_cwd() then
           vim.cmd 'vsplit | wincmd l'
           local ratio = 0.45
           if platform.is_windows() then
@@ -57,10 +56,7 @@ return { -- for persisting neovim sessions.
           vim.cmd('vertical resize ' .. width .. ' | terminal')
           vim.cmd 'wincmd h'
 
-          -- if we started with a directory, open it with oil in the left pane
-          if started_with_directory then
-            require('oil').open(args[1])
-          end
+          require('oil').open(args[1])
         end
       end,
     })
