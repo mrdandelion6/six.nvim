@@ -20,7 +20,7 @@ return {
     { 'nvim-telescope/telescope-ui-select.nvim' },
 
     -- useful for getting pretty icons, but requires a nerd font.
-    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
   },
 
   config = function()
@@ -57,6 +57,10 @@ return {
       -- return a table of options for telescope fuzzy searching. we need this
       -- to determine what finder backend we are using and the proper commands
       -- for them.
+      --
+      -- path: this arg is set as the cwd for the opts. it is also used to check
+      -- if a path is a big directory , in which case some fields in opts are
+      -- adjusted for performance.
 
       -- attempts to use the following finders in order:
       --  1. ripgrep
@@ -84,6 +88,7 @@ return {
 
       local opts = {
         hidden = true,
+        cwd = path,
       }
 
       local platform = require 'core.platform'
@@ -251,8 +256,10 @@ return {
     -- find the word currently under the cursor in your buffer in same picker as <leader>fg but pre-populated.
     vim.keymap.set('n', '<leader>fw', builtin.grep_string, { desc = '[S]earch [W]ord under cursor' })
 
-    -- search text inside files within pwd
-    vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = '[F]ind by [G]rep' })
+    -- search text inside files within the directory which was passed to nvim on start
+    vim.keymap.set('n', '<leader>fg', function()
+      builtin.live_grep { cwd = vim.g.start_dir }
+    end, { desc = '[F]ind by [G]rep' })
 
     -- search diagnostics and warnings within current buffer
     vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = '[F]ind [D]iagnostics' })
@@ -268,8 +275,7 @@ return {
 
     -- shortcut for searching your neovim configuration files
     vim.keymap.set('n', '<leader>fe', function()
-      local opts = get_opts()
-      opts.cwd = vim.fn.stdpath 'config'
+      local opts = get_opts(vim.fn.stdpath 'config')
       opts.prompt_title = 'Find Files in Neovim Config'
       builtin.find_files(opts)
     end, { desc = '[F]ind N[e]ovim files' })
@@ -278,8 +284,7 @@ return {
     vim.keymap.set('n', '<leader>fn', function()
       if vim.g.local_settings then
         if vim.g.local_settings.notes_path then
-          local opts = get_opts()
-          opts.cwd = vim.g.local_settings.notes_path
+          local opts = get_opts(vim.g.local_settings.notes_path)
           opts.prompt_title = 'Find Code Notes'
           builtin.find_files(opts)
         else
@@ -292,7 +297,7 @@ return {
 
     -- fuzzy search for files in pwd.
     vim.keymap.set('n', '<leader>ff', function()
-      builtin.find_files(get_opts(vim.fn.getcwd()))
+      builtin.find_files(get_opts(vim.g.start_dir))
     end, { desc = '[F]ind [F]iles' })
 
     vim.keymap.set('n', '<leader>fp', function()
@@ -378,7 +383,6 @@ return {
         end
 
         local opts = get_opts(search_path)
-        opts.cwd = search_path
         opts.prompt_title = 'Find Files in: ' .. search_path
         require('telescope.builtin').find_files(opts)
       end, { buffer = buf })
