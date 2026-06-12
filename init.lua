@@ -41,6 +41,7 @@ require('core.lazy').boostrap()
 
 local platform = require 'core.platform'
 require 'core.options'
+require 'core.clipboard'
 require 'core.local_settings'
 require 'core.keymaps'
 require 'core.cmds'
