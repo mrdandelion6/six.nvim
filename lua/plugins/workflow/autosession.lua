@@ -37,7 +37,7 @@ return { -- for persisting neovim sessions.
       end,
     })
 
-    -- if opened path is a directory and new session , spawn a terminal on the right
+    -- if opened path is a directory and new session , start in oil
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
         local platform = require 'core.platform'
@@ -45,17 +45,6 @@ return { -- for persisting neovim sessions.
         local started_with_directory = #args == 1 and vim.fn.isdirectory(args[1]) == 1
 
         if started_with_directory and not auto_session.session_exists_for_cwd() then
-          vim.cmd 'vsplit | wincmd l'
-          local ratio = 0.45
-          if platform.is_windows() then
-            -- terminals spawned inside windows for nvim cant shrink fastfetch
-            -- output for some reason , so need more space.
-            ratio = 0.52
-          end
-          local width = math.floor(vim.o.columns * ratio)
-          vim.cmd('vertical resize ' .. width .. ' | terminal')
-          vim.cmd 'wincmd h'
-
           require('oil').open(args[1])
         end
       end,

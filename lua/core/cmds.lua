@@ -15,6 +15,24 @@ vim.api.nvim_create_autocmd('VimEnter', {
 vim.cmd 'command! -nargs=1 Vr vertical resize <args>'
 vim.cmd 'command! -nargs=1 Hr horizontal resize <args>'
 
+local function open_term_in_split()
+  local platform = require 'core.platform'
+  local args = vim.fn.argv()
+
+  vim.cmd 'vsplit | wincmd l'
+  local ratio = 0.45
+  if platform.is_windows() then
+    -- terminals spawned inside windows for nvim cant shrink fastfetch
+    -- output for some reason , so need more space.
+    ratio = 0.52
+  end
+  local width = math.floor(vim.o.columns * ratio)
+  vim.cmd('vertical resize ' .. width .. ' | terminal')
+  vim.cmd 'startinsert'
+end
+
+vim.api.nvim_create_user_command('Vst', open_term_in_split, {})
+
 -- TEXT
 -- yank path of current buffer
 vim.api.nvim_create_user_command('Yp', function()
