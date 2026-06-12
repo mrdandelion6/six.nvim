@@ -208,6 +208,7 @@ vim.api.nvim_create_user_command('ToggleFormatOnSaveBuffer', function()
 end, {})
 
 vim.keymap.set('n', '<leader>tf', ':ToggleFormatOnSaveBuffer<CR>', { desc = '[T]oggle [F]ormat on Save for Buffer' })
+vim.keymap.set('n', '<leader>tF', ':ToggleFormatOnSave<CR>', { desc = '[T]oggle [F]ormat on Save Globally' })
 
 vim.api.nvim_create_user_command('W', function()
   -- write without autoformat
