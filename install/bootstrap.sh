@@ -18,6 +18,8 @@ else
   STYLUA_VERSION="2.1.0"
   QUARTO_VERSION="1.6.40"
   ZOXIDE_VERSION="0.9.4"
+  FD_VERSION="10.1.0"
+  FZF_VERSION="0.54.0"
 fi
 
 # ============================================================
@@ -310,6 +312,98 @@ install_python() {
 }
 
 # ============================================================
+#  INSTALL: FD
+# ============================================================
+install_fd() {
+  if command -v fd &>/dev/null || command -v fdfind &>/dev/null; then
+    success "fd already installed"
+    return
+  fi
+
+  info "installing fd..."
+  if [ "$HAS_SUDO" = true ]; then
+    case $DISTRO in
+      arch)   sudo pacman -S --noconfirm fd ;;
+      ubuntu)
+        sudo apt install -y fd-find
+        # ubuntu installs as fdfind, symlink to fd
+        ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
+        ;;
+      rocky)
+        sudo dnf install -y fd-find 2>/dev/null || {
+          warn "fd not in repos, installing from binary..."
+          install_fd_binary
+        }
+        ;;
+    esac
+  else
+    install_fd_binary
+  fi
+  success "fd installed"
+}
+
+install_fd_binary() {
+  local FD_VERSION="10.1.0"
+  TMP=$(mktemp -d)
+  info "downloading fd v${FD_VERSION}..."
+  URL="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/fd.tar.gz"
+  if ! tar tzf "$TMP/fd.tar.gz" &>/dev/null; then
+    error "fd download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
+  tar xf "$TMP/fd.tar.gz" -C "$TMP"
+  mv "$TMP/fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd" "$HOME/.local/bin/"
+  chmod +x "$HOME/.local/bin/fd"
+  rm -rf "$TMP"
+}
+
+# ============================================================
+#  INSTALL: FZF
+# ============================================================
+install_fzf() {
+  if command -v fzf &>/dev/null; then
+    success "fzf already installed"
+    return
+  fi
+
+  info "installing fzf..."
+  if [ "$HAS_SUDO" = true ]; then
+    case $DISTRO in
+      arch)   sudo pacman -S --noconfirm fzf ;;
+      ubuntu) sudo apt install -y fzf ;;
+      rocky)
+        sudo dnf install -y fzf 2>/dev/null || {
+          warn "fzf not in repos, installing from binary..."
+          install_fzf_binary
+        }
+        ;;
+    esac
+  else
+    install_fzf_binary
+  fi
+  success "fzf installed"
+}
+
+install_fzf_binary() {
+  local FZF_VERSION="0.54.0"
+  TMP=$(mktemp -d)
+  info "downloading fzf v${FZF_VERSION}..."
+  URL="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/fzf.tar.gz"
+  if ! tar tzf "$TMP/fzf.tar.gz" &>/dev/null; then
+    error "fzf download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
+  tar xf "$TMP/fzf.tar.gz" -C "$TMP"
+  mv "$TMP/fzf" "$HOME/.local/bin/"
+  chmod +x "$HOME/.local/bin/fzf"
+  rm -rf "$TMP"
+}
+
+# ============================================================
 #  INSTALL: RIPGREP
 # ============================================================
 install_ripgrep() {
@@ -546,6 +640,8 @@ main() {
   install_neovim
   install_node
   install_python
+  install_fd
+  install_fzf
   install_ripgrep
   install_zoxide
   install_tree_sitter
