@@ -14,73 +14,75 @@ supports **Arch**, **Ubuntu/Debian**, and **Rocky/RHEL**. works with and without
 ## what gets installed
 
 ### always installed
-- **neovim** — with sudo: tarball to `/opt/nvim`. without sudo: appimage to `~/.local/nvim-appimage`, or built from source if glibc is too old
-- **node** — via nvm, installed to `~/.nvm` (no sudo needed)
+    - **neovim** — with sudo: tarball to `/opt/nvim`. without sudo: appimage to `~/.local/nvim-appimage`, or built from source if glibc is too old
+    - **node** — via nvm, installed to `~/.nvm` (no sudo needed)
 - **python3** — system install if missing (needs sudo)
-- **ripgrep** — system package manager or binary to `~/.local/bin`
-- **zoxide** — system package manager or binary to `~/.local/bin`
-- **tree-sitter-cli** — via npm to `~/.local`
+    - **fd-find** — system package manager or binary to `~/.local/bin`
+    - **fzf** — system package manager or binary to `~/.local/bin`
+    - **ripgrep** — system package manager or binary to `~/.local/bin`
+    - **zoxide** — system package manager or binary to `~/.local/bin`
+    - **tree-sitter-cli** — via npm to `~/.local`
 - **stylua** — binary to `/usr/local/bin` (sudo) or `~/.local/bin` (no sudo)
 
 ### optional (prompted during install)
-- **latex**: texlive, zathura, inkscape — needs sudo
-- **molten/jupyter**: imagemagick, luarocks, python venv at `~/.envs/neovim`, quarto
+    - **latex**: texlive, zathura, inkscape — needs sudo
+    - **molten/jupyter**: imagemagick, luarocks, python venv at `~/.envs/neovim`, quarto
 
----
+    ---
 
 ## versions
 
-all binary versions are hardcoded in `install/versions.env` to avoid github API rate limits. update this file when you want newer versions:
+    all binary versions are hardcoded in `install/versions.env` to avoid github API rate limits. update this file when you want newer versions:
 
-```bash
+    ```bash
 # install/versions.env
-NVIM_VERSION="0.11.0"
-RG_VERSION="14.1.1"
-STYLUA_VERSION="2.1.0"
-QUARTO_VERSION="1.6.40"
-ZOXIDE_VERSION="0.9.4"
-```
+    NVIM_VERSION="0.11.0"
+    RG_VERSION="14.1.1"
+    STYLUA_VERSION="2.1.0"
+    QUARTO_VERSION="1.6.40"
+    ZOXIDE_VERSION="0.9.4"
+    ```
 
-check latest releases at:
-- nvim: https://github.com/neovim/neovim/releases
-- ripgrep: https://github.com/BurntSushi/ripgrep/releases
-- stylua: https://github.com/JohnnyMorganz/StyLua/releases
-- quarto: https://github.com/quarto-dev/quarto-cli/releases
-- zoxide: https://github.com/ajeetdsouza/zoxide/releases
+    check latest releases at:
+    - nvim: https://github.com/neovim/neovim/releases
+    - ripgrep: https://github.com/BurntSushi/ripgrep/releases
+    - stylua: https://github.com/JohnnyMorganz/StyLua/releases
+    - quarto: https://github.com/quarto-dev/quarto-cli/releases
+    - zoxide: https://github.com/ajeetdsouza/zoxide/releases
 
----
+    ---
 
 ## no sudo notes
 
-without sudo everything installs to `~/.local/bin`. you need to add it to PATH manually — the script does not do this permanently. add to your `~/.bashrc`:
+    without sudo everything installs to `~/.local/bin`. you need to add it to PATH manually — the script does not do this permanently. add to your `~/.bashrc`:
 
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
+    ```bash
+    export PATH="$HOME/.local/bin:$PATH"
+    ```
 
-**node** is always installed via nvm regardless of sudo — it adds itself to `~/.bashrc` automatically.
+    **node** is always installed via nvm regardless of sudo — it adds itself to `~/.bashrc` automatically.
 
-**latex and imagemagick** require sudo — they will be skipped if you don't have it.
+    **latex and imagemagick** require sudo — they will be skipped if you don't have it.
 
----
+    ---
 
 ## rocky / rhel notes
 
-Rocky 8 ships with glibc 2.28 which is too old to run the prebuilt nvim appimage. the script detects this automatically and prompts to build nvim from source instead (~10 minutes). you need `gcc` and `cmake` available:
+    Rocky 8 ships with glibc 2.28 which is too old to run the prebuilt nvim appimage. the script detects this automatically and prompts to build nvim from source instead (~10 minutes). you need `gcc` and `cmake` available:
 
-```bash
-gcc --version
-cmake --version
-```
+    ```bash
+    gcc --version
+    cmake --version
+    ```
 
-if the source build fails on luarocks, the script retries with `USE_BUNDLED_LUAROCKS=OFF` which fixes the luarocks manifest issue on older systems.
+    if the source build fails on luarocks, the script retries with `USE_BUNDLED_LUAROCKS=OFF` which fixes the luarocks manifest issue on older systems.
 
-after a source build you need `VIMRUNTIME` set — add to your nvim wrapper function in `~/.bash_local` or `~/.bashrc`:
+    after a source build you need `VIMRUNTIME` set — add to your nvim wrapper function in `~/.bash_local` or `~/.bashrc`:
 
-```bash
-nvim() {
-    VIMRUNTIME="$HOME/.local/share/nvim/runtime" command nvim "$@"
-}
+    ```bash
+    nvim() {
+        VIMRUNTIME="$HOME/.local/share/nvim/runtime" command nvim "$@"
+    }
 ```
 
 ripgrep is not in Rocky's default repos — the script falls back to downloading the binary automatically.
