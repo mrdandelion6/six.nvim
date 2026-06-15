@@ -517,6 +517,14 @@ return {
       end, { buffer = input_buf })
 
       vim.keymap.set('i', '<Esc>', function()
+        vim.cmd 'stopinsert'
+      end, { buffer = input_buf })
+
+      vim.keymap.set('n', '<Esc>', function()
+        close_all()
+      end, { buffer = input_buf })
+
+      vim.keymap.set('n', 'q', function()
         close_all()
       end, { buffer = input_buf })
 
@@ -531,7 +539,19 @@ return {
     end, { desc = '[/] Fuzzily search in current buffer' })
 
     vim.keymap.set('n', '<leader>f/', function()
-      fzf.live_grep { grep_open_files = true, prompt = 'Live Grep in Open Files> ' }
+      local open_files = {}
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) then
+          local name = vim.api.nvim_buf_get_name(buf)
+          if name ~= '' then
+            table.insert(open_files, name)
+          end
+        end
+      end
+      fzf.live_grep {
+        prompt = 'Live Grep in Open Files> ',
+        search_paths = open_files,
+      }
     end, { desc = '[F]ind [/] in Open Files' })
   end,
 }
