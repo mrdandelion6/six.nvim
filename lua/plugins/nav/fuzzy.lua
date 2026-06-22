@@ -398,7 +398,9 @@ return {
           end)
           return
         end
-        vim.fn.jobstart('zoxide query --list ' .. vim.fn.shellescape(query) .. ' 2>/dev/null | head -3', {
+        local words = vim.split(query, '%s+', { trimempty = true })
+        local kw = table.concat(vim.tbl_map(vim.fn.shellescape, words), ' ')
+        vim.fn.jobstart('zoxide query --list -- ' .. kw .. ' 2>/dev/null | head -3', {
           stdout_buffered = true,
           on_stdout = function(_, data)
             vim.schedule(function()
@@ -466,7 +468,9 @@ return {
             return
           end
           -- fallback to zoxide
-          local handle = io.popen('zoxide query ' .. vim.fn.shellescape(query) .. ' 2>/dev/null')
+          local words = vim.split(query, '%s+', { trimempty = true })
+          local kw = table.concat(vim.tbl_map(vim.fn.shellescape, words), ' ')
+          local handle = io.popen('zoxide query -- ' .. kw .. ' 2>/dev/null')
           if handle then
             local result = handle:read '*a'
             handle:close()
