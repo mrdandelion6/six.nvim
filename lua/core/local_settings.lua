@@ -38,13 +38,13 @@ elseif verify_settings_format(settings) == 0 then
   vim.g.local_settings = settings
 end
 
--- read keyboard layout from separate file
+-- apply local settings
 if vim.g.local_settings then
+  -- read keyboard layout from separate file
   local success, layout = pcall(function()
     local path = vim.g.local_settings.keyboard_layout_path
     return vim.trim(vim.fn.readfile(path)[1])
   end)
-
   if not success then
     print('ERROR (local_settings.lua): issue parsing layout file: ' .. layout)
   else
@@ -52,9 +52,12 @@ if vim.g.local_settings then
     settings.keyboard_layout = layout
     vim.g.local_settings = settings
   end
-end
 
--- python virtual environment for any deps
-if vim.g.local_settings then
+  -- python virtual environment for any deps
   vim.g.python3_host_prog = vim.g.local_settings.venv_path .. 'neovim/bin/python'
+
+  -- custom shell
+  if vim.g.local_settings.shell then
+    vim.o.shell = vim.g.local_settings.shell
+  end
 end
