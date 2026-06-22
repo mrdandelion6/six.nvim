@@ -5,6 +5,13 @@ vim.schedule(function()
 
   -- osc 52 clipboard — works over ssh with no extra tools
   if vim.env.SSH_TTY ~= nil or vim.env.SSH_CONNECTION ~= nil then
+    -- wezterm honors osc 52 copy (write) but not paste (read): the paste
+    -- handler queries the terminal and blocks waiting for a reply that never
+    -- comes. read from the unnamed register instead so paste never hangs.
+    local function paste()
+      return vim.split(vim.fn.getreg '"', '\n')
+    end
+
     vim.g.clipboard = {
       name = 'OSC 52',
       copy = {
@@ -12,8 +19,8 @@ vim.schedule(function()
         ['*'] = require('vim.ui.clipboard.osc52').copy '*',
       },
       paste = {
-        ['+'] = require('vim.ui.clipboard.osc52').paste '+',
-        ['*'] = require('vim.ui.clipboard.osc52').paste '*',
+        ['+'] = paste,
+        ['*'] = paste,
       },
     }
   end
