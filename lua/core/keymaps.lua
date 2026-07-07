@@ -1,3 +1,34 @@
+-- NOTE: below are colemak remaps
+-- [x] = y means x now does what y did originally
+local remaps = {
+  ['k'] = 'h',
+  ['n'] = 'j',
+  ['e'] = 'k',
+  ['i'] = 'l',
+
+  ['K'] = 'H',
+  ['N'] = 'J',
+  ['E'] = 'K',
+  ['I'] = 'L',
+
+  -- notice, these are not symmetrical to above
+  ['h'] = 'n',
+  ['j'] = 'e',
+  ['l'] = 'i',
+
+  ['H'] = 'N',
+  ['J'] = 'E',
+  ['L'] = 'I',
+}
+
+local function alert_key_layout_change()
+  -- send an alert that other plugins can act on to change their binds
+  vim.api.nvim_exec_autocmds('User', {
+    pattern = 'KeyboardLayoutChanged',
+    modeline = false,
+  })
+end
+
 -- buffer jumping
 local function buf_jump_set(set, remove)
   -- set: a 4 letter string like 'knei' or 'hjkl'
@@ -31,26 +62,6 @@ local function set_layout_persistence(new_layout)
 end
 
 local function enable_colemak()
-  local remaps = {
-    ['k'] = 'h',
-    ['n'] = 'j',
-    ['e'] = 'k',
-    ['i'] = 'l',
-
-    ['K'] = 'H',
-    ['N'] = 'J',
-    ['E'] = 'K',
-    ['I'] = 'L',
-
-    -- notice, these are not symmetrical to above
-    ['h'] = 'n',
-    ['j'] = 'e',
-    ['l'] = 'i',
-
-    ['H'] = 'N',
-    ['J'] = 'E',
-    ['L'] = 'I',
-  }
   -- ALL MODES
   for _, mode in ipairs { 'n', 'v', 'o' } do
     -- NOTE: (x -> y) means: y now does what x did
@@ -99,24 +110,6 @@ local function enable_colemak()
   -- return to next position
   vim.keymap.set('n', '<C-l>', '<C-i>')
 
-  -- set visual-multi maps
-  vim.g.VM_maps = {
-    ['Find Under'] = '<Leader>ah',
-    ['Find Subword Under'] = '<Leader>ah',
-    ['Add Cursor Down'] = '<Leader>an',
-    ['Add Cursor Up'] = '<Leader>ae',
-    ['Next'] = 'h',
-    ['Prev'] = 'H',
-    ['i'] = remaps['i'],
-    ['I'] = remaps['I'],
-  }
-  vim.g.VM_custom_motions = {
-    ['k'] = remaps['k'],
-    ['n'] = remaps['n'], -- FIXME: figure out why 'n' won't work for down movement
-    ['e'] = remaps['e'],
-    ['i'] = remaps['i'],
-  }
-
   -- set persistence in .localsettings.json
   set_layout_persistence 'colemak'
   local settings = vim.g.local_settings
@@ -149,16 +142,6 @@ local function enable_qwerty(startup)
 
   -- set K to be lsp hover
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = 'LSP Hover' })
-
-  -- set visual-multi maps
-  vim.g.VM_maps = {
-    ['Find Under'] = '<Leader>an',
-    ['Find Subword Under'] = '<Leader>an',
-    ['Add Cursor Down'] = '<Leader>aj',
-    ['Add Cursor Up'] = '<Leader>ak',
-    ['Next'] = 'n',
-    ['Prev'] = 'N',
-  }
 
   set_layout_persistence 'qwerty'
   local settings = vim.g.local_settings
@@ -197,7 +180,9 @@ local function start_layout()
     enable_qwerty(1)
   else
     print('ERROR (keymaps.lua): unexpected settings layout: ' .. settings.keyboard_layout)
+    return
   end
+  alert_key_layout_change()
 end
 
 local function disable_yanks()
@@ -214,7 +199,7 @@ end
 local function set_message_maps()
   -- copy the most recent message
   vim.api.nvim_set_keymap(
-    'n',          -- normal mode
+    'n', -- normal mode
     '<leader>mm', -- key combination
     "<cmd>lua require('core.utils').copy_recent_message()<CR>",
     {
@@ -278,10 +263,14 @@ local function toggle_keyboard_layout()
   elseif settings.keyboard_layout == 'qwerty' then -- add colemak mappings, we are toggling it on
     enable_colemak()
   else
-    print('unexpected settings layout: ' .. settings.keyboard_layout)
+    print('ERROR (keymaps.lua): unexpected settings layout: ' .. settings.keyboard_layout)
   end
+
+  alert_key_layout_change()
 end
 
 -- create a command to toggle layouts
 vim.api.nvim_create_user_command('ToggleKeyLayout', toggle_keyboard_layout, {})
 vim.keymap.set('n', '<leader>tk', ':ToggleKeyLayout<CR>', { desc = '[T]oggle [K]eyboard Layout' })
+
+return remaps
