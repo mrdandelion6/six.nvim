@@ -95,7 +95,7 @@ return {
         ['g?'] = 'actions.show_help',
         ['<CR>'] = 'actions.select',
         ['<C-s>'] = { 'actions.select', opts = { vertical = true }, desc = 'open the entry in a vertical split' },
-        ['<C-h>'] = { 'actions.select', opts = { horizontal = true }, desc = 'open the entry in a horizontal split' },
+        ['<C-h>'] = false, -- im tryna nav panes lil bro
         ['<C-t>'] = { 'actions.select', opts = { tab = true }, desc = 'open the entry in new tab' },
         ['<C-p>'] = 'actions.preview',
         ['<C-c>'] = 'actions.close',
