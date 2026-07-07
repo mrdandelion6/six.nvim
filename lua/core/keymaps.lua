@@ -103,8 +103,8 @@ local function enable_colemak()
   -- NORMAL MODE ONLY
   vim.keymap.set('n', 'l', remaps['l'], { desc = 'Insert mode' })
 
-  -- OPERATOR MODE ONLY
-  vim.keymap.set('o', 'l', remaps['l'], { desc = 'Inner' })
+  -- OPERATOR AND VISUAL MODE
+  vim.keymap.set({ 'o', 'v' }, 'l', remaps['l'], { desc = 'Inner' })
 
   buf_jump_set('knei', 'hjkl')
   -- return to next position
@@ -132,7 +132,7 @@ local function enable_qwerty(startup)
     vim.keymap.del({ 'n', 'v', 'o' }, 'I')
     vim.keymap.del({ 'n', 'v' }, 'h')
     vim.keymap.del({ 'n', 'v', 'o' }, 'j')
-    vim.keymap.del({ 'n', 'o' }, 'l')
+    vim.keymap.del({ 'n', 'o', 'v' }, 'l')
     vim.keymap.del({ 'n', 'v' }, 'H')
     vim.keymap.del({ 'n', 'v', 'o' }, 'J')
     vim.keymap.del({ 'n', 'v' }, 'L')
