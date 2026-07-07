@@ -20,24 +20,6 @@ local function buf_jump_set(set, remove)
   vim.keymap.set('n', '<C-' .. c .. '>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 end
 
-local function set_telescope_binds(binds)
-  vim.g.telescope_maps = binds
-  local telescope_loaded = pcall(function()
-    return require('lazy.core.config').plugins['telescope.nvim'].loaded
-  end)
-  if telescope_loaded then
-    vim.cmd 'doautocmd User TelescopeMapsChanged'
-  else
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'TelescopeLoaded',
-      callback = function()
-        vim.cmd 'doautocmd User TelescopeMapsChanged'
-      end,
-      once = true,
-    })
-  end
-end
-
 local function set_layout_persistence(new_layout)
   local layout_path = vim.g.local_settings.keyboard_layout_path
   local success = pcall(function()
@@ -117,19 +99,6 @@ local function enable_colemak()
   -- return to next position
   vim.keymap.set('n', '<C-l>', '<C-i>')
 
-  -- set telescope to colemak mappings
-  local telescope_maps = {
-    i = {
-      ['<C-n>'] = 'move_selection_next',
-      ['<C-e>'] = 'move_selection_previous',
-    },
-    n = {
-      ['n'] = 'move_selection_next',
-      ['e'] = 'move_selection_previous',
-    },
-  }
-  set_telescope_binds(telescope_maps)
-
   -- set visual-multi maps
   vim.g.VM_maps = {
     ['Find Under'] = '<Leader>ah',
@@ -180,19 +149,6 @@ local function enable_qwerty(startup)
 
   -- set K to be lsp hover
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, { desc = 'LSP Hover' })
-
-  -- set telescope to default qwerty mappings
-  local telescope_maps = {
-    i = {
-      ['<C-j>'] = 'move_selection_next',
-      ['<C-k>'] = 'move_selection_previous',
-    },
-    n = {
-      ['j'] = 'move_selection_next',
-      ['k'] = 'move_selection_previous',
-    },
-  }
-  set_telescope_binds(telescope_maps)
 
   -- set visual-multi maps
   vim.g.VM_maps = {
@@ -315,7 +271,7 @@ set_message_maps()
 disable_yanks()
 
 -- function to toggle between layouts: <leader>tc
-local function toggle_colemak()
+local function toggle_keyboard_layout()
   local settings = vim.g.local_settings
   if settings.keyboard_layout == 'colemak' then
     enable_qwerty()
@@ -327,5 +283,5 @@ local function toggle_colemak()
 end
 
 -- create a command to toggle layouts
-vim.api.nvim_create_user_command('ToggleColemak', toggle_colemak, {})
-vim.keymap.set('n', '<leader>tc', ':ToggleColemak<CR>', { desc = '[T]oggle [C]olemak Layout' })
+vim.api.nvim_create_user_command('ToggleKeyLayout', toggle_keyboard_layout, {})
+vim.keymap.set('n', '<leader>tk', ':ToggleKeyLayout<CR>', { desc = '[T]oggle [K]eyboard Layout' })
