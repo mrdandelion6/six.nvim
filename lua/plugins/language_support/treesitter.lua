@@ -1,13 +1,18 @@
 return {
   'nvim-treesitter/nvim-treesitter',
+  branch = 'master',
+
   build = ':TSUpdate',
   dependencies = {
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    -- 'nvim-treesitter/playground',
+    {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+      branch = 'master',
+    },
   },
+
   config = function()
     ---@diagnostic disable-next-line: missing-fields
-    require('nvim-treesitter.config').setup {
+    require('nvim-treesitter.configs').setup {
       ensure_installed = {
         'bash',
         'c',
@@ -29,12 +34,8 @@ return {
 
       highlight = {
         enable = true,
-        additional_vim_regex_highlighting = { 'ruby' },
       },
-
-      indent = { enable = true, disable = { 'ruby' } },
-
-      -- playground = { enable = true, },
+      indent = { enable = true },
 
       textobjects = {
         select = {
@@ -42,9 +43,7 @@ return {
           lookahead = true,
           keymaps = {
             ['af'] = { query = '@function.outer', desc = '[A]round [F]unction' },
-            ['if'] = { query = '@function.inner', desc = '[I]nside [F]unction' },
-            ['ac'] = { query = '@code_cell.inner', desc = '[A]round [C]ode cell' },
-            ['ic'] = { query = '@code_cell.inner', desc = '[I]nside [C]ode cell' },
+            ['ac'] = { query = '@code_cell.outer', desc = '[A]round [C]ode cell' },
           },
         },
         move = {
@@ -69,5 +68,55 @@ return {
         },
       },
     }
+
+    -- NOTE: for changing keymap layouts we have the below
+    local select = require 'nvim-treesitter.textobjects.select'
+
+    local function set_layout_textobjects()
+      if vim.g.local_settings == nil then
+        print 'ERROR (treesitter.lua): vim.g.local_settings is nil'
+        return
+      end
+
+      local layout = vim.g.local_settings.keyboard_layout
+      if layout == nil then
+        print 'ERROR (treesitter.lua): vim.g.local_settings.keyboard_layout is nil'
+        return
+      end
+
+      local new_prefix
+      local old_prefix
+
+      if layout == 'colemak' then
+        new_prefix = 'l'
+        old_prefix = 'i'
+      elseif layout == 'qwerty' then
+        new_prefix = 'i'
+        old_prefix = 'l'
+      else
+        return
+      end
+
+      pcall(vim.keymap.del, { 'x', 'o' }, old_prefix .. 'f')
+      pcall(vim.keymap.del, { 'x', 'o' }, old_prefix .. 'c')
+
+      vim.keymap.set({ 'x', 'o' }, new_prefix .. 'f', function()
+        select.select_textobject('@function.inner', 'textobjects')
+      end, { desc = 'Inside Function' })
+
+      vim.keymap.set({ 'x', 'o' }, new_prefix .. 'c', function()
+        select.select_textobject('@code_cell.inner', 'textobjects')
+      end, { desc = 'Inside Code cell' })
+    end
+
+    local group = vim.api.nvim_create_augroup('treesitter_keyboard_layout', { clear = true })
+
+    vim.api.nvim_create_autocmd('User', {
+      group = group,
+      pattern = 'KeyboardLayoutChanged',
+      callback = set_layout_textobjects,
+    })
+
+    set_layout_textobjects()
   end,
 }
