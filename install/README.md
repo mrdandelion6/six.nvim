@@ -3,7 +3,6 @@
 ## quick start
 
 ```bash
-chmod +x install/bootstrap.sh
 ./install/bootstrap.sh
 ```
 
@@ -13,7 +12,7 @@ supports **Arch**, **Ubuntu/Debian**, and **Rocky/RHEL**. works with and without
 
 ## what gets installed
 
-### always installed
+### always installed (required)
 - **neovim** — with sudo: tarball to `/opt/nvim`. without sudo: appimage to `~/.local/nvim-appimage`, or built from source if glibc is too old
 - **node** — via nvm, installed to `~/.nvm` (no sudo needed)
 - **python3** — system install if missing (needs sudo)
@@ -27,6 +26,15 @@ supports **Arch**, **Ubuntu/Debian**, and **Rocky/RHEL**. works with and without
 ### optional (prompted during install)
 - **latex**: texlive, zathura, inkscape — needs sudo
 - **molten/jupyter**: imagemagick, luarocks, python venv at `~/.envs/neovim`, quarto
+
+if you didn't install these initially during `bootstrap.sh` , but change your mind later , you can just run their respective scripts:
+
+```sh
+./install/latex.sh
+./install/molten.sh
+```
+
+but make sure you already set up the required deps before running these.
 
 ---
 
@@ -81,7 +89,7 @@ after a source build you need `VIMRUNTIME` set — add to your nvim wrapper func
 
 ```bash
 nvim() {
-    VIMRUNTIME="$HOME/.local/share/nvim/runtime" command nvim "$@"
+VIMRUNTIME="$HOME/.local/share/nvim/runtime" command nvim "$@"
 }
 ```
 
