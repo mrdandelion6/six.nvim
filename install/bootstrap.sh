@@ -544,7 +544,7 @@ install_latex() {
     warn "you'll need texlive, zathura, and inkscape installed by your sysadmin"
   fi
 
-  update_local_settings "molten_support" "True"
+  update_local_settings "latex_support" "True"
 }
 
 # ============================================================
