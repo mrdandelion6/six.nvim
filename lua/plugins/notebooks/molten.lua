@@ -1,4 +1,4 @@
-if not vim.g_local_settings or not vim.g.local_settings.molten_support then
+if not vim.g.local_settings or not vim.g.local_settings.molten_support then
   return {}
 end
 
