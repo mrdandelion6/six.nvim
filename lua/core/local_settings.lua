@@ -33,6 +33,10 @@ end)
 if not success then
   print('ERROR (local_settings.lua): issue parsing json file: ' .. settings)
 elseif verify_settings_format(settings) == 0 then
+  if type(settings.keyboard_layout_path) ~= 'string' then
+    print 'WARNING (local_settings.lua): settings.keyboard_layout_path not set, defaulting to ~/.config/editor/layout'
+    settings.keyboard_layout_path = '~/.config/editor/layout'
+  end
   settings.keyboard_layout_path = vim.fn.expand(settings.keyboard_layout_path)
   settings.keyboard_layout = 'qwerty'
   vim.g.local_settings = settings

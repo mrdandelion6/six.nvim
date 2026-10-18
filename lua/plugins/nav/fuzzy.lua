@@ -139,7 +139,6 @@ return {
       },
     }
 
-    fzf.register_ui_select()
     vim.api.nvim_set_hl(0, 'FzfLuaBorder', { fg = colors.lighter_pink })
     vim.api.nvim_set_hl(0, 'FzfLuaPreviewBorder', { fg = colors.lighter_pink })
     vim.api.nvim_set_hl(0, 'FzfLuaTitle', { fg = colors.lighter_pink })
