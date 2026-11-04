@@ -34,6 +34,7 @@ you will generally need the following dependencies installed and on PATH:
 - zoxide
 
 you can do a quick install for one of the following distros by just running [boostrap.sh](install/boostrap.sh):
+
 - Arch
 - Ubuntu
 - Rocky

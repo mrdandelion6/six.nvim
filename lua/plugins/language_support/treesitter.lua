@@ -1,76 +1,95 @@
 return {
   'nvim-treesitter/nvim-treesitter',
-  branch = 'master',
+  branch = 'main',
+  lazy = false, -- the main branch does not support lazy-loading
 
   build = ':TSUpdate',
   dependencies = {
     {
       'nvim-treesitter/nvim-treesitter-textobjects',
-      branch = 'master',
+      branch = 'main',
     },
   },
 
   config = function()
-    ---@diagnostic disable-next-line: missing-fields
-    require('nvim-treesitter.configs').setup {
-      ensure_installed = {
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'query',
-        'vim',
-        'vimdoc',
-        'python',
-        'javascript',
-        'json',
-        'yaml',
-      },
-      auto_install = true,
+    local ts = require 'nvim-treesitter'
 
-      highlight = {
-        enable = true,
-      },
-      indent = { enable = true },
-
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ['af'] = { query = '@function.outer', desc = '[A]round [F]unction' },
-            ['ac'] = { query = '@code_cell.outer', desc = '[A]round [C]ode cell' },
-          },
-        },
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            [']f'] = { query = '@function.outer', desc = 'Next [F]unction start' },
-            [']]'] = { query = '@code_cell.inner', desc = 'Next [C]ode cell start' },
-          },
-          goto_next_end = {
-            [']F'] = { query = '@function.outer', desc = 'Next [F]unction end' },
-            [']['] = { query = '@code_cell.inner', desc = 'Next [C]ode cell end' },
-          },
-          goto_previous_start = {
-            ['[f'] = { query = '@function.outer', desc = 'Previous [F]unction start' },
-            ['[['] = { query = '@code_cell.inner', desc = 'Previous [C]ode cell start' },
-          },
-          goto_previous_end = {
-            ['[F'] = { query = '@function.outer', desc = 'Previous [F]unction end' },
-            ['[]'] = { query = '@code_cell.inner', desc = 'Previous [C]ode cell end' },
-          },
-        },
-      },
+    -- parsers -----------------------------------------------------------------
+    ts.install {
+      'bash',
+      'c',
+      'diff',
+      'html',
+      'lua',
+      'luadoc',
+      'markdown',
+      'markdown_inline',
+      'query',
+      'vim',
+      'vimdoc',
+      'python',
+      'javascript',
+      'json',
+      'yaml',
     }
 
-    -- NOTE: for changing keymap layouts we have the below
-    local select = require 'nvim-treesitter.textobjects.select'
+    -- highlight / indent / auto_install ---------------------------------------
+    local available = nil -- cached list of installable parsers
+
+    local function enable_features(buf)
+      if not vim.api.nvim_buf_is_valid(buf) then
+        return
+      end
+      if pcall(vim.treesitter.start, buf) then
+        vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end
+    end
+
+    vim.api.nvim_create_autocmd('FileType', {
+      group = vim.api.nvim_create_augroup('treesitter_features', { clear = true }),
+      callback = function(args)
+        local buf = args.buf
+        local lang = vim.treesitter.language.get_lang(args.match)
+        if not lang then
+          return
+        end
+
+        -- Parser already present: just start it.
+        if vim.treesitter.language.add(lang) then
+          enable_features(buf)
+          return
+        end
+
+        -- Replaces `auto_install = true`: install a missing parser if
+        -- nvim-treesitter knows about it, then start it in this buffer.
+        available = available or ts.get_available()
+        if vim.list_contains(available, lang) then
+          ts.install(lang):await(function(err)
+            if not err then
+              vim.schedule(function()
+                enable_features(buf)
+              end)
+            end
+          end)
+        end
+      end,
+    })
+
+    -- textobjects -------------------------------------------------------------
+    require('nvim-treesitter-textobjects').setup {
+      select = { lookahead = true },
+      move = { set_jumps = true },
+    }
+
+    local ts_select = require 'nvim-treesitter-textobjects.select'
+
+    vim.keymap.set({ 'x', 'o' }, 'af', function()
+      ts_select.select_textobject('@function.outer', 'textobjects')
+    end, { desc = '[A]round [F]unction' })
+
+    vim.keymap.set({ 'x', 'o' }, 'ac', function()
+      ts_select.select_textobject('@code_cell.outer', 'textobjects')
+    end, { desc = '[A]round [C]ode cell' })
 
     local function set_layout_textobjects()
       if vim.g.local_settings == nil then
@@ -99,6 +118,8 @@ return {
 
       pcall(vim.keymap.del, { 'x', 'o' }, old_prefix .. 'f')
       pcall(vim.keymap.del, { 'x', 'o' }, old_prefix .. 'c')
+
+      local select = require 'nvim-treesitter-textobjects.select'
 
       vim.keymap.set({ 'x', 'o' }, new_prefix .. 'f', function()
         select.select_textobject('@function.inner', 'textobjects')
