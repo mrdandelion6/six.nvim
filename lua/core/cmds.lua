@@ -39,7 +39,14 @@ vim.api.nvim_create_user_command('Yp', function()
   local path = vim.fn.expand '%:p:h'
   vim.fn.setreg('+', path)
   print('Yanked path: ' .. path)
-end, {})
+end, { desc = 'Yank path the buffer lives in' })
+
+-- yank full path of current file
+vim.api.nvim_create_user_command('Yf', function()
+  local path = vim.fn.expand '%:p'
+  vim.fn.setreg('+', path)
+  print('Yanked file path: ' .. path)
+end, { desc = 'Yank full path of the current file' })
 
 -- highlight when yanking (copying) text
 vim.api.nvim_create_autocmd('TextYankPost', {
