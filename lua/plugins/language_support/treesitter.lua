@@ -157,7 +157,7 @@ return {
     set_moves()
 
     -- nvim's runtime ftplugin/markdown.lua sets buffer-local ]] / [[ (jump to
-    -- heading) which shadow the global ones. re-apply ours buffer-locally,
+    -- heading) which shadow the global ones. re-apply ours buffer-locally ,
     -- scheduled so it runs after the ftplugin.
     vim.api.nvim_create_autocmd('FileType', {
       group = vim.api.nvim_create_augroup('treesitter_cell_moves', { clear = true }),

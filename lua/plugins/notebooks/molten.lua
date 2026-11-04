@@ -39,7 +39,12 @@ return {
     vim.g.molten_enter_output_behavior = 'open_and_enter'
 
     -- initialize molten
-    vim.keymap.set('n', '<localleader>ri', ':MoltenInit<CR>', { desc = 'Molten [R] [I]nitialize', silent = true })
+    vim.keymap.set(
+      'n',
+      '<localleader>ri',
+      ':MoltenInit<CR>',
+      { desc = 'Molten [R] [I]nitialize', silent = true }
+    )
 
     -- keymaps that only appear after molten init
     vim.api.nvim_create_autocmd('User', {
@@ -55,20 +60,47 @@ return {
           **********************************************************************
           --]]
 
-        vim.keymap.set('n', '<localleader>rc', r.run_cell, { desc = 'run cell', silent = true })
-        vim.keymap.set('n', '<localleader>rA', r.run_all, { desc = 'Molten [R]un [A]ll Cells', silent = true })
+        vim.keymap.set(
+          'n',
+          '<localleader>rc',
+          r.run_cell,
+          { desc = 'Molten [R]un [C]ell', silent = true }
+        )
+        vim.keymap.set(
+          'n',
+          '<localleader>rA',
+          r.run_all,
+          { desc = 'Molten [R]un [A]ll Cells', silent = true }
+        )
         vim.keymap.set('n', '<localleader>RA', function()
           r.run_all(true)
         end, { desc = 'Molten [R]un [A]ll Cells of All Languages', silent = true })
 
         -- setup some molten specific keybindings
-        vim.keymap.set('v', '<localleader>rv', ':<C-u>MoltenEvaluateVisual<CR>gv',
-          { silent = true, desc = 'Molten [R]un [V]isual' })
-        vim.keymap.set('n', '<localleader>ro', ':noautocmd MoltenEnterOutput<CR>',
-          { desc = 'Molten [R] Open [O]utput', silent = true })
-        vim.keymap.set('n', '<localleader>rp', ':MoltenImagePopup<CR>',
-          { desc = 'Molten [R] [P]op Image', silent = true })
-        vim.keymap.set('n', '<localleader>rd', ':MoltenDelete<CR>', { desc = 'Molten [R] [D]elete Cell', silent = true })
+        vim.keymap.set(
+          'v',
+          '<localleader>rv',
+          ':<C-u>MoltenEvaluateVisual<CR>gv',
+          { silent = true, desc = 'Molten [R]un [V]isual' }
+        )
+        vim.keymap.set(
+          'n',
+          '<localleader>ro',
+          ':noautocmd MoltenEnterOutput<CR>',
+          { desc = 'Molten [R] Open [O]utput', silent = true }
+        )
+        vim.keymap.set(
+          'n',
+          '<localleader>rp',
+          ':MoltenImagePopup<CR>',
+          { desc = 'Molten [R] [P]op Image', silent = true }
+        )
+        vim.keymap.set(
+          'n',
+          '<localleader>rd',
+          ':MoltenDelete<CR>',
+          { desc = 'Molten [R] [D]elete Cell', silent = true }
+        )
 
         local open = false
         vim.keymap.set('n', '<localleader>rt', function()
