@@ -57,4 +57,20 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
   end,
 })
 
+-- open the real file when editing a symlink (so fugitive/gitsigns see the repo)
+vim.api.nvim_create_autocmd('BufReadPost', {
+  desc = 'Resolve symlinks to their real path',
+  group = vim.api.nvim_create_augroup('resolve_symlinks', { clear = true }),
+  callback = function(ev)
+    local path = vim.api.nvim_buf_get_name(ev.buf)
+    local real = vim.uv.fs_realpath(path)
+    if real and real ~= path then
+      vim.schedule(function()
+        vim.cmd('keepalt edit ' .. vim.fn.fnameescape(real))
+        pcall(vim.cmd, 'bwipeout ' .. ev.buf)
+      end)
+    end
+  end,
+})
+
 -- TODO: add commands and keymaps for C++ compilation
