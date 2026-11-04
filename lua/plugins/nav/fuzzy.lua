@@ -152,6 +152,7 @@ return {
 
     vim.keymap.set('n', '<leader>fh', fzf.help_tags, { desc = '[F]ind [H]elp' })
     vim.keymap.set('n', '<leader>fk', fzf.keymaps, { desc = '[F]ind [K]eymaps' })
+    vim.keymap.set('n', '<leader>fc', fzf.commands, { desc = '[F]ind [C]ommands' })
     vim.keymap.set('n', '<leader>fs', fzf.builtin, { desc = '[F]ind [S]pecific finder' })
     vim.keymap.set('n', '<leader>fw', fzf.grep_cword, { desc = '[F]ind [W]ord under cursor' })
 
