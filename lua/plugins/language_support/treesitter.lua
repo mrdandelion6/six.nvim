@@ -41,7 +41,12 @@ return {
         return
       end
       if pcall(vim.treesitter.start, buf) then
-        vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        -- only use treesitter indent if the language ships an indents query;
+        -- otherwise keep the filetype's own indentexpr
+        local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+        if lang and vim.treesitter.query.get(lang, 'indents') then
+          vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end
       end
     end
 
@@ -50,17 +55,18 @@ return {
       callback = function(args)
         local buf = args.buf
         local lang = vim.treesitter.language.get_lang(args.match)
-        if not lang then
+        -- latex: let vimtex handle syntax + indent (see :h vimtex-faq-treesitter)
+        if not lang or lang == 'latex' then
           return
         end
 
-        -- Parser already present: just start it.
+        -- parser already present: just start it.
         if vim.treesitter.language.add(lang) then
           enable_features(buf)
           return
         end
 
-        -- Replaces `auto_install = true`: install a missing parser if
+        -- replaces `auto_install = true`: install a missing parser if
         -- nvim-treesitter knows about it, then start it in this buffer.
         available = available or ts.get_available()
         if vim.list_contains(available, lang) then

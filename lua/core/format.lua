@@ -91,6 +91,7 @@ local function format_range(start_line, end_line)
     end
   end
 
+  -- uses vimtex's indentexpr
   local needs_auto_indent = {
     tex = true,
   }
@@ -207,8 +208,18 @@ vim.api.nvim_create_user_command('ToggleFormatOnSaveBuffer', function()
   vim.b.format_on_save = not vim.b.format_on_save
 end, {})
 
-vim.keymap.set('n', '<leader>tf', ':ToggleFormatOnSaveBuffer<CR>', { desc = '[T]oggle [F]ormat on Save for Buffer' })
-vim.keymap.set('n', '<leader>tF', ':ToggleFormatOnSave<CR>', { desc = '[T]oggle [F]ormat on Save Globally' })
+vim.keymap.set(
+  'n',
+  '<leader>tf',
+  ':ToggleFormatOnSaveBuffer<CR>',
+  { desc = '[T]oggle [F]ormat on Save for Buffer' }
+)
+vim.keymap.set(
+  'n',
+  '<leader>tF',
+  ':ToggleFormatOnSave<CR>',
+  { desc = '[T]oggle [F]ormat on Save Globally' }
+)
 
 vim.api.nvim_create_user_command('W', function()
   -- write without autoformat

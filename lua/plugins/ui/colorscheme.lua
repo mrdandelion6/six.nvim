@@ -78,6 +78,29 @@ return {
           ['@number'] = { fg = colors.light_yellow },
 
           ['@module'] = { fg = colors.light_blue },
+
+          -- latex (vimtex regex syntax , not treesitter). see `:h vimtex-syntax`
+          -- and use `:Inspect` on any text to find its group name.
+          texCmd = { fg = colors.light_pink }, -- \foo
+          texCmdEnv = { fg = colors.strong_purple }, -- \begin \end
+          texEnvArgName = { fg = colors.light_red }, -- {itemize}
+          texCmdPart = { fg = colors.vibrant_pink }, -- \section
+          texPartArgTitle = { fg = colors.lightest_pink, bold = true }, -- section title
+          texCmdPackage = { fg = colors.danger_red }, -- \usepackage
+          texCmdClass = { fg = colors.danger_red }, -- \documentclass
+          texFileArg = { fg = colors.light_blue },
+          texCmdRef = { fg = colors.strong_purple }, -- \ref \cite
+          texRefArg = { fg = colors.light_blue }, -- {fig:foo}
+          texOpt = { fg = colors.strong_orange }, -- [options]
+          texArg = { fg = colors.lightest_pink },
+          texCmdItem = { fg = colors.light_purple }, -- \item
+          texMathZone = { fg = colors.light_yellow }, -- $...$ , equation , etc.
+          texMathCmd = { fg = colors.light_pink }, -- \frac \sum
+          texMathDelimZone = { fg = colors.grey }, -- the $ / \[ \] themselves
+          texMathOper = { fg = colors.white },
+          texDelim = { fg = colors.grey }, -- { } [ ]
+          texComment = { fg = colors.grey, italic = true },
+          texSpecialChar = { fg = colors.vibrant_red }, -- \\ ~ &
         },
       }
       vim.cmd.colorscheme 'catppuccin'
