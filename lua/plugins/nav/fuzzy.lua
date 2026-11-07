@@ -253,6 +253,7 @@ return {
 
     vim.keymap.set('n', '<leader>fp', function()
       local root = vim.g.start_dir or '.'
+      local fd_job = nil -- the fd|fzf job for picker instance
 
       local input_buf = vim.api.nvim_create_buf(false, true)
       local results_buf = vim.api.nvim_create_buf(false, true)
@@ -326,7 +327,22 @@ return {
       local selected_idx = 1
       local current_results = {}
 
+      local function stop_fd_job()
+        if fd_job then
+          pcall(vim.fn.jobstop, fd_job) -- pcall: job may have already exited
+          fd_job = nil
+        end
+      end
+
+      -- input_buf is bufhidden=wipe, so this catches every exit path (q, <Esc>, :q, <CR>, window jumps)
+      vim.api.nvim_create_autocmd('BufWipeout', {
+        buffer = input_buf,
+        once = true,
+        callback = stop_fd_job,
+      })
+
       local function close_all()
+        stop_fd_job()
         pcall(vim.api.nvim_win_close, input_win, true)
         pcall(vim.api.nvim_win_close, results_win, true)
         pcall(vim.api.nvim_win_close, zoxide_win, true)
@@ -364,11 +380,13 @@ return {
         else
           cmd = 'fd --type d --hidden --follow . ' .. root .. ' | fzf --filter=' .. vim.fn.shellescape(query) .. ' | head -10'
         end
-        vim.fn.jobstart(cmd, {
+        stop_fd_job() -- kill the previous keystroke's crawl before starting a new one
+        local job
+        job = vim.fn.jobstart(cmd, {
           stdout_buffered = true,
           on_stdout = function(_, data)
-            if not data then
-              return
+            if not data or job ~= fd_job then
+              return -- stale job: ignore so older results can't overwrite newer ones
             end
             current_results = {}
             for _, line in ipairs(data) do
@@ -383,7 +401,13 @@ return {
               update_results_display()
             end)
           end,
+          on_exit = function()
+            if job == fd_job then
+              fd_job = nil
+            end
+          end,
         })
+        fd_job = job
       end
 
       local function refresh_zoxide(query)
