@@ -57,7 +57,9 @@ local function set_layout_persistence(new_layout)
     return vim.fn.writefile({ new_layout }, layout_path)
   end)
   if not success then
-    print('ERROR (keymaps.lua): failed to update persistence for keyboard layout at: ' .. layout_path)
+    print(
+      'ERROR (keymaps.lua): failed to update persistence for keyboard layout at: ' .. layout_path
+    )
   end
 end
 
@@ -230,7 +232,12 @@ end
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- diagnostics
-vim.keymap.set('n', '<leader>dd', vim.diagnostic.open_float, { desc = '[D]isplay [D]iagnostics Under Cursor' })
+vim.keymap.set(
+  'n',
+  '<leader>dd',
+  vim.diagnostic.open_float,
+  { desc = '[D]isplay [D]iagnostics Under Cursor' }
+)
 vim.keymap.set('n', '<leader>dl', vim.diagnostic.setloclist, { desc = 'Open [D]iagnostic [L]ist' })
 vim.keymap.set('n', '<leader>dy', function()
   local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line '.' - 1 })
@@ -289,8 +296,18 @@ local function yank_joined(motion)
   end
 end
 
-vim.keymap.set({ 'n', 'x' }, '<leader>y', yank_joined '', { expr = true, desc = '[Y]ank joined into one line' })
-vim.keymap.set('n', '<leader>yy', yank_joined '_', { expr = true, desc = '[Y]ank line(s) joined into one' })
+vim.keymap.set(
+  { 'n', 'x' },
+  '<leader>y',
+  yank_joined '',
+  { expr = true, desc = '[Y]ank joined into one line' }
+)
+vim.keymap.set(
+  'n',
+  '<leader>yy',
+  yank_joined '_',
+  { expr = true, desc = '[Y]ank line(s) joined into one' }
+)
 
 -- leader <Esc> if you also use vim inside terminal itself (set -o vi)
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })

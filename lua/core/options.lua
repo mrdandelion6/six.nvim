@@ -13,10 +13,10 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 -- tab
-vim.opt.tabstop = 4      -- number of spaces that a <tab> counts for
-vim.opt.shiftwidth = 4   -- number of spaces to use for autoindent
+vim.opt.tabstop = 4 -- number of spaces that a <tab> counts for
+vim.opt.shiftwidth = 4 -- number of spaces to use for autoindent
 vim.opt.expandtab = true -- use spaces instead of tabs
-vim.opt.softtabstop = 4  -- number of spaces that a <tab> counts for while performing editing operations
+vim.opt.softtabstop = 4 -- number of spaces that a <tab> counts for edit operations
 
 -- text wrapping for buffers
 vim.opt.breakindent = true

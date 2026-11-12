@@ -17,7 +17,8 @@ return {
       -- inline images in markdown / quarto / notebook cells. off unless
       -- render_markdown_images is true in .localsettings.json. the plugin itself
       -- still loads since molten uses it for cell output images.
-      local render_md_images = vim.g.local_settings and vim.g.local_settings.render_markdown_images == true
+      local render_md_images = vim.g.local_settings
+        and vim.g.local_settings.render_markdown_images == true
 
       ---@diagnostic disable-next-line: missing-fields
       image.setup {

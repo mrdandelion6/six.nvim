@@ -99,11 +99,19 @@ return {
 
           -- fuzzy find all the symbols in your current document.
           --  symbols are things like variables, functions, types, etc.
-          map('<leader>fs', require('telescope.builtin').lsp_document_symbols, '[F]ind Document [S]ymbols')
+          map(
+            '<leader>fs',
+            require('telescope.builtin').lsp_document_symbols,
+            '[F]ind Document [S]ymbols'
+          )
 
           -- fuzzy find all the symbols in your current workspace.
           --  similar to document symbols, except searches over your entire project.
-          map('<leader>fS', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[F]ind Workspace [S]ymbols')
+          map(
+            '<leader>fS',
+            require('telescope.builtin').lsp_dynamic_workspace_symbols,
+            '[F]ind Workspace [S]ymbols'
+          )
 
           -- rename the variable under your cursor.
           --  most Language Servers support renaming across files, etc.
@@ -120,8 +128,12 @@ return {
           -- the following two autocommands are used to highlight references of the word under your cursor when your cursor rests there for a little while.
           -- when you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
+          if
+            client
+            and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight)
+          then
+            local highlight_augroup =
+              vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
               group = highlight_augroup,
@@ -169,7 +181,8 @@ return {
       --  when you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
       --  so, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      capabilities =
+        vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       -- enable the following language servers
       --  feel free to add/remove any LSPs that you want here. they will automatically be installed.
@@ -274,7 +287,15 @@ return {
         cssls = {},
         ts_ls = {},
         emmet_ls = {
-          filetypes = { 'html', 'typescriptreact', 'javascriptreact', 'css', 'sass', 'scss', 'less' },
+          filetypes = {
+            'html',
+            'typescriptreact',
+            'javascriptreact',
+            'css',
+            'sass',
+            'scss',
+            'less',
+          },
         },
       }
 
@@ -346,7 +367,8 @@ return {
             },
             filetypes = { 'cuda' },
             root_dir = function(fname)
-              return require('lspconfig').util.root_pattern '.git'(fname) or require('lspconfig').util.path.dirname(fname)
+              return require('lspconfig').util.root_pattern '.git'(fname)
+                or require('lspconfig').util.path.dirname(fname)
             end,
             init_options = {
               usePlaceholders = true,

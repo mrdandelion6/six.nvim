@@ -94,7 +94,11 @@ return {
       keymaps = {
         ['g?'] = 'actions.show_help',
         ['<CR>'] = 'actions.select',
-        ['<C-s>'] = { 'actions.select', opts = { vertical = true }, desc = 'open the entry in a vertical split' },
+        ['<C-s>'] = {
+          'actions.select',
+          opts = { vertical = true },
+          desc = 'open the entry in a vertical split',
+        },
         ['<C-h>'] = false, -- im tryna nav panes lil bro
         ['<C-t>'] = { 'actions.select', opts = { tab = true }, desc = 'open the entry in new tab' },
         ['<C-p>'] = 'actions.preview',
@@ -103,7 +107,11 @@ return {
         ['-'] = 'actions.parent',
         ['_'] = 'actions.open_cwd',
         ['`'] = 'actions.cd',
-        ['~'] = { 'actions.cd', opts = { scope = 'tab' }, desc = ':tcd to the current oil directory' },
+        ['~'] = {
+          'actions.cd',
+          opts = { scope = 'tab' },
+          desc = ':tcd to the current oil directory',
+        },
         ['gs'] = 'actions.change_sort',
         ['gx'] = 'actions.open_external',
         ['g.'] = 'actions.toggle_hidden',

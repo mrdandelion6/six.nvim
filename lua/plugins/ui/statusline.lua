@@ -75,7 +75,8 @@ return {
       end
     end
 
-    local term_upd_group = vim.api.nvim_create_augroup('autoload_cmd_lualine_updates', { clear = true })
+    local term_upd_group =
+      vim.api.nvim_create_augroup('autoload_cmd_lualine_updates', { clear = true })
 
     vim.api.nvim_create_autocmd('TermOpen', {
       group = term_upd_group,

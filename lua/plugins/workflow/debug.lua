@@ -167,8 +167,20 @@ return {
     vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
     vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
     local breakpoint_icons = vim.g.have_nerd_font
-    and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
-    or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+        and {
+          Breakpoint = '',
+          BreakpointCondition = '',
+          BreakpointRejected = '',
+          LogPoint = '',
+          Stopped = '',
+        }
+      or {
+        Breakpoint = '●',
+        BreakpointCondition = '⊜',
+        BreakpointRejected = '⊘',
+        LogPoint = '◆',
+        Stopped = '⭔',
+      }
     for type, icon in pairs(breakpoint_icons) do
       local tp = 'Dap' .. type
       local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
@@ -228,8 +240,10 @@ return {
       local executable_dir = vim.fs.joinpath(project_root, executable_path) .. '/'
 
       if vim.fn.isdirectory(executable_dir) ~= 1 then
-        vim.notify("(nvim-dap) The path to check for C++ executable doesn't exist: " .. executable_dir,
-          vim.log.levels.ERROR)
+        vim.notify(
+          "(nvim-dap) The path to check for C++ executable doesn't exist: " .. executable_dir,
+          vim.log.levels.ERROR
+        )
         -- fallback to manual input from project root
         return vim.fn.input('Path to executable: ', project_root .. '/', 'file')
       end
@@ -257,7 +271,9 @@ return {
             print(string.format('%d: %s', i, vim.fn.fnamemodify(exe, ':t')))
           end
 
-          local choice = vim.fn.input('Choose executable (1-' .. #found_executables .. ') or press Enter for first: ')
+          local choice = vim.fn.input(
+            'Choose executable (1-' .. #found_executables .. ') or press Enter for first: '
+          )
           local selected_idx = tonumber(choice) or 1
 
           if selected_idx >= 1 and selected_idx <= #found_executables then
@@ -317,7 +333,7 @@ return {
         end,
         args = cpp_get_args,
         environment = {
-          { name = 'CUDA_LAUNCH_BLOCKING',              value = '1' },
+          { name = 'CUDA_LAUNCH_BLOCKING', value = '1' },
           { name = 'CUDA_DEBUGGER_SOFTWARE_PREEMPTION', value = '1' },
         },
       }),
@@ -344,8 +360,10 @@ return {
         request = 'launch',
         name = 'Launch file',
         showDebugOutput = true,
-        pathBashdb = vim.fn.stdpath 'data' .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir/bashdb',
-        pathBashdbLib = vim.fn.stdpath 'data' .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir',
+        pathBashdb = vim.fn.stdpath 'data'
+          .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir/bashdb',
+        pathBashdbLib = vim.fn.stdpath 'data'
+          .. '/mason/packages/bash-debug-adapter/extension/bashdb_dir',
         trace = true,
         file = '${file}',
         program = '${file}',

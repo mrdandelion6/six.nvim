@@ -57,13 +57,14 @@ function M.get_git_root(return_full_path)
 
   -- use git rev-parse with the current file's directory
 
-  local rev_parse_result = vim.system({ 'git', '-C', current_dir, 'rev-parse', '--show-toplevel' }):wait()
+  local rev_parse_result =
+    vim.system({ 'git', '-C', current_dir, 'rev-parse', '--show-toplevel' }):wait()
 
   -- git rev-parse found no git root
-  local no_git_root_found = (not rev_parse_result)
-  or (rev_parse_result.code ~= 0)
-  or (not rev_parse_result.stdout)
-  or (rev_parse_result.stdout == '')
+  local no_git_root_found = not rev_parse_result
+    or (rev_parse_result.code ~= 0)
+    or not rev_parse_result.stdout
+    or (rev_parse_result.stdout == '')
 
   if no_git_root_found then
     -- cache that this path has no git root

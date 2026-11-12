@@ -15,8 +15,11 @@ end
 local settings_path = vim.fn.stdpath 'config' .. '/.localsettings.json'
 local exists = vim.fn.filereadable(settings_path)
 if exists == 0 then
-  print('WARNING (local_settings.lua): .localsettings.json not found at: ' ..
-    settings_path .. '. generating file from .localsettings_template.json')
+  print(
+    'WARNING (local_settings.lua): .localsettings.json not found at: '
+      .. settings_path
+      .. '. generating file from .localsettings_template.json'
+  )
   local template_path = vim.fn.stdpath 'config' .. '/.localsettings_template.json'
   platform.cp(template_path, settings_path)
   local copy_success = vim.v.shell_error == 0

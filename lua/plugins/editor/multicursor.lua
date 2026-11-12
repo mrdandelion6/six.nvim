@@ -64,7 +64,11 @@ return {
         -- reset VM_custom_motions
         vim.g.VM_custom_motions = vim.empty_dict()
       else
-        print('ERROR (multicursor.lua): vim.g.local_settings.keyboard_layout: ' .. layout .. ' not recognized')
+        print(
+          'ERROR (multicursor.lua): vim.g.local_settings.keyboard_layout: '
+            .. layout
+            .. ' not recognized'
+        )
         return
       end
     end

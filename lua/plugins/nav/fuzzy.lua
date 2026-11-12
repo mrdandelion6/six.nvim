@@ -313,8 +313,16 @@ return {
       })
 
       vim.api.nvim_win_set_option(input_win, 'winhl', 'FloatBorder:FzfLuaBorder')
-      vim.api.nvim_win_set_option(results_win, 'winhl', 'FloatBorder:FzfLuaBorder,Normal:TelescopeNormal')
-      vim.api.nvim_win_set_option(zoxide_win, 'winhl', 'FloatBorder:FzfLuaBorder,Normal:TelescopeNormal')
+      vim.api.nvim_win_set_option(
+        results_win,
+        'winhl',
+        'FloatBorder:FzfLuaBorder,Normal:TelescopeNormal'
+      )
+      vim.api.nvim_win_set_option(
+        zoxide_win,
+        'winhl',
+        'FloatBorder:FzfLuaBorder,Normal:TelescopeNormal'
+      )
 
       vim.api.nvim_buf_set_option(input_buf, 'buftype', 'prompt')
       vim.api.nvim_buf_set_option(input_buf, 'bufhidden', 'wipe')
@@ -361,7 +369,14 @@ return {
         vim.api.nvim_buf_set_lines(results_buf, 0, -1, false, lines)
         vim.api.nvim_buf_clear_namespace(results_buf, -1, 0, -1)
         if #current_results > 0 then
-          vim.api.nvim_buf_add_highlight(results_buf, -1, 'TelescopeSelection', selected_idx - 1, 0, -1)
+          vim.api.nvim_buf_add_highlight(
+            results_buf,
+            -1,
+            'TelescopeSelection',
+            selected_idx - 1,
+            0,
+            -1
+          )
           vim.api.nvim_buf_add_highlight(results_buf, -1, 'FpZoxideArrow', selected_idx - 1, 0, 2)
         end
       end
@@ -378,7 +393,11 @@ return {
         if query == '' then
           cmd = 'fd --type d --hidden --follow . ' .. root .. ' | head -10'
         else
-          cmd = 'fd --type d --hidden --follow . ' .. root .. ' | fzf --filter=' .. vim.fn.shellescape(query) .. ' | head -10'
+          cmd = 'fd --type d --hidden --follow . '
+            .. root
+            .. ' | fzf --filter='
+            .. vim.fn.shellescape(query)
+            .. ' | head -10'
         end
         stop_fd_job() -- kill the previous keystroke's crawl before starting a new one
         local job

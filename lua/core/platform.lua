@@ -70,7 +70,12 @@ function M.cp(src, dst)
       -- Use PowerShell's Copy-Item
       src = escape_path(src)
       dst = escape_path(dst)
-      cmd = powershell_cmd .. ' -NoProfile -Command "Copy-Item -Path ' .. src .. ' -Destination ' .. dst .. ' -Force -Recurse"'
+      cmd = powershell_cmd
+        .. ' -NoProfile -Command "Copy-Item -Path '
+        .. src
+        .. ' -Destination '
+        .. dst
+        .. ' -Force -Recurse"'
     else
       -- Fallback to cmd's copy
       cmd = 'copy /Y "' .. src:gsub('/', '\\') .. '" "' .. dst:gsub('/', '\\') .. '"'
@@ -104,7 +109,12 @@ function M.mv(src, dst)
       -- Use PowerShell's Move-Item
       src = escape_path(src)
       dst = escape_path(dst)
-      cmd = powershell_cmd .. ' -NoProfile -Command "Move-Item -Path ' .. src .. ' -Destination ' .. dst .. ' -Force"'
+      cmd = powershell_cmd
+        .. ' -NoProfile -Command "Move-Item -Path '
+        .. src
+        .. ' -Destination '
+        .. dst
+        .. ' -Force"'
     else
       -- Fallback to cmd's move
       cmd = 'move /Y "' .. src:gsub('/', '\\') .. '" "' .. dst:gsub('/', '\\') .. '"'
