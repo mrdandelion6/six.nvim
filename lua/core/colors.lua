@@ -12,6 +12,7 @@ return {
   vibrant_red = '#ff5f83',
   danger_red = '#e43b53',
 
+  pink = '#f0a4d0',
   lightest_pink = '#ffddff',
   lighter_pink = '#e4abd4',
   light_pink = '#ffb0ff',
@@ -21,7 +22,9 @@ return {
   light_purple = '#a6b2fc',
   strong_purple = '#a68cf0',
 
+  lighter_blue = '#87ceeb',
   light_blue = '#52d7ff',
   strong_blue = '#89b4fa',
   turqouise = '#9effe6',
+  teal = '#7bd5af',
 }
