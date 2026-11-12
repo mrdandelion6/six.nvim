@@ -248,6 +248,50 @@ vim.keymap.set('n', '<leader>dy', function()
   end
 end, { desc = '[D]iagnostic [Y]ank/Copy' })
 
+-- yank as one line: joins wrapped lines from terminals / TUIs / hard-wrapped text.
+-- each line is trimmed and joined with a space (word-wrapped TUI output). in a
+-- terminal buffer, a row that fills the full width was char-wrapped by the
+-- terminal itself (e.g. a long shell command), so it's joined with no space.
+-- works as an operator like y: <leader>y{motion}, <leader>yy, 3<leader>yy, visual <leader>y.
+-- it does a real yank first (so the yank highlight flashes), then rewrites the register.
+local function join_lines(lines)
+  local term_width
+  if vim.bo.buftype == 'terminal' then
+    local info = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
+    term_width = info.width - info.textoff
+  end
+
+  local out = ''
+  local glue = ''
+  for _, line in ipairs(lines) do
+    local trimmed = vim.trim(line)
+    if trimmed ~= '' then
+      out = out .. (out == '' and '' or glue) .. trimmed
+      glue = (term_width and vim.fn.strdisplaywidth(line) >= term_width) and '' or ' '
+    end
+  end
+  return out
+end
+
+function _G.YankJoinedOperator(type)
+  local visual = ({ char = 'v', line = 'V', block = '\22' })[type]
+  vim.cmd('silent normal! `[' .. visual .. '`]y')
+  local out = join_lines(vim.fn.getreg('"', 1, true))
+  for _, reg in ipairs { '"', '0', '+' } do
+    vim.fn.setreg(reg, out, 'v')
+  end
+end
+
+local function yank_joined(motion)
+  return function()
+    vim.o.operatorfunc = 'v:lua.YankJoinedOperator'
+    return 'g@' .. motion
+  end
+end
+
+vim.keymap.set({ 'n', 'x' }, '<leader>y', yank_joined '', { expr = true, desc = '[Y]ank joined into one line' })
+vim.keymap.set('n', '<leader>yy', yank_joined '_', { expr = true, desc = '[Y]ank line(s) joined into one' })
+
 -- leader <Esc> if you also use vim inside terminal itself (set -o vi)
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
