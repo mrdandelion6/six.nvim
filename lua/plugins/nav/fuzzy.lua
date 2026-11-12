@@ -12,6 +12,133 @@ return {
       return not utils.is_hl_cleared(hl) and hl or nil
     end
 
+    --[[
+    **************************************************************************
+                              FILE FINDER (fd)
+    **************************************************************************
+    --]]
+    -- fd only lists paths (never reads contents) , so binaries are skipped by
+    -- extension rather than by inspecting the file.
+
+    -- directories to never descend into (matched by name at any depth)
+    local excluded_dirs = {
+      '.git',
+      'lib',
+      'node_modules',
+      'target',
+      'dist',
+      'build',
+      '.tex',
+      '.cache',
+      '.npm',
+      '.cargo',
+    }
+
+    -- binary / non-text file extensions to hide from the picker. globs are
+    -- case-sensitive, so both lower and upper case variants get excluded
+    local excluded_exts = {
+      -- compiled objects / libraries / executables
+      'o',
+      'obj',
+      'so',
+      'a',
+      'lib',
+      'dll',
+      'dylib',
+      'exe',
+      'bin',
+      'out',
+      'class',
+      'jar',
+      'pyc',
+      'pyo',
+      'wasm',
+      -- images
+      'png',
+      'jpg',
+      'jpeg',
+      'gif',
+      'bmp',
+      'webp',
+      'ico',
+      'tiff',
+      'psd',
+      -- documents
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'ppt',
+      'pptx',
+      -- archives
+      'zip',
+      'tar',
+      'gz',
+      'tgz',
+      'bz2',
+      'xz',
+      'zst',
+      '7z',
+      'rar',
+      'iso',
+      -- audio / video
+      'mp3',
+      'wav',
+      'flac',
+      'ogg',
+      'mp4',
+      'mkv',
+      'mov',
+      'avi',
+      'webm',
+      -- fonts
+      'ttf',
+      'otf',
+      'woff',
+      'woff2',
+      -- databases
+      'sqlite',
+      'db',
+      -- ml models / tensors
+      'gguf',
+      'safetensors',
+      'pt',
+      'pth',
+      'ckpt',
+      'onnx',
+      'h5',
+      'npy',
+      'npz',
+      -- disk / vm images
+      'img',
+      'qcow2',
+      'vmdk',
+      'vdi',
+      'dmg',
+    }
+
+    local function files_cmd()
+      local fd = vim.fn.executable 'fd' == 1 and 'fd' or 'fdfind' -- ubuntu names it fdfind
+      local args = {
+        fd,
+        '--type f',
+        '--hidden',
+        '--follow',
+        '--no-ignore-vcs',
+        '--color never',
+      }
+      for _, dir in ipairs(excluded_dirs) do
+        -- trailing slash: only exclude directories, not files with this name
+        table.insert(args, '--exclude ' .. vim.fn.shellescape(dir .. '/'))
+      end
+      for _, ext in ipairs(excluded_exts) do
+        table.insert(args, '--exclude ' .. vim.fn.shellescape('*.' .. ext))
+        table.insert(args, '--exclude ' .. vim.fn.shellescape('*.' .. ext:upper()))
+      end
+      return table.concat(args, ' ')
+    end
+
     fzf.setup {
       { 'default' },
       fzf_opts = {
@@ -102,35 +229,7 @@ return {
         } or {})
       end,
       files = {
-        cmd = table.concat({
-          'rg',
-          '--files',
-          '--follow',
-          '--hidden',
-          '--no-ignore-vcs',
-          '--max-filesize',
-          '10M',
-          '--glob',
-          '!.git/',
-          '--glob',
-          '!lib/',
-          '--glob',
-          '!node_modules/',
-          '--glob',
-          '!target/',
-          '--glob',
-          '!dist/',
-          '--glob',
-          '!build/',
-          '--glob',
-          '!.tex/',
-          '--glob',
-          '!.cache/',
-          '--glob',
-          '!.npm/',
-          '--glob',
-          '!.cargo/',
-        }, ' '),
+        cmd = files_cmd(),
         multiprocess = true,
       },
       grep = {
