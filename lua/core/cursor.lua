@@ -3,6 +3,11 @@ function Center_cursor()
   if vim.b.scrolloff_processing then
     return
   end
+  -- don't center in a terminal when the cursor is on its last line (nowhere
+  -- further down to go), so the latest output stays at the bottom of the pane
+  if vim.bo.buftype == 'terminal' and vim.fn.line '.' == vim.fn.line '$' then
+    return
+  end
   vim.b.scrolloff_processing = true
 
   -- get cursor and window height
