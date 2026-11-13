@@ -377,14 +377,29 @@ install_zoxide() {
 #  INSTALL: TREE-SITTER CLI
 # ============================================================
 install_tree_sitter() {
-  if command -v tree-sitter &>/dev/null; then
-    success "tree-sitter-cli already installed"
+  # run it rather than just checking PATH — a broken npm shim (whose
+  # postinstall download never ran) is on PATH but crashes when executed
+  if tree-sitter --version &>/dev/null; then
+    success "tree-sitter-cli already installed: $(tree-sitter --version)"
     return
   fi
 
-  info "installing tree-sitter-cli via npm..."
-  npm install -g --prefix "$HOME/.local" tree-sitter-cli
-  success "tree-sitter-cli installed"
+  info "installing tree-sitter-cli v${TREE_SITTER_VERSION}..."
+  TMP=$(mktemp -d)
+  URL="https://github.com/tree-sitter/tree-sitter/releases/download/v${TREE_SITTER_VERSION}/tree-sitter-linux-x64.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/tree-sitter.gz"
+  if ! gzip -t "$TMP/tree-sitter.gz" &>/dev/null; then
+    error "tree-sitter download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
+  mkdir -p "$HOME/.local/bin"
+  # remove any old npm symlink first so we don't write through it
+  rm -f "$HOME/.local/bin/tree-sitter"
+  gunzip -c "$TMP/tree-sitter.gz" > "$HOME/.local/bin/tree-sitter"
+  chmod +x "$HOME/.local/bin/tree-sitter"
+  rm -rf "$TMP"
+  success "tree-sitter-cli installed: $("$HOME/.local/bin/tree-sitter" --version)"
 }
 
 # ============================================================

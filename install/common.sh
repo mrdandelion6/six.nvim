@@ -6,13 +6,14 @@ if [ -f "$SCRIPT_DIR/versions.env" ]; then
   source "$SCRIPT_DIR/versions.env"
 else
   echo "[warn] versions.env not found, using built-in defaults"
-  NVIM_VERSION="0.11.0"
+  NVIM_VERSION="0.12.6"
   RG_VERSION="14.1.1"
   STYLUA_VERSION="2.1.0"
   QUARTO_VERSION="1.6.40"
   ZOXIDE_VERSION="0.9.4"
   FD_VERSION="10.1.0"
   FZF_VERSION="0.54.0"
+  TREE_SITTER_VERSION="0.27.2"
 fi
 
 # ============================================================
