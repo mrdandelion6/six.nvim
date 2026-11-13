@@ -13,7 +13,7 @@ install_base_deps() {
   if [ "$HAS_SUDO" = true ]; then
     case $DISTRO in
       arch)
-        sudo pacman -S --noconfirm --needed curl unzip git make yarn
+        sudo pacman -S --noconfirm --needed curl unzip git make base-devel npm yarn wl-clipboard xclip
         ;;
       ubuntu)
         sudo apt update -y
@@ -383,7 +383,7 @@ install_tree_sitter() {
   fi
 
   info "installing tree-sitter-cli via npm..."
-  npm install --prefix "$HOME/.local" tree-sitter-cli
+  npm install -g --prefix "$HOME/.local" tree-sitter-cli
   success "tree-sitter-cli installed"
 }
 
