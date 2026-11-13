@@ -370,16 +370,402 @@ return {
     vim.keymap.set('n', '<leader>fd', fzf.diagnostics_workspace, { desc = '[F]ind [D]iagnostics' })
     vim.keymap.set('n', '<leader>fa', fzf.resume, { desc = '[F]ind [A]gain' })
 
+    --[[
+    **************************************************************************
+                          MEMORY PICKER (<leader>fm)
+    **************************************************************************
+    --]]
     -- memory used by nvim and its child processes (the statusline number),
     -- grouped by process name, biggest first. the preview lists each process
     -- in the group. note: memory is measured before the picker opens, and
-    -- opening it discards a hidden picker (and the fzf/fd it was holding)
-    vim.keymap.set('n', '<leader>fm', function()
+    -- opening it discards a hidden picker (and the fzf/fd it was holding).
+    -- <Enter> on a group offers to stop/kill it (with a warning first)
+    local open_mem_picker -- forward declared, defined below
+
+    local function short(s, n)
+      return #s > n and (s:sub(1, n - 1) .. '…') or s
+    end
+
+    -- lsp clients whose server executable matches a group name
+    local function lsp_clients_for(group_name)
+      local clients = {}
+      for _, client in ipairs(vim.lsp.get_clients()) do
+        local cmd = client.config.cmd
+        local exe = type(cmd) == 'table' and cmd[1] and vim.fs.basename(cmd[1]) or nil
+        if exe == group_name or client.name == group_name then
+          table.insert(clients, client)
+        end
+      end
+      return clients
+    end
+
+    -- what killing `p` would do. returns nil, reason for processes that must
+    -- never be killed, otherwise the warning to show before killing it
+    local function kill_warning(p, ctx)
+      if p.is_nvim then
+        return nil, 'Cannot kill nvim (this editor). Exit normally instead with :qa'
+      end
+      if ctx.term_shell[p.pid] then
+        return 'Shell of terminal '
+          .. ctx.term_shell[p.pid]
+          .. '. That terminal closes and everything running in it ends.'
+      end
+      -- inside a terminal? walk up the parents until a terminal shell or nvim
+      local pid = p.ppid
+      while pid and pid ~= ctx.nvim_pid do
+        if ctx.term_shell[pid] then
+          return 'Runs inside terminal '
+            .. ctx.term_shell[pid]
+            .. '. It ends and its unsaved state is lost (e.g. a claude session). The shell stays open.'
+        end
+        pid = ctx.by_pid[pid] and ctx.by_pid[pid].ppid
+      end
+      if ctx.lsp_group then
+        return 'Part of LSP server '
+          .. ctx.lsp_group
+          .. '. Nvim sees it crash and its features stop until you :e the file.'
+      end
+      if p.name == 'fzf' or p.name == 'fd' or p.name == 'fdfind' or p.args:match 'fzf%-lua' then
+        return 'Belongs to a search picker. Safe: that search (and <leader>fa resume) just stops.'
+      end
+      return 'Started by nvim or a plugin. Whatever uses it may break until it restarts (rerun the command or restart nvim).'
+    end
+
+    -- short result message in the regular message area (like :echo / print)
+    local function report(what, killed, gone)
+      local msg = what
+      if gone > 0 then
+        msg = msg .. string.format(' (%d had already exited)', gone)
+      end
+      vim.api.nvim_echo({ { msg } }, true, {})
+    end
+
+    local function procs_word(n)
+      return n .. (n == 1 and ' process' or ' processes')
+    end
+
+    -- word-wrap `text` (paragraphs split on \n) to `width` columns
+    local function wrap(text, width)
+      local lines = {}
+      for para in (text .. '\n'):gmatch '(.-)\n' do
+        local line = ''
+        for word in para:gmatch '%S+' do
+          if line ~= '' and #line + 1 + #word > width then
+            table.insert(lines, line)
+            line = word
+          else
+            line = line == '' and word or (line .. ' ' .. word)
+          end
+        end
+        table.insert(lines, line)
+      end
+      return lines
+    end
+
+    -- centered floating window showing `text`. `keys` maps lhs -> callback; any
+    -- key in it closes the window first. leaving the window closes it too and
+    -- runs `on_leave` (if given), so a confirm defaults to "no"
+    local float_box_now -- defined below
+    local function float_box(...)
+      -- opened on the next tick: when called from a picker callback, fzf-lua
+      -- may still be closing its window and moving focus, which would trigger
+      -- WinLeave on our float right away
+      local args = vim.F.pack_len(...) -- keeps nil arguments (e.g. no buttons)
+      vim.schedule(function()
+        float_box_now(vim.F.unpack_len(args))
+      end)
+    end
+
+    -- `buttons`: optional list of { key, label } drawn as a centered row,
+    -- e.g. { { 'Y', 'Yes' }, { 'N', 'No' } } -> '[Y] Yes     [N] No'
+    float_box_now = function(text, title, buttons, title_hl, keys, on_leave)
+      local pad = '  '
+      local max_text = math.max(30, math.min(68, vim.o.columns - 12))
+      local body = wrap(text, max_text)
+
+      -- button row and where each key/label sits in it (for highlights)
+      local row, marks = '', {}
+      for i, b in ipairs(buttons or {}) do
+        if i > 1 then
+          row = row .. '     '
+        end
+        local key = '[' .. b[1] .. ']'
+        table.insert(marks, { #row, #row + #key, #row + #key + 1 + #b[2] })
+        row = row .. key .. ' ' .. b[2]
+      end
+
+      local inner = #row
+      for _, l in ipairs(body) do
+        inner = math.max(inner, vim.fn.strdisplaywidth(l))
+      end
+      local width = inner + 2 * #pad
+
+      local lines = { '' }
+      for _, l in ipairs(body) do
+        table.insert(lines, pad .. l)
+      end
+      local row_line, row_col
+      if #row > 0 then
+        table.insert(lines, '')
+        row_col = math.floor((width - #row) / 2)
+        table.insert(lines, string.rep(' ', row_col) .. row)
+        row_line = #lines - 1
+      end
+      table.insert(lines, '')
+
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+      vim.bo[buf].modifiable = false
+      vim.bo[buf].bufhidden = 'wipe'
+      local ns = vim.api.nvim_create_namespace 'fzf_mem_dialog'
+      for _, m in ipairs(marks) do
+        vim.api.nvim_buf_set_extmark(buf, ns, row_line, row_col + m[1], {
+          end_col = row_col + m[2],
+          hl_group = 'Title',
+        })
+        vim.api.nvim_buf_set_extmark(buf, ns, row_line, row_col + m[2] + 1, {
+          end_col = row_col + m[3],
+          hl_group = 'Normal',
+        })
+      end
+
+      local height = math.min(#lines, vim.o.lines - 4)
+      local win = vim.api.nvim_open_win(buf, true, {
+        relative = 'editor',
+        width = width,
+        height = height,
+        row = math.floor((vim.o.lines - height) / 2) - 1,
+        col = math.floor((vim.o.columns - width) / 2),
+        style = 'minimal',
+        border = 'rounded',
+        title = { { ' ' .. title .. ' ', title_hl } },
+        title_pos = 'center',
+        zindex = 200,
+      })
+      -- same pink border as the fzf pickers
+      vim.wo[win].winhighlight = 'FloatBorder:FzfLuaBorder,NormalFloat:Normal'
+      vim.wo[win].cursorline = false
+
+      local saved_guicursor = vim.o.guicursor
+      local done = false
+      local function close(cb)
+        if done then
+          return
+        end
+        done = true
+        vim.o.guicursor = saved_guicursor
+        if vim.api.nvim_win_is_valid(win) then
+          vim.api.nvim_win_close(win, true)
+        end
+        if cb then
+          vim.schedule(cb)
+        end
+      end
+      for lhs, cb in pairs(keys) do
+        vim.keymap.set('n', lhs, function()
+          close(cb)
+        end, { buffer = buf, nowait = true })
+      end
+      vim.api.nvim_create_autocmd('WinLeave', {
+        buffer = buf,
+        once = true,
+        callback = function()
+          close(on_leave)
+        end,
+      })
+
+      -- hide the cursor while the dialog is focused: nvim draws no cursor when
+      -- its highlight is fully transparent (blend = 100). done last, so an error
+      -- above can never leave the cursor hidden. close() restores it
+      vim.api.nvim_set_hl(0, 'FzfMemHiddenCursor', { blend = 100, nocombine = true })
+      vim.o.guicursor = 'a:FzfMemHiddenCursor'
+    end
+
+    -- floating y/n prompt: runs on_yes only on 'y'. anything else is a no
+    local function confirm(msg, on_yes)
+      local noop = function() end
+      float_box(msg, 'Warning', { { 'Y', 'Yes' }, { 'N', 'No' } }, 'WarningMsg', {
+        y = on_yes,
+        Y = on_yes,
+        n = noop,
+        N = noop,
+        q = noop,
+        ['<Esc>'] = noop,
+      })
+    end
+
+    -- floating notice, closed with q / Esc / Enter (no buttons shown)
+    local function notice(msg, title)
+      float_box(msg, title or 'Notice', nil, 'WarningMsg', {
+        q = false,
+        ['<Esc>'] = false,
+        ['<CR>'] = false,
+      })
+    end
+
+    -- <Enter> on a group: pick what to stop/kill, confirm, do it
+    local function kill_menu(g, ctx)
+      ctx.lsp_group = nil
+      local clients = lsp_clients_for(g.name)
+      if #clients > 0 then
+        ctx.lsp_group = g.name
+      end
+
+      local killable, protected = {}, {}
+      for _, p in ipairs(g.procs) do
+        table.insert(p.is_nvim and protected or killable, p)
+      end
+
+      local items = {}
+      if #clients > 0 then
+        table.insert(items, { kind = 'lsp' })
+      end
+      if #killable > 1 then
+        table.insert(items, { kind = 'all' })
+      end
+      for _, p in ipairs(g.procs) do
+        table.insert(items, { kind = 'one', proc = p })
+      end
+
+      local mem = require('core.utils').format_mem
+      local function label(item)
+        if item.kind == 'lsp' then
+          return string.format(
+            'Stop LSP %s (frees %s, :e restarts it)',
+            g.name,
+            procs_word(#g.procs)
+          )
+        elseif item.kind == 'all' then
+          local total = 0
+          for _, p in ipairs(killable) do
+            total = total + p.rss
+          end
+          local note = #protected > 0 and ' (not this nvim)' or ''
+          return string.format('Kill all %d processes, %s%s', #killable, mem(total), note)
+        end
+        local p = item.proc
+        local tag = p.is_nvim and '[this nvim, cannot kill]  ' or ''
+        return string.format('%6s  pid %-8d %s%s', mem(p.rss), p.pid, tag, short(p.args, 80))
+      end
+
+      local function handle(item)
+        if not item then
+          return
+        end
+        local utils_core = require 'core.utils'
+
+        if item.kind == 'lsp' then
+          local names = vim.tbl_map(function(c)
+            return c.name
+          end, clients)
+          local msg = string.format(
+            'Stop LSP %s (%s)?\n\nIts %s will exit, freeing the memory. Completion, diagnostics etc. stop in open buffers until you :e the file (or open another file of that type), which starts it again.',
+            table.concat(names, ', '),
+            g.name,
+            procs_word(#g.procs)
+          )
+          confirm(msg, function()
+            for _, c in ipairs(clients) do
+              c:stop()
+            end
+            -- a clean stop doesn't always make the server exit (lua_ls keeps
+            -- running once it's indexing), so anything left after 2s is terminated
+            vim.defer_fn(function()
+              local pids = vim.tbl_map(function(p)
+                return p.pid
+              end, g.procs)
+              utils_core.terminate_pids(pids, function(killed, _)
+                report(
+                  'Stopped LSP '
+                    .. g.name
+                    .. (killed == 0 and '' or ' (forced: it did not exit on its own)'),
+                  0,
+                  0
+                )
+              end, 1000)
+            end, 2000)
+          end)
+          return
+        end
+
+        if item.kind == 'one' then
+          local p = item.proc
+          local warning, refusal = kill_warning(p, ctx)
+          if not warning then
+            notice(refusal, 'Cannot kill')
+            return
+          end
+          local msg =
+            string.format('Kill %s (pid %d, %s)?\n\n%s', p.name, p.pid, mem(p.rss), warning)
+          confirm(msg, function()
+            utils_core.terminate_pids({ p.pid }, function(_, gone)
+              local fmt = gone > 0 and '%s (pid %d) had already exited' or 'Killed %s (pid %d)'
+              report(string.format(fmt, p.name, p.pid), 0, 0)
+            end)
+          end)
+          return
+        end
+
+        -- kill all: show every distinct warning in the group
+        local warnings, seen = {}, {}
+        for _, p in ipairs(killable) do
+          local w = kill_warning(p, ctx)
+          if w and not seen[w] then
+            seen[w] = true
+            table.insert(warnings, '- ' .. w)
+          end
+        end
+        local msg = string.format(
+          'Kill all %d %s processes?%s\n\n%s',
+          #killable,
+          g.name,
+          #protected > 0 and ' (this nvim is skipped, it cannot be killed)' or '',
+          table.concat(warnings, '\n')
+        )
+        confirm(msg, function()
+          local pids = vim.tbl_map(function(p)
+            return p.pid
+          end, killable)
+          utils_core.terminate_pids(pids, function(killed, gone)
+            local word = killed == 1 and 'process' or 'processes'
+            report(string.format('Killed %d %s %s', killed, g.name, word), 0, gone)
+          end)
+        end)
+      end
+
+      -- a single process needs no menu: straight to the confirm (or the
+      -- cannot-kill notice). for an lsp that's the clean stop, so :e restarts it
+      if #g.procs == 1 then
+        handle(#clients > 0 and { kind = 'lsp' } or { kind = 'one', proc = g.procs[1] })
+        return
+      end
+      vim.ui.select(items, {
+        prompt = 'Stop/kill ' .. g.name .. '> ',
+        format_item = label,
+      }, handle)
+    end
+
+    open_mem_picker = function()
       local core_utils = require 'core.utils'
       local procs = core_utils.mem_processes()
       if #procs == 0 then
-        vim.notify('Memory usage is not available on this platform', vim.log.levels.WARN)
+        notice('Memory usage is not available on this platform.', 'Memory')
         return
+      end
+
+      -- context for kill warnings: processes by pid and terminal shells
+      local ctx = { nvim_pid = vim.fn.getpid(), by_pid = {}, term_shell = {} }
+      for _, p in ipairs(procs) do
+        ctx.by_pid[p.pid] = p
+      end
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == 'terminal' then
+          local ok, pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
+          if ok and pid > 0 then
+            ctx.term_shell[pid] =
+              string.format('#%d (%s)', buf, short(vim.api.nvim_buf_get_name(buf), 50))
+          end
+        end
       end
 
       local groups, by_name, total = {}, {}, 0
@@ -412,7 +798,10 @@ return {
       fzf.fzf_exec(entries, {
         prompt = 'Memory> ',
         winopts = { title = ' Memory: ' .. core_utils.format_mem(total) .. ' total ' },
-        fzf_opts = { ['--no-sort'] = true }, -- keep biggest-first order while filtering
+        fzf_opts = {
+          ['--no-sort'] = true,
+          ['--header'] = '\n<Enter> stop/kill', -- blank line above the hint
+        },
         preview = function(items)
           local g = group_of[vim.trim(items[1] or '')]
           if not g then
@@ -438,8 +827,30 @@ return {
           end
           return lines
         end,
-        actions = { ['enter'] = false }, -- read-only list
+        actions = {
+          ['enter'] = function(selected)
+            local g = group_of[vim.trim((selected or {})[1] or '')]
+            if not g then
+              return
+            end
+            local function open_menu()
+              kill_menu(g, ctx)
+            end
+            -- closing this picker queues a stopinsert in fzf-lua. opening the
+            -- menu right away would land it in normal mode, so wait for that
+            -- first (same as fzf-lua's own actions.run_builtin)
+            if _G.fzf_lua_stopinsert_hack then
+              _G.fzf_lua_stopinsert_hack(open_menu)
+            else
+              vim.schedule(open_menu)
+            end
+          end,
+        },
       })
+    end
+
+    vim.keymap.set('n', '<leader>fm', function()
+      open_mem_picker()
     end, { desc = '[F]ind [M]emory usage' })
     vim.keymap.set('n', '<leader>fr', fzf.oldfiles, { desc = '[F]ind [R]ecently viewed' })
     vim.keymap.set('n', '<leader><leader>', fzf.buffers, { desc = '[ ] Find existing buffers' })

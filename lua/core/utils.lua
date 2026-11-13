@@ -80,7 +80,7 @@ local function node_script_name(cmd)
 end
 
 -- every process in nvim's tree (nvim itself included) as a list of
--- { pid, rss (kb), name, args, is_nvim }. runs ps synchronously, meant for
+-- { pid, ppid, rss (kb), name, args, is_nvim }. runs ps synchronously, meant for
 -- one-off use (e.g. the <leader>fm picker), not for the statusline
 function M.mem_processes()
   if require('core.platform').is_windows() then
@@ -136,13 +136,50 @@ function M.mem_processes()
           name = exe
         end
       end
-      table.insert(
-        procs,
-        { pid = pid, rss = rss, name = name, args = cmd, is_nvim = pid == nvim_pid }
-      )
+      table.insert(procs, {
+        pid = pid,
+        rss = rss,
+        name = name,
+        args = cmd,
+        is_nvim = pid == nvim_pid,
+        ppid = parent[pid],
+      })
     end
   end
   return procs
+end
+
+local function pid_alive(pid)
+  return vim.uv.kill(pid, 0) == 0
+end
+
+-- terminate processes: SIGCONT (wakes paused ones, which ignore SIGTERM) then
+-- SIGTERM, and SIGKILL whatever is still alive `grace_ms` later (default 2s).
+-- never touches this nvim. calls on_done(killed, already_gone) when finished
+function M.terminate_pids(pids, on_done, grace_ms)
+  local nvim_pid = vim.fn.getpid()
+  local pending, gone = {}, 0
+  for _, pid in ipairs(pids) do
+    if pid ~= nvim_pid then
+      if pid_alive(pid) then
+        vim.uv.kill(pid, 'sigcont')
+        vim.uv.kill(pid, 'sigterm')
+        table.insert(pending, pid)
+      else
+        gone = gone + 1
+      end
+    end
+  end
+  vim.defer_fn(function()
+    for _, pid in ipairs(pending) do
+      if pid_alive(pid) then
+        vim.uv.kill(pid, 'sigkill')
+      end
+    end
+    if on_done then
+      on_done(#pending, gone)
+    end
+  end, grace_ms or 2000)
 end
 
 -- start refreshing the memory usage in the background. safe to call more than
