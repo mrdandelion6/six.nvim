@@ -58,7 +58,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- GIT
-vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+-- DirChanged: buffers without a file (empty, help, ...) use the cwd's repo
+vim.api.nvim_create_autocmd({ 'BufEnter', 'DirChanged' }, {
   callback = function()
     vim.g.git_root = utils.get_git_root()
   end,

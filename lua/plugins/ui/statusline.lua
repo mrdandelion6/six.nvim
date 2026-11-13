@@ -201,8 +201,10 @@ return {
             function()
               return vim.g.git_root or ''
             end,
+            -- shown for any buffer in a repo (files, terminals, fugitive, ...),
+            -- same as the branch on the right. see get_git_root in core/utils.lua
             cond = function()
-              return vim.bo.buftype == '' and vim.fn.expand '%:p' ~= ''
+              return (vim.g.git_root or '') ~= ''
             end,
           },
         },

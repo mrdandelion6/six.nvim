@@ -69,5 +69,21 @@ return {
     keys = {
       { '<leader>gg', '<cmd>G<cr>', desc = 'Fugitive Status' },
     },
+    init = function()
+      -- open the :G status split 10 lines tall (same as :Hr 10). only once per
+      -- window, so a manual resize isn't undone when the status refreshes, and
+      -- not when it's the only window (e.g. :G from an empty nvim)
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('FugitiveStatusHeight', { clear = true }),
+        pattern = 'fugitive',
+        callback = function()
+          if vim.w.fugitive_sized or vim.fn.winnr '$' == 1 then
+            return
+          end
+          vim.w.fugitive_sized = true
+          vim.cmd 'horizontal resize 10'
+        end,
+      })
+    end,
   },
 }
