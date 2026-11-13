@@ -118,16 +118,27 @@ return {
       'dmg',
     }
 
-    local function files_cmd()
+    -- opts.all_filesystems: cross into other mounts (used by :FuzzyAll)
+    local function files_cmd(opts)
+      opts = opts or {}
       local fd = vim.fn.executable 'fd' == 1 and 'fd' or 'fdfind' -- ubuntu names it fdfind
       local args = {
         fd,
         '--type f',
+        -- no --follow: following symlinked dirs can escape cwd (e.g. a link to /
+        -- leads into /sys , which never finishes). list the links themselves
+        -- instead so symlinked dotfiles still show up
+        '--type l',
         '--hidden',
-        '--follow',
         '--no-ignore-vcs',
         '--color never',
       }
+      if not opts.all_filesystems then
+        -- don't cross into other mounts (/proc, /sys, /dev, /run, drives in /mnt).
+        -- note: on btrfs, subvolumes count as separate filesystems, so searching
+        -- from / skips /home (@home); search ~ directly for that, or :FuzzyAll
+        table.insert(args, '--one-file-system')
+      end
       for _, dir in ipairs(excluded_dirs) do
         -- trailing slash: only exclude directories, not files with this name
         table.insert(args, '--exclude ' .. vim.fn.shellescape(dir .. '/'))
@@ -138,6 +149,100 @@ return {
       end
       return table.concat(args, ' ')
     end
+
+    --[[
+    **************************************************************************
+                          PAUSE / RESUME fd ON HIDE
+    **************************************************************************
+    --]]
+    -- the default profile includes 'hide': <Esc> only hides the picker so
+    -- <leader>fa can resume instantly , but that leaves fd crawling in the
+    -- background. so on hide we SIGSTOP the fd feeding that picker (0 cpu, the
+    -- hidden fzf keeps what it already has) , and SIGCONT it on resume so the
+    -- search continues where it left off. if the hidden picker is thrown away
+    -- (another picker opened) or nvim exits , the paused fd is SIGKILLed: a
+    -- stopped process ignores SIGTERM , so it would otherwise leak forever.
+    -- windows has no SIGSTOP , so there we just terminate fd on hide.
+    local is_windows = vim.fn.has 'win32' == 1
+    local paused_fd = {} -- fzf term bufnr -> list of paused fd pids
+    local fzf_buf = nil -- term buffer of the picker currently on screen
+
+    local function is_fd(pid)
+      local ok, proc = pcall(vim.api.nvim_get_proc, pid)
+      return ok and proc ~= nil and (proc.name == 'fd' or proc.name == 'fdfind')
+    end
+
+    -- fd processes anywhere under `pid` (fzf -> fzf-lua helper -> fd). other fd
+    -- jobs , e.g. <leader>fp's dir suggestions, aren't under fzf so are left alone
+    local function fd_pids_under(pid, acc)
+      acc = acc or {}
+      for _, child in ipairs(vim.api.nvim_get_proc_children(pid)) do
+        if is_fd(child) then
+          table.insert(acc, child)
+        else
+          fd_pids_under(child, acc)
+        end
+      end
+      return acc
+    end
+
+    -- send `sig` to the fd processes paused for `buf` and forget them. pids are
+    -- re-checked first in case one exited and its pid got reused
+    local function signal_paused(buf, sig)
+      for _, pid in ipairs(paused_fd[buf] or {}) do
+        if is_fd(pid) then
+          vim.uv.kill(pid, sig)
+        end
+      end
+      paused_fd[buf] = nil
+    end
+
+    -- winopts.on_close: runs on hide as well as on close
+    local function pause_fzf_fd()
+      local buf = fzf_buf
+      if not buf or not vim.api.nvim_buf_is_valid(buf) then
+        return -- real close: buffer already deleted and fzf is gone with it
+      end
+      local ok, job_pid = pcall(vim.fn.jobpid, vim.bo[buf].channel)
+      if not ok or job_pid <= 0 then
+        return
+      end
+      local pids = fd_pids_under(job_pid)
+      if #pids == 0 then
+        return -- fd already finished, nothing to pause
+      end
+      for _, pid in ipairs(pids) do
+        vim.uv.kill(pid, is_windows and 'sigterm' or 'sigstop')
+      end
+      if is_windows then
+        return
+      end
+      paused_fd[buf] = pids
+      -- hidden picker discarded (fzf-lua wipes its buffer) -> kill paused fd
+      vim.api.nvim_create_autocmd('BufWipeout', {
+        group = vim.api.nvim_create_augroup('FzfPausedFd' .. buf, { clear = true }),
+        buffer = buf,
+        once = true,
+        callback = function()
+          signal_paused(buf, 'sigkill')
+        end,
+      })
+    end
+
+    -- winopts.on_create: runs on open and again on unhide (resume)
+    local function resume_fzf_fd(bufnr)
+      fzf_buf = bufnr
+      signal_paused(bufnr, 'sigcont') -- no-op unless this is a resumed picker
+    end
+
+    vim.api.nvim_create_autocmd('VimLeavePre', {
+      group = vim.api.nvim_create_augroup('FzfPausedFdExit', { clear = true }),
+      callback = function()
+        for buf in pairs(paused_fd) do
+          signal_paused(buf, 'sigkill')
+        end
+      end,
+    })
 
     fzf.setup {
       { 'default' },
@@ -151,9 +256,11 @@ return {
         width = 0.8,
         height = 0.9,
         title_flags = false,
-        on_create = function()
+        on_create = function(e)
           vim.keymap.set('t', '<Esc>', '<Esc>', { buffer = true, nowait = true })
+          resume_fzf_fd(e.bufnr)
         end,
+        on_close = pause_fzf_fd,
         preview = {
           hidden = false,
           vertical = 'up:45%',
@@ -231,6 +338,7 @@ return {
       files = {
         cmd = files_cmd(),
         multiprocess = true,
+        -- fd is paused on hide / resumed on unhide , see PAUSE / RESUME above
       },
       grep = {
         multiprocess = true,
@@ -279,6 +387,17 @@ return {
     vim.keymap.set('n', '<leader>ff', function()
       fzf.files { cwd = vim.g.start_dir }
     end, { desc = '[F]ind [F]iles' })
+
+    -- rarely needed, so no keymap: fuzzy find the whole pc from / across every
+    -- mount (/home, /mnt drives, /proc, /sys, ...). slow, fd pauses on hide
+    vim.api.nvim_create_user_command('FuzzyAll', function()
+      -- WARN: don't be an idiot , why do you even need this ?
+      fzf.files {
+        cwd = '/',
+        cmd = files_cmd { all_filesystems = true },
+        prompt = 'Find Files in Whole PC> ',
+      }
+    end, { desc = 'Fuzzy find files across the whole pc from /' })
 
     -- vim.keymap.set('n', '<leader>fp', function()
     --   local utils_core = require 'core.utils'
@@ -490,9 +609,9 @@ return {
         selected_idx = 1
         local cmd
         if query == '' then
-          cmd = 'fd --type d --hidden --follow . ' .. root .. ' | head -10'
+          cmd = 'fd --type d --hidden . ' .. root .. ' | head -10'
         else
-          cmd = 'fd --type d --hidden --follow . '
+          cmd = 'fd --type d --hidden . '
             .. root
             .. ' | fzf --filter='
             .. vim.fn.shellescape(query)
