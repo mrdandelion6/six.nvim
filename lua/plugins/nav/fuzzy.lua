@@ -369,6 +369,78 @@ return {
 
     vim.keymap.set('n', '<leader>fd', fzf.diagnostics_workspace, { desc = '[F]ind [D]iagnostics' })
     vim.keymap.set('n', '<leader>fa', fzf.resume, { desc = '[F]ind [A]gain' })
+
+    -- memory used by nvim and its child processes (the statusline number),
+    -- grouped by process name, biggest first. the preview lists each process
+    -- in the group. note: memory is measured before the picker opens, and
+    -- opening it discards a hidden picker (and the fzf/fd it was holding)
+    vim.keymap.set('n', '<leader>fm', function()
+      local core_utils = require 'core.utils'
+      local procs = core_utils.mem_processes()
+      if #procs == 0 then
+        vim.notify('Memory usage is not available on this platform', vim.log.levels.WARN)
+        return
+      end
+
+      local groups, by_name, total = {}, {}, 0
+      for _, p in ipairs(procs) do
+        local g = by_name[p.name]
+        if not g then
+          g = { name = p.name, rss = 0, procs = {} }
+          by_name[p.name] = g
+          table.insert(groups, g)
+        end
+        g.rss = g.rss + p.rss
+        total = total + p.rss
+        table.insert(g.procs, p)
+      end
+      table.sort(groups, function(a, b)
+        return a.rss > b.rss
+      end)
+
+      local entries, group_of = {}, {} -- group_of: entry line -> group
+      for _, g in ipairs(groups) do
+        table.sort(g.procs, function(a, b)
+          return a.rss > b.rss
+        end)
+        local count = #g.procs > 1 and (' x' .. #g.procs) or ''
+        local entry = string.format('%6s  %s%s', core_utils.format_mem(g.rss), g.name, count)
+        group_of[vim.trim(entry)] = g -- trimmed: fzf may strip the padding
+        table.insert(entries, entry)
+      end
+
+      fzf.fzf_exec(entries, {
+        prompt = 'Memory> ',
+        winopts = { title = ' Memory: ' .. core_utils.format_mem(total) .. ' total ' },
+        fzf_opts = { ['--no-sort'] = true }, -- keep biggest-first order while filtering
+        preview = function(items)
+          local g = group_of[vim.trim(items[1] or '')]
+          if not g then
+            return {}
+          end
+          local lines = {
+            string.format(
+              '%s  %s  (%d %s)',
+              g.name,
+              core_utils.format_mem(g.rss),
+              #g.procs,
+              #g.procs == 1 and 'process' or 'processes'
+            ),
+            '',
+          }
+          for _, p in ipairs(g.procs) do
+            local tag = p.is_nvim and '  [this nvim]' or ''
+            table.insert(
+              lines,
+              string.format('%6s  pid %-8d%s', core_utils.format_mem(p.rss), p.pid, tag)
+            )
+            table.insert(lines, '        ' .. p.args)
+          end
+          return lines
+        end,
+        actions = { ['enter'] = false }, -- read-only list
+      })
+    end, { desc = '[F]ind [M]emory usage' })
     vim.keymap.set('n', '<leader>fr', fzf.oldfiles, { desc = '[F]ind [R]ecently viewed' })
     vim.keymap.set('n', '<leader><leader>', fzf.buffers, { desc = '[ ] Find existing buffers' })
 

@@ -99,6 +99,10 @@ return {
       end,
     })
 
+    -- memory used by nvim + child processes, see MEMORY USAGE in core/utils.lua
+    local utils = require 'core.utils'
+    utils.start_mem_usage()
+
     local default_b = { fg = '#000000', bg = '#cccccc' }
 
     -- section component to display the filename of buffer
@@ -214,6 +218,24 @@ return {
         -- winbar at the top.
         lualine_c = {
           -- file_name,
+          {
+            -- memory used by nvim + child processes, right after the repo title
+            utils.mem_usage,
+            -- color by usage: light gray < 1.5G < yellow < 2G < orange < 2.5G < red < 3G < strong red
+            color = function()
+              local gb = (utils.mem_usage_kb() or 0) / 1024 / 1024
+              local fg = gb < 1.5 and default_b.bg -- same light gray as the repo title
+                or gb < 2 and colors.yellow
+                or gb < 2.5 and colors.light_orange
+                or gb < 3 and colors.light_red
+                or colors.danger_red
+              return { fg = fg, bg = 'NONE' }
+            end,
+            padding = { left = 1, right = 1 },
+            cond = function()
+              return utils.mem_usage() ~= ''
+            end,
+          },
         },
 
         lualine_x = {},

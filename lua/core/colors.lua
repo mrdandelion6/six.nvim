@@ -3,6 +3,7 @@ return {
   grey = '#c4bdd2',
 
   light_yellow = '#f5c287',
+  yellow = '#f9e2af',
 
   light_orange = '#f5b579',
   strong_orange = '#eaa658',
