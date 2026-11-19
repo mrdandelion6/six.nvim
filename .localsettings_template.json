@@ -1,7 +1,7 @@
 {
     "exclude_autoformat": ["ViMak%-Moonlander/src/keymap%.c$"],
     "venv_path": "~/.envs",
-    "notes_path": "~/code/learn-to-code",
+    "notes_path": "~/code/projects/learn-to-code",
     "custom_clang_format": false,
     "molten_support": false,
     "latex_support": false,
