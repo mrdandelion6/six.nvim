@@ -97,8 +97,15 @@ local function format_range(start_line, end_line)
   }
 
   -- step 3: auto-indent
-  -- skip indentation if we have an lsp or formatter for the ft
-  if needs_auto_indent[vim.bo.filetype] or (not has_conform_formatter and not has_lsp) then
+  -- skip indentation if we have an lsp or formatter for the ft. also skip if the
+  -- ft has no indent rules (no indentexpr/cindent/lisp): there `=` falls back
+  -- to C-indenting, which treats a line ending in ',' as an unfinished
+  -- statement and indents every line after it (eg. csv files).
+  local has_indent_rules = vim.bo.indentexpr ~= '' or vim.bo.cindent or vim.bo.lisp
+  if
+    needs_auto_indent[vim.bo.filetype]
+    or (not has_conform_formatter and not has_lsp and has_indent_rules)
+  then
     if start_line and end_line then
       vim.cmd(string.format('normal! %dgg==%dgg', start_line, end_line - start_line + 1))
     else
