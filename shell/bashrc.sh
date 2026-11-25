@@ -64,8 +64,10 @@ nvim() {
         if [ -n "$VIRTUAL_ENV" ]; then
             deactivate
         fi
-        if [ -f "$envdir/neovim" ]; then
-            actenv 'neovim'
+        if [ -d "$envdir/neovim" ]; then
+            # i have a custom actvenv function in my .dotfiles/ repo that i use
+            # for my .bashrc ... you can just replace this
+            actvenv 'neovim'
         fi
     fi
     command nvim "$@"
