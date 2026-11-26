@@ -81,4 +81,18 @@ vim.api.nvim_create_autocmd('BufReadPost', {
   end,
 })
 
+-- reload files changed outside nvim (ex. by claude code running in a :terminal
+-- here). autoread alone only checks on FocusGained , which never fires when
+-- switching between nvim windows. :e would also reload , but it unloads the
+-- buffer , which drops molten's kernel
+vim.api.nvim_create_autocmd({ 'FocusGained', 'WinEnter', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  desc = 'Reload files changed on disk',
+  group = vim.api.nvim_create_augroup('auto_checktime', { clear = true }),
+  callback = function()
+    if vim.fn.mode() ~= 'c' and vim.fn.getcmdwintype() == '' then
+      vim.cmd 'checktime'
+    end
+  end,
+})
+
 -- TODO: add commands and keymaps for C++ compilation

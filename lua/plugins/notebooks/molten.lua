@@ -213,6 +213,23 @@ c.stop_channels()
       end,
     })
 
+    -- reloading a buffer (:e , or the file changing on disk) fires BufUnload ,
+    -- which makes molten drop the buffer's kernel but leaves its output
+    -- extmarks behind. after the reload they sit at stale spots (ex. inside a
+    -- code cell) and never clear , and the next run draws a second output. so
+    -- once the buffer is read back in with no kernel , clear molten's marks
+    vim.api.nvim_create_autocmd('BufReadPost', {
+      callback = function(e)
+        local ok, status = pcall(require, 'molten.status')
+        if ok and status.initialized() == 'Molten' then
+          return
+        end
+        for _, name in ipairs { 'molten-extmarks', 'molten-highlights' } do
+          vim.api.nvim_buf_clear_namespace(e.buf, vim.api.nvim_create_namespace(name), 0, -1)
+        end
+      end,
+    })
+
     -- undo those config changes when we go back to a markdown or quarto file
     vim.api.nvim_create_autocmd('BufEnter', {
       pattern = { '*.qmd', '*.md', '*.ipynb' },

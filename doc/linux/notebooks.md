@@ -41,3 +41,12 @@ then you will see an kernel with the name `bababooey` when doing `:MoltenInit`.
 ### running code cells
 
 once you have initialized `molten` with a kernel , you can run code cells by entering `<leader>rc` while inside a code cell. you can see more keymaps in [molten.lua](lua/plugins/notebooks/molten.lua).
+
+### keeping the kernel attached
+
+`molten` drops a buffer's kernel whenever that buffer is unloaded , so you lose all your variables and have to `:MoltenInit` again. so in a notebook with a running kernel , avoid anything that unloads the buffer:
+
+- `:e` / `:e!` (reloading the file this way unloads it first)
+- `:bd` / `:bw` (deleting the notebook buffer)
+
+closing a window showing the notebook is fine , since the buffer stays loaded (`hidden` is on). you don't need `:e` to see changes made to the file outside nvim (ex. by claude code in a `:terminal`) either. [cmds.lua](lua/core/cmds.lua) runs `:checktime` on `WinEnter` , `BufEnter` , `FocusGained` and `CursorHold` , which reloads the file without unloading the buffer. if you do unload it by accident , [molten.lua](lua/plugins/notebooks/molten.lua) clears the old outputs it leaves behind , so just `:MoltenInit` and rerun your cells.
