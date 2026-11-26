@@ -57,9 +57,11 @@ return {
     }
 
     -- install formatters
-    local conform_tools = { 'stylua', 'prettier', 'black', 'isort' }
-    -- if you have issues with stylua being used as an LSP , :MasonUninstall stylua
-    -- and just install it system wide , pacman -S stylua
+    -- stylua is not installed through mason. install/bootstrap.sh curls the version pinned in
+    -- install/versions.env into ~/.local/share/nvim/bootstrap/bin , a dir only nvim puts on its
+    -- PATH , so that copy always wins inside nvim. mason's stylua also used to get picked up as
+    -- an LSP , which caused issues. if you still have one , :MasonUninstall stylua
+    local conform_tools = { 'prettier', 'black', 'isort' }
     require('mason-tool-installer').setup {
       ensure_installed = conform_tools,
     }

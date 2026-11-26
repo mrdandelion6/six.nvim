@@ -37,6 +37,13 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 
+-- tools install/bootstrap.sh installs only for nvim (tree-sitter , stylua). put first on nvim's
+-- PATH so the versions pinned in install/versions.env win over any other copy on the system
+local bootstrap_bin = vim.fn.stdpath 'data' .. '/bootstrap/bin'
+if vim.fn.isdirectory(bootstrap_bin) == 1 then
+  vim.env.PATH = bootstrap_bin .. ':' .. vim.env.PATH
+end
+
 require('core.lazy').boostrap()
 
 local platform = require 'core.platform'
