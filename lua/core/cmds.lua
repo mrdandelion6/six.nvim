@@ -106,8 +106,12 @@ vim.api.nvim_create_autocmd('TermOpen', {
   desc = 'Show relative line numbers in terminals',
   group = vim.api.nvim_create_augroup('term_numbers', { clear = true }),
   callback = function()
-    vim.wo.number = false
-    vim.wo.relativenumber = true
+    -- opt_local (:setlocal) , not vim.wo (:set) , since :set also changes the
+    -- window's global value , which every buffer later opened in that window
+    -- (or a window split from it) inherits. with `nvim -c terminal` the
+    -- terminal takes the first window , so files opened after had no number
+    vim.opt_local.number = false
+    vim.opt_local.relativenumber = true
   end,
 })
 
