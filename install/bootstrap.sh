@@ -238,7 +238,6 @@ install_fd() {
 }
 
 install_fd_binary() {
-  local FD_VERSION="10.1.0"
   TMP=$(mktemp -d)
   info "downloading fd v${FD_VERSION}..."
   URL="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
@@ -282,7 +281,6 @@ install_fzf() {
 }
 
 install_fzf_binary() {
-  local FZF_VERSION="0.54.0"
   TMP=$(mktemp -d)
   info "downloading fzf v${FZF_VERSION}..."
   URL="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
