@@ -95,4 +95,20 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'WinEnter', 'BufEnter', 'CursorHold
   end,
 })
 
+-- line numbers in :terminal windows. nvim's default TermOpen autocmd turns them
+-- off in terminals , so turn them back on. always on , since toggling them by
+-- mode changed the terminal's width on every switch and the program in it
+-- (ex. claude code) redrew and jumped around. relative numbers only , since
+-- with number on the column fits the largest absolute line , and terminals keep
+-- up to 10000 lines of scrollback (6 columns). relative numbers only go up to
+-- the window height , so the column stays at numberwidth (4)
+vim.api.nvim_create_autocmd('TermOpen', {
+  desc = 'Show relative line numbers in terminals',
+  group = vim.api.nvim_create_augroup('term_numbers', { clear = true }),
+  callback = function()
+    vim.wo.number = false
+    vim.wo.relativenumber = true
+  end,
+})
+
 -- TODO: add commands and keymaps for C++ compilation
