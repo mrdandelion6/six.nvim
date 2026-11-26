@@ -10,8 +10,20 @@ function Center_cursor()
   end
   vim.b.scrolloff_processing = true
 
-  -- get cursor and window height
   vim.o.scrolloff = 0
+
+  -- normal mode scrolls with zz: it shifts the screen and redraws only the new
+  -- line , where winrestview redraws the whole window every move (~15ms in
+  -- python / notebook buffers vs ~2ms). zz also centers past eof. run it on
+  -- every move: the line-based offset below disagrees with zz's screen rows
+  -- when lines wrap , so skipping on offset 0 left every other line off center.
+  if vim.api.nvim_get_mode().mode == 'n' then
+    vim.cmd 'normal! zz'
+    vim.b.scrolloff_processing = false
+    return
+  end
+
+  -- get cursor and window height
   local win_h = vim.api.nvim_win_get_height(0)
   local half_h = math.floor(win_h / 2)
   local cursor_h = vim.fn.line '.' - vim.fn.line 'w0' + 1
@@ -19,21 +31,14 @@ function Center_cursor()
   -- get offset
   local offset = cursor_h - half_h
 
-  -- apply offset. skipped when already centered (ex. typing along a line).
-  -- normal mode scrolls with zz: it shifts the screen and redraws only the new
-  -- line , where winrestview redraws the whole window every move (~15ms in
-  -- python / notebook buffers vs ~1.5ms). zz also centers past eof. other
-  -- modes keep winrestview since :normal there can end visual mode or nudge
-  -- the cursor at the end of a line.
+  -- apply offset. other modes keep winrestview since :normal there can end
+  -- visual mode or nudge the cursor at the end of a line. skipped when already
+  -- centered (ex. typing along a line in insert mode).
   if offset ~= 0 then
-    if vim.api.nvim_get_mode().mode == 'n' then
-      vim.cmd 'normal! zz'
-    else
-      local win_view = vim.fn.winsaveview()
-      win_view.skipcol = 0
-      win_view.topline = win_view.topline + offset
-      vim.fn.winrestview(win_view)
-    end
+    local win_view = vim.fn.winsaveview()
+    win_view.skipcol = 0
+    win_view.topline = win_view.topline + offset
+    vim.fn.winrestview(win_view)
   end
 
   vim.b.scrolloff_processing = false
