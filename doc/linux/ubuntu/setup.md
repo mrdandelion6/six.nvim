@@ -66,21 +66,21 @@ sudo apt install libmagickwand-dev lua5.1 liblua5.1-0-dev
 
 ### molten.nvim
 
-```bash
-# create a virtual environment
-cd ~/.envs # path matters
-python -m venv neovim
-source ~/.envs/neovim/bin/activate
-
-# install the following deps
-pip install pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext jupyter jupyterlab
-```
-
-if you want to use a different path than `~/.envs/neovim/`, then you must edit `.localsettings.json` and change this key:
+the venv is created with [uv](https://github.com/astral-sh/uv) at `<venv_path>/neovim`, where `venv_path` comes from `.localsettings.json`:
 
 ```json
 "venv_path": "~/.envs"
 ```
+
+```bash
+# create a virtual environment (uv downloads python 3.14 if it isn't installed)
+uv venv --python 3.14 ~/.envs/neovim # path matters , must match venv_path
+
+# install the following deps (uv venvs have no pip inside , use uv pip)
+uv pip install --python ~/.envs/neovim/bin/python pynvim jupyter_client cairosvg plotly kaleido pnglatex pyperclip nbformat jupytext jupyter jupyterlab
+```
+
+`install/molten.sh` does both steps for you.
 
 you will also need quarto cli:
 

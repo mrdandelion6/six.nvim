@@ -14,6 +14,8 @@ else
   FD_VERSION="10.1.0"
   FZF_VERSION="0.54.0"
   TREE_SITTER_VERSION="0.27.2"
+  UV_VERSION="0.13.10"
+  NVIM_VENV_PYTHON="3.14"
 fi
 
 # ============================================================
@@ -102,4 +104,26 @@ with open('$settings', 'w') as f:
     json.dump(data, f, indent=2)
 "
   success "set $key = $value in local settings"
+}
+
+# ============================================================
+#  READ LOCAL SETTINGS
+# ============================================================
+# prints the value of a string key in .localsettings.json, or nothing if the
+# file or key is missing
+read_local_setting() {
+  local key="$1"
+  local settings="$HOME/.config/nvim/.localsettings.json"
+
+  if [ ! -f "$settings" ]; then
+    return
+  fi
+
+  python3 -c "
+import json, sys
+with open(sys.argv[1]) as f:
+    value = json.load(f).get(sys.argv[2])
+if isinstance(value, str):
+    print(value)
+" "$settings" "$key"
 }

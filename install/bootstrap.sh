@@ -401,6 +401,47 @@ install_tree_sitter() {
 }
 
 # ============================================================
+#  INSTALL: UV
+# ============================================================
+install_uv() {
+  if command -v uv &>/dev/null; then
+    success "uv already installed: $(uv --version)"
+    return
+  fi
+
+  info "installing uv..."
+  if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "arch" ]; then
+    sudo pacman -S --noconfirm uv
+  else
+    # not in apt/dnf default repos — download the binary
+    install_uv_binary
+  fi
+  success "uv installed: $(uv --version)"
+}
+
+install_uv_binary() {
+  TMP=$(mktemp -d)
+  info "downloading uv v${UV_VERSION}..."
+  URL="https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-musl.tar.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/uv.tar.gz"
+  if ! tar tzf "$TMP/uv.tar.gz" &>/dev/null; then
+    error "uv download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
+  tar xf "$TMP/uv.tar.gz" -C "$TMP"
+  mkdir -p "$HOME/.local/bin"
+  mv "$TMP/uv-x86_64-unknown-linux-musl/uv" "$TMP/uv-x86_64-unknown-linux-musl/uvx" "$HOME/.local/bin/"
+  chmod +x "$HOME/.local/bin/uv" "$HOME/.local/bin/uvx"
+  rm -rf "$TMP"
+  # make it usable for the rest of this run (molten.sh needs it)
+  case ":$PATH:" in
+    *":$HOME/.local/bin:"*) ;;
+    *) export PATH="$HOME/.local/bin:$PATH" ;;
+  esac
+}
+
+# ============================================================
 #  INSTALL: STYLUA
 # ============================================================
 install_stylua() {
@@ -468,6 +509,7 @@ main() {
   install_neovim
   install_node
   install_python
+  install_uv
   install_fd
   install_fzf
   install_ripgrep

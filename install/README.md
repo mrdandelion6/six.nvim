@@ -16,6 +16,7 @@ supports **Arch**, **Ubuntu/Debian**, and **Rocky/RHEL**. works with and without
 - **neovim** — with sudo: tarball to `/opt/nvim`. without sudo: appimage to `~/.local/nvim-appimage`, or built from source if glibc is too old
 - **node** — via nvm, installed to `~/.nvm` (no sudo needed)
 - **python3** — system install if missing (needs sudo)
+- **uv** — pacman on arch with sudo, otherwise binary to `~/.local/bin`
 - **fd-find** — system package manager or binary to `~/.local/bin`
 - **fzf** — system package manager or binary to `~/.local/bin`
 - **ripgrep** — system package manager or binary to `~/.local/bin`
@@ -25,7 +26,7 @@ supports **Arch**, **Ubuntu/Debian**, and **Rocky/RHEL**. works with and without
 
 ### optional (prompted during install)
 - **latex**: texlive, zathura, inkscape — needs sudo
-- **molten/jupyter**: imagemagick, luarocks, python venv at `~/.envs/neovim`, quarto
+- **molten/jupyter**: imagemagick, luarocks, python venv made with uv at `<venv_path>/neovim` (`venv_path` from `.localsettings.json`, default `~/.envs`), quarto
 
 if you didn't install these initially during `bootstrap.sh` , but change your mind later , you can just run their respective scripts:
 
@@ -49,6 +50,8 @@ RG_VERSION="14.1.1"
 STYLUA_VERSION="2.1.0"
 QUARTO_VERSION="1.6.40"
 ZOXIDE_VERSION="0.9.4"
+UV_VERSION="0.13.10"
+NVIM_VENV_PYTHON="3.14"
 ```
 
 check latest releases at:
@@ -57,6 +60,7 @@ check latest releases at:
 - stylua: https://github.com/JohnnyMorganz/StyLua/releases
 - quarto: https://github.com/quarto-dev/quarto-cli/releases
 - zoxide: https://github.com/ajeetdsouza/zoxide/releases
+- uv: https://github.com/astral-sh/uv/releases
 
 ---
 

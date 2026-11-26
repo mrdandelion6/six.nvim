@@ -26,19 +26,36 @@ install_molten() {
     warn "image.nvim may not work without them"
   fi
 
-  info "setting up python venv for molten at ~/.envs/neovim..."
-  mkdir -p "$HOME/.envs"
-  if ! python3 -m venv --help >/dev/null 2>&1; then
-    error "Python venv support is missing. Run install/bootstrap.sh first."
+  # uv may be in ~/.local/bin without that being on PATH yet
+  if ! command -v uv &>/dev/null && [ -x "$HOME/.local/bin/uv" ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+  if ! command -v uv &>/dev/null; then
+    error "uv is missing. Run install/bootstrap.sh first."
     return 1
   fi
-  python3 -m venv "$HOME/.envs/neovim"
-  source "$HOME/.envs/neovim/bin/activate"
-  pip install --quiet \
+
+  # same location nvim uses for python3_host_prog: <venv_path>/neovim
+  local venv_path
+  venv_path=$(read_local_setting "venv_path")
+  if [ -z "$venv_path" ]; then
+    venv_path="$HOME/.envs"
+    warn "venv_path not set in .localsettings.json — using $venv_path"
+  fi
+  venv_path="${venv_path/#\~/$HOME}"
+  local venv="${venv_path%/}/neovim"
+
+  if [ -f "$venv/pyvenv.cfg" ]; then
+    info "using existing python venv at $venv"
+  else
+    info "creating python ${NVIM_VENV_PYTHON} venv for molten at $venv..."
+    mkdir -p "${venv_path%/}"
+    uv venv --python "$NVIM_VENV_PYTHON" "$venv"
+  fi
+  uv pip install --quiet --python "$venv/bin/python" \
     pynvim jupyter_client cairosvg plotly kaleido \
     pnglatex pyperclip nbformat jupytext jupyter jupyterlab
-  deactivate
-  success "python venv set up at ~/.envs/neovim"
+  success "python venv set up at $venv"
 
   info "installing quarto v${QUARTO_VERSION}..."
   TMP=$(mktemp -d)
