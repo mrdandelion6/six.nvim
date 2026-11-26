@@ -220,6 +220,14 @@ return {
       local servers = {
         -- formatting handled by conform
         pyright = {
+          -- pyright pulls diagnostics when nvim offers it , but nvim 0.12 only
+          -- re-pulls after a change for buffers shown in a window. otter's
+          -- hidden .otter.py buffers (code cells of .qmd / .md files) then kept
+          -- the first errors forever. without pull support pyright pushes
+          -- diagnostics instead , which reach hidden buffers too.
+          before_init = function(params)
+            params.capabilities.textDocument.diagnostic = nil
+          end,
           settings = {
             python = {
               analysis = {

@@ -99,7 +99,18 @@ return {
       })
     end,
   },
-  { 'jmbuhr/otter.nvim', ft = { 'markdown', 'quarto', 'norg' } },
+  {
+    'jmbuhr/otter.nvim',
+    ft = { 'markdown', 'quarto', 'norg' },
+    opts = {
+      lsp = {
+        -- default is BufWritePost only , so errors in code cells only showed
+        -- up after saving. also update when leaving insert mode or changing
+        -- text in normal mode , like diagnostics in a normal .py file
+        diagnostic_update_events = { 'BufWritePost', 'InsertLeave', 'TextChanged' },
+      },
+    },
+  },
   {
     'quarto-dev/quarto-nvim',
     dependencies = {
