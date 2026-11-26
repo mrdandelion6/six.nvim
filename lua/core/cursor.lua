@@ -19,11 +19,22 @@ function Center_cursor()
   -- get offset
   local offset = cursor_h - half_h
 
-  -- apply offset
-  local win_view = vim.fn.winsaveview()
-  win_view.skipcol = 0
-  win_view.topline = win_view.topline + offset
-  vim.fn.winrestview(win_view)
+  -- apply offset. skipped when already centered (ex. typing along a line).
+  -- normal mode scrolls with zz: it shifts the screen and redraws only the new
+  -- line , where winrestview redraws the whole window every move (~15ms in
+  -- python / notebook buffers vs ~1.5ms). zz also centers past eof. other
+  -- modes keep winrestview since :normal there can end visual mode or nudge
+  -- the cursor at the end of a line.
+  if offset ~= 0 then
+    if vim.api.nvim_get_mode().mode == 'n' then
+      vim.cmd 'normal! zz'
+    else
+      local win_view = vim.fn.winsaveview()
+      win_view.skipcol = 0
+      win_view.topline = win_view.topline + offset
+      vim.fn.winrestview(win_view)
+    end
+  end
 
   vim.b.scrolloff_processing = false
 end
