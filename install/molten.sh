@@ -96,6 +96,10 @@ main() {
     echo "ensure you have already set up nvim with boostrap.sh"
   fi
 
+  # no-ops when run from bootstrap.sh , which already detected these
+  detect_distro
+  detect_sudo
+
   if prompt_yes_no "install molten/jupyter support (imagemagick, python venv, quarto)?"; then
     install_molten
     if ! $FROM_BOOTSTRAP; then

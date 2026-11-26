@@ -17,14 +17,13 @@ sudo pacman -S python python-pip
 # node and npm, many LSP need this
 sudo pacman -S nodejs npm
 
-# tree-sitter-cli used by certain LSP like for latex
-sudo npm install -g tree-sitter-cli
-
-# lua formatting
-sudo pacman -S stylua
+# tree-sitter-cli (nvim-treesitter) and stylua (lua formatting) are not installed here.
+# install/bootstrap.sh puts pinned versions in ~/.local/share/nvim/bootstrap/bin , which
+# only nvim has on its PATH
+./install/bootstrap.sh
 ```
 
-usually , we install formatters / LSP tools through mason , which is automatically handled by the plugins. but installing `stylua` through mason leads `nvim-lspconfig` to launch it as an LSP server , even though we only want to use it as a formatter. this causes errors , hence we install it manually.
+usually , we install formatters / LSP tools through mason , which is automatically handled by the plugins. but installing `stylua` through mason leads `nvim-lspconfig` to launch it as an LSP server , even though we only want to use it as a formatter. this causes errors , hence bootstrap installs it instead (see `install/README.md`).
 
 ### telescope.nvim
 

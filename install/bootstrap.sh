@@ -2,74 +2,108 @@
 # bootstrap.sh — neovim dev environment setup
 # supports: arch, ubuntu/debian, rocky/rhel
 # works with and without sudo
+#
+# usage: ./install/bootstrap.sh [--system | --local]
+#   --system  arch with sudo only. missing core tools come from pacman (default there)
+#   --local   missing core tools are curled into ~/.local/bin (default everywhere else)
+# see install/README.md for what each mode does with tools that are already installed
 
 set -e
 
 # ============================================================
 #  INSTALL: BASE SYSTEM DEPS
 # ============================================================
+# always from the package manager , in both modes. without sudo they can't be
+# installed , so we only check for them
 install_base_deps() {
   info "installing base dependencies..."
   if [ "$HAS_SUDO" = true ]; then
     case $DISTRO in
       arch)
-        sudo pacman -S --noconfirm --needed curl unzip git make base-devel npm yarn wl-clipboard xclip
+        pacman_install curl tar gzip unzip git make base-devel python wl-clipboard xclip || exit 1
         ;;
       ubuntu)
         sudo apt update -y
-        sudo apt install -y curl unzip git make
-        if ! command -v yarn &>/dev/null; then
-          sudo npm install -g yarn 2>/dev/null || true
-        fi
+        sudo apt install -y curl tar gzip unzip git make gcc python3 wl-clipboard xclip
         ;;
       rocky)
-        sudo dnf install -y curl unzip git make
+        sudo dnf install -y curl tar gzip unzip git make gcc python3
         sudo dnf install -y epel-release 2>/dev/null || true
+        sudo dnf install -y wl-clipboard xclip 2>/dev/null || true
         ;;
     esac
-  else
-    for dep in curl unzip git; do
-      if ! command -v "$dep" &>/dev/null; then
-        error "$dep is required but not installed and you have no sudo. please ask your sysadmin."
-        exit 1
-      fi
-    done
-    warn "skipping system dep install (no sudo) — assuming curl/unzip/git are present"
   fi
+  check_base_deps
   success "base deps ready"
+}
+
+# stop if something essential is missing , warn for the rest
+check_base_deps() {
+  local missing=() dep
+
+  for dep in curl tar gzip unzip git python3; do
+    command -v "$dep" &>/dev/null || missing+=("$dep")
+  done
+  # treesitter parsers are compiled with a c compiler
+  if ! command -v cc &>/dev/null && ! command -v gcc &>/dev/null; then
+    missing+=("gcc")
+  fi
+
+  if [ ${#missing[@]} -gt 0 ]; then
+    error "missing required tools: ${missing[*]}"
+    local pkgs="${missing[*]}"
+    case $DISTRO in
+      arch)   echo "  ask an admin to run: sudo pacman -S ${pkgs//python3/python}" ;;
+      ubuntu) echo "  ask an admin to run: sudo apt install $pkgs" ;;
+      rocky)  echo "  ask an admin to run: sudo dnf install $pkgs" ;;
+    esac
+    exit 1
+  fi
+
+  if ! command -v make &>/dev/null; then
+    warn "make not found — plugins that build something (e.g. telescope-fzf-native) will fail"
+    note "make is missing. plugins that build something (e.g. telescope-fzf-native) will fail until it's installed"
+  fi
+  if ! command -v wl-copy &>/dev/null && ! command -v xclip &>/dev/null; then
+    warn "no wl-clipboard or xclip — the system clipboard won't work outside SSH"
+    note "no wl-clipboard or xclip found. nvim can't reach the system clipboard (OSC 52 over SSH still works)"
+  fi
 }
 
 # ============================================================
 #  INSTALL: NEOVIM
 # ============================================================
 install_neovim() {
-  if command -v nvim &>/dev/null; then
-    CURRENT=$(nvim --version 2>/dev/null | head -1)
-    info "nvim already installed: $CURRENT"
-    if ! prompt_yes_no "reinstall/update nvim?"; then
+  local path have owner
+  if path=$(command -v nvim); then
+    have=$(tool_version nvim)
+    owner=$(tool_owner "$path")
+    if version_ge "$have" "$NVIM_MIN"; then
+      success "nvim $have already installed ($owner)"
       return
     fi
+    if [ "$owner" = "pacman" ]; then
+      warn_pacman_outdated nvim "$have" "$NVIM_MIN"
+      return
+    fi
+    warn "nvim $have at $path ($owner) is older than the minimum $NVIM_MIN — installing a newer one"
   fi
 
-  if [ "$HAS_SUDO" = true ]; then
-    install_neovim_tarball
+  if [ "$MODE" = "system" ]; then
+    info "installing neovim with pacman..."
+    pacman_install neovim || return 0
+    check_winner nvim /usr/bin/nvim
+    have=$(tool_version /usr/bin/nvim)
+    if ! version_ge "$have" "$NVIM_MIN"; then
+      warn_pacman_outdated nvim "$have" "$NVIM_MIN"
+    fi
+    success "neovim installed: $have"
   else
     install_neovim_appimage
+    if [ -x "$HOME/.local/bin/nvim" ]; then
+      check_winner nvim "$HOME/.local/bin/nvim"
+    fi
   fi
-}
-
-install_neovim_tarball() {
-  info "installing neovim v${NVIM_VERSION} from tarball..."
-  TMP=$(mktemp -d)
-  curl --connect-timeout 10 --max-time 120 -L --progress-bar \
-    "https://github.com/neovim/neovim/releases/download/v${NVIM_VERSION}/nvim-linux-x86_64.tar.gz" \
-    -o "$TMP/nvim.tar.gz"
-  tar xf "$TMP/nvim.tar.gz" -C "$TMP"
-  sudo rm -rf /opt/nvim
-  sudo mv "$TMP/nvim-linux-x86_64" /opt/nvim
-  sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
-  rm -rf "$TMP"
-  success "neovim installed: $(nvim --version | head -1)"
 }
 
 install_neovim_appimage() {
@@ -103,9 +137,11 @@ install_neovim_appimage() {
 
   rm -rf "$HOME/.local/nvim-appimage"
   mv "$TMP/squashfs-root" "$HOME/.local/nvim-appimage"
-  ln -sf "$HOME/.local/nvim-appimage/usr/bin/nvim" "$HOME/.local/bin/nvim"
+  # remove first so we never write through an existing symlink
+  rm -f "$HOME/.local/bin/nvim"
+  ln -s "$HOME/.local/nvim-appimage/usr/bin/nvim" "$HOME/.local/bin/nvim"
   rm -rf "$TMP"
-  success "neovim installed: $(nvim --version | head -1)"
+  success "neovim installed: $("$HOME/.local/bin/nvim" --version | head -1)"
 }
 
 install_neovim_from_source() {
@@ -164,77 +200,123 @@ install_neovim_from_source() {
 }
 
 # ============================================================
-#  INSTALL: NODE (via nvm — always no-sudo)
+#  INSTALL: NODE + NPM
 # ============================================================
+# an existing node is never replaced , other projects may rely on its version.
+# if it's too old we only say so
 install_node() {
-  if command -v node &>/dev/null; then
-    success "node already installed: $(node --version)"
+  # node from nvm isn't on PATH until nvm.sh is sourced
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    \. "$NVM_DIR/nvm.sh" || true
+  fi
+
+  local path have owner
+  if path=$(command -v node); then
+    have=$(tool_version node)
+    owner=$(tool_owner "$path")
+    if [ "${have%%.*}" -ge "$NODE_MIN_MAJOR" ]; then
+      success "node $have already installed ($owner)"
+      ensure_npm "$owner"
+      return
+    fi
+    case $owner in
+      pacman)
+        warn_pacman_outdated node "$have" "$NODE_MIN_MAJOR"
+        ;;
+      nvm)
+        warn "node $have (nvm) is older than the minimum $NODE_MIN_MAJOR"
+        note "your nvm node is $have , older than the minimum $NODE_MIN_MAJOR. run: nvm install --lts && nvm alias default 'lts/*'"
+        ;;
+      *)
+        warn "node $have at $path ($owner) is older than the minimum $NODE_MIN_MAJOR"
+        note "node $have at $path ($owner) is older than the minimum $NODE_MIN_MAJOR. bootstrap leaves node alone since other projects may rely on it. upgrade it yourself , e.g. with nvm"
+        ;;
+    esac
     return
   fi
 
-  info "installing node via nvm..."
-  curl --connect-timeout 10 --max-time 60 -o- \
-    https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
-
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-  nvm install --lts
+  if [ "$MODE" = "system" ]; then
+    info "installing node with pacman..."
+    pacman_install nodejs npm || return 0
+  else
+    info "installing node via nvm v${NVM_VERSION}..."
+    curl --connect-timeout 10 --max-time 60 -o- \
+      "https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh" | bash
+    \. "$NVM_DIR/nvm.sh"
+    nvm install --lts
+  fi
   success "node installed: $(node --version)"
 }
 
-# ============================================================
-#  INSTALL: PYTHON
-# ============================================================
-install_python() {
-  if command -v python3 &>/dev/null; then
-    success "python3 already available: $(python3 --version)"
+ensure_npm() {
+  local owner="$1"
+  if command -v npm &>/dev/null; then
     return
   fi
-
-  info "installing python3..."
-  if [ "$HAS_SUDO" = true ]; then
-    case $DISTRO in
-      arch)   sudo pacman -S --noconfirm python python-pip ;;
-      ubuntu) sudo apt install -y python3 python3-pip python3-venv ;;
-      rocky)  sudo dnf install -y python3 python3-pip ;;
-    esac
+  if [ "$MODE" = "system" ] && [ "$owner" = "pacman" ]; then
+    info "installing npm with pacman..."
+    pacman_install npm || true
   else
-    error "python3 not found and no sudo. please ask your sysadmin."
-    exit 1
+    warn "node is installed but npm isn't"
+    note "npm is missing. mason needs it for npm based language servers. install it the same way your node was installed"
   fi
-  success "python3 installed"
 }
 
 # ============================================================
-#  INSTALL: FD
+#  INSTALL: YARN
 # ============================================================
-install_fd() {
-  if command -v fd &>/dev/null || command -v fdfind &>/dev/null; then
-    success "fd already installed"
+install_yarn() {
+  if command -v yarn &>/dev/null; then
+    success "yarn already installed"
     return
   fi
 
-  info "installing fd..."
-  if [ "$HAS_SUDO" = true ]; then
-    case $DISTRO in
-      arch)   sudo pacman -S --noconfirm fd ;;
-      ubuntu)
-        sudo apt install -y fd-find
-        # ubuntu installs as fdfind, symlink to fd
-        ln -sf "$(which fdfind)" "$HOME/.local/bin/fd"
-        ;;
-      rocky)
-        sudo dnf install -y fd-find 2>/dev/null || {
-          warn "fd not in repos, installing from binary..."
-          install_fd_binary
-        }
-        ;;
-    esac
+  if [ "$MODE" = "system" ]; then
+    info "installing yarn with pacman..."
+    pacman_install yarn || return 0
+  elif command -v npm &>/dev/null && [ -w "$(npm prefix -g)" ]; then
+    info "installing yarn with npm..."
+    npm install -g yarn
   else
-    install_fd_binary
+    warn "can't install yarn without a user writable npm (e.g. from nvm) — skipping"
+    note "yarn was not installed. install it with npm once you have a user writable npm (e.g. node from nvm)"
+    return
   fi
-  success "fd installed"
+  success "yarn installed"
+}
+
+# ============================================================
+#  INSTALL: SIMPLE TOOLS
+# ============================================================
+# for tools where any version works: if it exists , keep it. if not , pacman in
+# system mode , or the pinned binary in ~/.local/bin in local mode
+# $1: command , $2: pacman package , $3: function that downloads the binary
+install_simple() {
+  local cmd="$1" pkg="$2" fetch="$3" path
+  if path=$(command -v "$cmd"); then
+    success "$cmd already installed: $(describe_tool "$path")"
+    return
+  fi
+
+  info "installing $cmd..."
+  if [ "$MODE" = "system" ]; then
+    pacman_install "$pkg" || return 0
+  else
+    "$fetch"
+  fi
+  success "$cmd installed"
+}
+
+install_fd() {
+  # debian's package names it fdfind
+  if ! command -v fd &>/dev/null && command -v fdfind &>/dev/null; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+    success "fd already installed as fdfind , linked to ~/.local/bin/fd"
+    return
+  fi
+  install_simple fd fd install_fd_binary
 }
 
 install_fd_binary() {
@@ -248,36 +330,10 @@ install_fd_binary() {
     return 1
   fi
   tar xf "$TMP/fd.tar.gz" -C "$TMP"
+  rm -f "$HOME/.local/bin/fd"
   mv "$TMP/fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd" "$HOME/.local/bin/"
   chmod +x "$HOME/.local/bin/fd"
   rm -rf "$TMP"
-}
-
-# ============================================================
-#  INSTALL: FZF
-# ============================================================
-install_fzf() {
-  if command -v fzf &>/dev/null; then
-    success "fzf already installed"
-    return
-  fi
-
-  info "installing fzf..."
-  if [ "$HAS_SUDO" = true ]; then
-    case $DISTRO in
-      arch)   sudo pacman -S --noconfirm fzf ;;
-      ubuntu) sudo apt install -y fzf ;;
-      rocky)
-        sudo dnf install -y fzf 2>/dev/null || {
-          warn "fzf not in repos, installing from binary..."
-          install_fzf_binary
-        }
-        ;;
-    esac
-  else
-    install_fzf_binary
-  fi
-  success "fzf installed"
 }
 
 install_fzf_binary() {
@@ -291,36 +347,10 @@ install_fzf_binary() {
     return 1
   fi
   tar xf "$TMP/fzf.tar.gz" -C "$TMP"
+  rm -f "$HOME/.local/bin/fzf"
   mv "$TMP/fzf" "$HOME/.local/bin/"
   chmod +x "$HOME/.local/bin/fzf"
   rm -rf "$TMP"
-}
-
-# ============================================================
-#  INSTALL: RIPGREP
-# ============================================================
-install_ripgrep() {
-  if command -v rg &>/dev/null; then
-    success "ripgrep already installed"
-    return
-  fi
-
-  info "installing ripgrep..."
-  if [ "$HAS_SUDO" = true ]; then
-    case $DISTRO in
-      arch)   sudo pacman -S --noconfirm ripgrep ;;
-      ubuntu) sudo apt install -y ripgrep ;;
-      rocky)
-        sudo dnf install -y ripgrep 2>/dev/null || {
-          warn "ripgrep not in repos, installing from binary..."
-          install_ripgrep_binary
-        }
-        ;;
-    esac
-  else
-    install_ripgrep_binary
-  fi
-  success "ripgrep installed"
 }
 
 install_ripgrep_binary() {
@@ -334,89 +364,28 @@ install_ripgrep_binary() {
     return 1
   fi
   tar xf "$TMP/rg.tar.gz" -C "$TMP"
+  rm -f "$HOME/.local/bin/rg"
   mv "$TMP/ripgrep-${RG_VERSION}-x86_64-unknown-linux-musl/rg" "$HOME/.local/bin/"
   chmod +x "$HOME/.local/bin/rg"
   rm -rf "$TMP"
 }
 
-# ============================================================
-#  INSTALL: ZOXIDE
-# ============================================================
-install_zoxide() {
-  if command -v zoxide &>/dev/null; then
-    success "zoxide already installed"
-    return
-  fi
-
-  info "installing zoxide v${ZOXIDE_VERSION}..."
-  if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "arch" ]; then
-    sudo pacman -S --noconfirm zoxide
-  elif [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "ubuntu" ]; then
-    sudo apt install -y zoxide
-  else
-    # download binary directly — avoids github API rate limit
-    TMP=$(mktemp -d)
-    URL="https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-    curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/zoxide.tar.gz"
-    if ! tar tzf "$TMP/zoxide.tar.gz" &>/dev/null; then
-      error "zoxide download failed or corrupted"
-      rm -rf "$TMP"
-      return 1
-    fi
-    tar xf "$TMP/zoxide.tar.gz" -C "$TMP"
-    mv "$TMP/zoxide" "$HOME/.local/bin/"
-    chmod +x "$HOME/.local/bin/zoxide"
-    rm -rf "$TMP"
-  fi
-  success "zoxide installed"
-}
-
-# ============================================================
-#  INSTALL: TREE-SITTER CLI
-# ============================================================
-install_tree_sitter() {
-  # run it rather than just checking PATH — a broken npm shim (whose
-  # postinstall download never ran) is on PATH but crashes when executed
-  if tree-sitter --version &>/dev/null; then
-    success "tree-sitter-cli already installed: $(tree-sitter --version)"
-    return
-  fi
-
-  info "installing tree-sitter-cli v${TREE_SITTER_VERSION}..."
+install_zoxide_binary() {
+  # download binary directly — avoids github API rate limit
   TMP=$(mktemp -d)
-  URL="https://github.com/tree-sitter/tree-sitter/releases/download/v${TREE_SITTER_VERSION}/tree-sitter-linux-x64.gz"
-  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/tree-sitter.gz"
-  if ! gzip -t "$TMP/tree-sitter.gz" &>/dev/null; then
-    error "tree-sitter download failed or corrupted"
+  info "downloading zoxide v${ZOXIDE_VERSION}..."
+  URL="https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/zoxide.tar.gz"
+  if ! tar tzf "$TMP/zoxide.tar.gz" &>/dev/null; then
+    error "zoxide download failed or corrupted"
     rm -rf "$TMP"
     return 1
   fi
-  mkdir -p "$HOME/.local/bin"
-  # remove any old npm symlink first so we don't write through it
-  rm -f "$HOME/.local/bin/tree-sitter"
-  gunzip -c "$TMP/tree-sitter.gz" > "$HOME/.local/bin/tree-sitter"
-  chmod +x "$HOME/.local/bin/tree-sitter"
+  tar xf "$TMP/zoxide.tar.gz" -C "$TMP"
+  rm -f "$HOME/.local/bin/zoxide"
+  mv "$TMP/zoxide" "$HOME/.local/bin/"
+  chmod +x "$HOME/.local/bin/zoxide"
   rm -rf "$TMP"
-  success "tree-sitter-cli installed: $("$HOME/.local/bin/tree-sitter" --version)"
-}
-
-# ============================================================
-#  INSTALL: UV
-# ============================================================
-install_uv() {
-  if command -v uv &>/dev/null; then
-    success "uv already installed: $(uv --version)"
-    return
-  fi
-
-  info "installing uv..."
-  if [ "$HAS_SUDO" = true ] && [ "$DISTRO" = "arch" ]; then
-    sudo pacman -S --noconfirm uv
-  else
-    # not in apt/dnf default repos — download the binary
-    install_uv_binary
-  fi
-  success "uv installed: $(uv --version)"
 }
 
 install_uv_binary() {
@@ -431,6 +400,7 @@ install_uv_binary() {
   fi
   tar xf "$TMP/uv.tar.gz" -C "$TMP"
   mkdir -p "$HOME/.local/bin"
+  rm -f "$HOME/.local/bin/uv" "$HOME/.local/bin/uvx"
   mv "$TMP/uv-x86_64-unknown-linux-musl/uv" "$TMP/uv-x86_64-unknown-linux-musl/uvx" "$HOME/.local/bin/"
   chmod +x "$HOME/.local/bin/uv" "$HOME/.local/bin/uvx"
   rm -rf "$TMP"
@@ -442,31 +412,77 @@ install_uv_binary() {
 }
 
 # ============================================================
-#  INSTALL: STYLUA
+#  INSTALL: NVIM-ONLY TOOLS (tree-sitter , stylua)
 # ============================================================
-install_stylua() {
-  if command -v stylua &>/dev/null; then
-    success "stylua already installed"
-    return
+# only nvim uses these , so in both modes bootstrap downloads the pinned
+# version into NVIM_BIN_DIR. init.lua puts that dir first on nvim's PATH , so
+# these copies always win inside nvim no matter what else is installed.
+# bootstrap owns that dir , so a copy that doesn't match the pin is replaced
+# $1: command , $2: pinned version , $3: function that downloads to a path
+install_nvim_only_tool() {
+  local cmd="$1" version="$2" fetch="$3"
+  local target="$NVIM_BIN_DIR/$cmd" p
+
+  if [ -x "$target" ] && [ "$(tool_version "$target")" = "$version" ]; then
+    success "$cmd $version already in $NVIM_BIN_DIR"
+  else
+    info "installing $cmd v${version} to $NVIM_BIN_DIR..."
+    mkdir -p "$NVIM_BIN_DIR"
+    "$fetch" "$target"
+    success "$cmd installed: $("$target" --version)"
   fi
 
-  info "installing stylua v${STYLUA_VERSION}..."
+  # other copies on PATH don't matter to nvim anymore
+  hash -r
+  for p in $(type -aP "$cmd"); do
+    if [ "$(readlink -f "$p")" = "$(readlink -f "$target")" ]; then
+      continue
+    fi
+    note "$cmd: $(describe_tool "$p") is unused by nvim , safe to remove if you don't need it for anything else: $(removal_hint "$p")"
+  done
+}
+
+install_tree_sitter() {
+  install_nvim_only_tool tree-sitter "$TREE_SITTER_VERSION" fetch_tree_sitter
+}
+
+fetch_tree_sitter() {
+  local target="$1"
+  TMP=$(mktemp -d)
+  URL="https://github.com/tree-sitter/tree-sitter/releases/download/v${TREE_SITTER_VERSION}/tree-sitter-linux-x64.gz"
+  curl --connect-timeout 10 --max-time 60 -L --progress-bar "$URL" -o "$TMP/tree-sitter.gz"
+  if ! gzip -t "$TMP/tree-sitter.gz" &>/dev/null; then
+    error "tree-sitter download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
+  fi
+  # remove first so we never write through an existing symlink
+  rm -f "$target"
+  gunzip -c "$TMP/tree-sitter.gz" > "$target"
+  chmod +x "$target"
+  rm -rf "$TMP"
+}
+
+install_stylua() {
+  install_nvim_only_tool stylua "$STYLUA_VERSION" fetch_stylua
+}
+
+fetch_stylua() {
+  local target="$1"
   TMP=$(mktemp -d)
   curl --connect-timeout 10 --max-time 60 -L --progress-bar \
     "https://github.com/JohnnyMorganz/StyLua/releases/download/v${STYLUA_VERSION}/stylua-linux-x86_64.zip" \
     -o "$TMP/stylua.zip"
-  unzip -q "$TMP/stylua.zip" -d "$TMP"
-
-  if [ "$HAS_SUDO" = true ]; then
-    sudo mv "$TMP/stylua" /usr/local/bin/
-    sudo chmod +x /usr/local/bin/stylua
-  else
-    mv "$TMP/stylua" "$HOME/.local/bin/"
-    chmod +x "$HOME/.local/bin/stylua"
+  if ! unzip -tq "$TMP/stylua.zip" &>/dev/null; then
+    error "stylua download failed or corrupted"
+    rm -rf "$TMP"
+    return 1
   fi
-
+  unzip -q "$TMP/stylua.zip" -d "$TMP"
+  rm -f "$target"
+  mv "$TMP/stylua" "$target"
+  chmod +x "$target"
   rm -rf "$TMP"
-  success "stylua installed"
 }
 
 # ============================================================
@@ -491,6 +507,7 @@ clone_config() {
 #  MAIN
 # ============================================================
 main() {
+  local ORIG_PATH="$PATH"
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   source "$SCRIPT_DIR/common.sh"
 
@@ -502,18 +519,19 @@ main() {
 
   detect_distro
   detect_sudo
+  detect_mode "$@"
 
   install_base_deps
   clone_config
 
   install_neovim
   install_node
-  install_python
-  install_uv
+  install_yarn
+  install_simple uv uv install_uv_binary
   install_fd
-  install_fzf
-  install_ripgrep
-  install_zoxide
+  install_simple fzf fzf install_fzf_binary
+  install_simple rg ripgrep install_ripgrep_binary
+  install_simple zoxide zoxide install_zoxide_binary
   install_tree_sitter
   install_stylua
 
@@ -530,6 +548,16 @@ main() {
       exit "$molten_status"  # installation error
     fi
   fi
+
+  case ":$ORIG_PATH:" in
+    *":$HOME/.local/bin:"*) ;;
+    *)
+      if [ "$MODE" = "local" ]; then
+        note "~/.local/bin is not on your PATH. add this to your ~/.bashrc: export PATH=\"\$HOME/.local/bin:\$PATH\""
+      fi
+      ;;
+  esac
+  print_notes
 
   echo ""
   echo -e "${GREEN}========================================${NC}"
