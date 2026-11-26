@@ -101,7 +101,7 @@ with open('$settings', 'r') as f:
     data = json.load(f)
 data['$key'] = $value
 with open('$settings', 'w') as f:
-    json.dump(data, f, indent=2)
+    json.dump(data, f, indent=4)
 "
   success "set $key = $value in local settings"
 }

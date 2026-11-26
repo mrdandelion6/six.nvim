@@ -61,7 +61,9 @@ if vim.g.local_settings then
   end
 
   -- python virtual environment for any deps
-  vim.g.python3_host_prog = vim.g.local_settings.venv_path .. 'neovim/bin/python'
+  -- venv_path may or may not end in a slash
+  local venv_path = (vim.g.local_settings.venv_path:gsub('/+$', ''))
+  vim.g.python3_host_prog = venv_path .. '/neovim/bin/python'
 
   -- custom shell
   if vim.g.local_settings.shell then
