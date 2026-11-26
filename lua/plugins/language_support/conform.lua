@@ -50,7 +50,16 @@ return {
       },
       formatters = {
         prettier = {
-          prepend_args = { '--tab-width', '4' },
+          -- prettier picks its parser from the file extension and has none for
+          -- .qmd , so it errored (silently) on every quarto save. quarto is
+          -- markdown with a yaml header and {lang} code cells , which the
+          -- markdown parser leaves alone.
+          prepend_args = function(_, ctx)
+            if vim.bo[ctx.buf].filetype == 'quarto' then
+              return { '--tab-width', '4', '--parser', 'markdown' }
+            end
+            return { '--tab-width', '4' }
+          end,
         },
         clang_format = clang_format_config,
       },
