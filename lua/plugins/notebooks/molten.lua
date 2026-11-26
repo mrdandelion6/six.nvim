@@ -46,6 +46,89 @@ return {
       { desc = 'Molten [R] [I]nitialize', silent = true }
     )
 
+    -- non-blocking kernel startup. after :MoltenInit starts the kernel ,
+    -- molten's tick timer (sync , every tick_rate ms) calls jupyter's
+    -- wait_for_ready(timeout=0) until the kernel answers , which still waits
+    -- up to 1s for a kernel_info reply , freezing nvim for most of the
+    -- startup. so: pause that timer , wait for the kernel in a background
+    -- python process with a fidget spinner , then resume the timer once the
+    -- kernel answers (its first check then returns right away).
+    local kernel_check = [[
+import glob, os, sys, time
+from jupyter_core.paths import jupyter_runtime_dir
+from jupyter_client import BlockingKernelClient
+since, deadline = float(sys.argv[1]), time.time() + 120
+while True:
+    files = [f for f in glob.glob(os.path.join(jupyter_runtime_dir(), "kernel-*.json"))
+             if os.path.getmtime(f) >= since]
+    if files:
+        break
+    if time.time() > deadline:
+        sys.exit("no kernel connection file found")
+    time.sleep(0.1)
+c = BlockingKernelClient()
+c.load_connection_file(max(files, key=os.path.getmtime))
+c.start_channels()
+c.wait_for_ready(timeout=max(1, deadline - time.time()))
+c.stop_channels()
+]]
+    local init_started = 0 -- os.time() at MoltenInitPre , to find the new connection file
+    local starting = 0 -- kernels still starting , the tick timer resumes at 0
+
+    -- timer callbacks come through to lua as v:null , so filter in vimscript
+    local function tick_timers()
+      return vim.api.nvim_eval
+        "map(filter(timer_info(), {_, t -> string(t.callback) ==# \"function('MoltenTick')\"}), {_, t -> t.id})"
+    end
+
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MoltenInitPre',
+      callback = function()
+        init_started = os.time() - 1
+      end,
+    })
+
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MoltenInitPost',
+      callback = function()
+        -- runs inside :MoltenInit , before the first tick fires
+        starting = starting + 1
+        for _, id in ipairs(tick_timers()) do
+          vim.fn.timer_pause(id, 1)
+        end
+        local ok, progress = pcall(require, 'fidget.progress')
+        local handle = ok
+            and progress.handle.create {
+              title = 'starting kernel',
+              lsp_client = { name = 'molten' },
+            }
+          or nil
+        vim.system(
+          { vim.g.python3_host_prog or 'python3', '-c', kernel_check, tostring(init_started) },
+          { text = true },
+          vim.schedule_wrap(function(res)
+            starting = starting - 1
+            if starting == 0 then
+              for _, id in ipairs(tick_timers()) do
+                vim.fn.timer_pause(id, 0)
+              end
+            end
+            if handle then
+              handle.message = res.code == 0 and 'ready' or 'failed'
+              handle:finish()
+            end
+            if res.code ~= 0 then
+              vim.notify(
+                'molten: could not wait for the kernel in the background , molten will keep checking itself\n'
+                  .. (res.stderr or ''),
+                vim.log.levels.WARN
+              )
+            end
+          end)
+        )
+      end,
+    })
+
     -- keymaps that only appear after molten init
     vim.api.nvim_create_autocmd('User', {
       pattern = 'MoltenInitPost',
